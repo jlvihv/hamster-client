@@ -26,7 +26,6 @@ var (
 	WalletService   wallet.Service
 
 	AccountApp  app.Account
-	LoginApp    app.Login
 	P2pApp      app.P2p
 	ResourceApp app.Resource
 	SettingApp  app.Setting
@@ -79,7 +78,6 @@ func initService() {
 
 func initApp() {
 	AccountApp = app.NewAccountApp(AccountService)
-	LoginApp = app.NewLoginApp(AccountService, P2pService, WalletService)
 	P2pApp = app.NewP2pApp(P2pService)
 	ResourceApp = app.NewResourceApp(ResourceService, AccountService)
 	SettingApp = app.NewSettingApp(P2pService, AccountService)

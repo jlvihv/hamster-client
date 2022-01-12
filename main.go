@@ -24,7 +24,6 @@ func main() {
 	})
 
 	app.Bind(&context.AccountApp)
-	app.Bind(&context.LoginApp)
 	app.Bind(&context.P2pApp)
 	app.Bind(&context.ResourceApp)
 	app.Bind(&context.SettingApp)

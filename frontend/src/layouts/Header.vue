@@ -12,7 +12,6 @@
         />
       </div>
       <a-button v-else class="import-btn" @click="showImportJsonModal">Import Account</a-button>
-      <a-button class="logout" @click="logout">Logout</a-button>
     </div>
   </div>
   <!-- import json popup -->
@@ -20,8 +19,7 @@
 </template>
 
 <script>
-import {getCurrentInstance, reactive, toRefs, ref, onMounted} from "vue";
-import {useRouter} from "vue-router";
+import {reactive, toRefs, ref, onMounted} from "vue";
 import ImportJsonModal from "../components/importJson/index";
 import { message } from "ant-design-vue";
 export default {
@@ -30,8 +28,6 @@ export default {
     ImportJsonModal
   },
   setup(pro,context) {
-    const router = useRouter();
-    const { proxy } = getCurrentInstance();
     const state = reactive({
       address: "",
       headerInfo: {},
@@ -39,13 +35,6 @@ export default {
     let accountId = ref("");
     // import json popup ref
     const refImportJson = ref();
-    const logout = () => {
-      window.backend.Login.Logout().then(() => {
-        router.push("/login")
-      }).catch((err) => {
-        proxy.$message.error(err)
-      })
-    };
     //import account json
     const showImportJsonModal = () => {
       refImportJson.value.openModal();
@@ -79,7 +68,6 @@ export default {
     }
     return {
       ...toRefs(state),
-      logout,
       accountId,
       refImportJson,
       showImportJsonModal,
@@ -99,14 +87,6 @@ export default {
   align-items: center;
   justify-content: flex-end;
   .import-btn {
-    font-weight: 600;
-    font-size: 12px;
-    line-height: 17px;
-    color: #4850FF;
-    padding: 0px;
-    margin-right: 23px;
-  }
-  .logout {
     font-weight: 600;
     font-size: 12px;
     line-height: 17px;

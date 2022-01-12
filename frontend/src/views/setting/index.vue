@@ -111,7 +111,9 @@ export default {
       state.loading = true
       window.backend.Wallet.DeleteWallet();
       state.address = ""
-      context.emit("getAddress")
+      setTimeout(() => {
+        context.emit("getAddress")
+      },1000)
     }
     //get account address
     const getAddress = () => {

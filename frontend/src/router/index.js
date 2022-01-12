@@ -3,7 +3,6 @@ import Layout from "../layouts/index"
 import Resource from "../views/resource/index"
 import Setting from "../views/setting/index"
 import Status from "../views/status/index"
-import Login from "../views/login"
 
 const routes = [
   {
@@ -48,11 +47,6 @@ const routes = [
         component: Status
       }
     ]
-  },
-  {
-    path: "/login",
-    name: "login",
-    component: Login
   }
 ]
 

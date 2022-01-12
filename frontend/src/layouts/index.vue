@@ -32,7 +32,6 @@
 import Header from "./Header";
 import Menu from "./Menu";
 import {onMounted,ref} from "vue";
-import {useRouter} from "vue-router";
 export default {
   name: "MobileLayout",
   components: {
@@ -40,19 +39,10 @@ export default {
     Menu,
   },
   setup() {
-    const router = useRouter()
     const pcHeader = ref()
     const settingRef = ref()
     onMounted(() => {
-      isExitAccount()
     })
-    const isExitAccount = () => {
-      window.backend.Account.IsAccount().then(res => {
-        if (!res) {
-          router.push("/login")
-        }
-      })
-    }
     //get the header address
     const getAddress = () => {
       pcHeader.value.getAddress()

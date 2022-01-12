@@ -51,10 +51,8 @@ func (s *Setting) GetSetting() (*Config, error) {
 
 // Setting set public key information
 func (s *Setting) Setting(publicKey string) (bool, error) {
-	accountInfo, err := s.accountService.GetAccount()
-	if err != nil {
-		return false, err
-	}
+	accountInfo, _ := s.accountService.GetAccount()
+
 	//set user public key
 	accountInfo.PublicKey = publicKey
 	s.accountService.SaveAccount(&accountInfo)
