@@ -4,7 +4,7 @@
       <a-layout class="layout-container">
         <a-layout-sider width="142px" class="menu-left-style">
           <div class="logo">
-            <img src="@/assets/logo.png" />
+            <img src="@/assets/logo.png" width="100" height="15"/>
           </div>
           <div class="custom-menu">
             <Menu />
