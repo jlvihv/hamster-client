@@ -1,0 +1,118 @@
+@import "custom-ant.scss";
+
+#app {
+  min-height: 100vh;
+  font-family: PingFang SC;
+  background: #f7f7f8;
+}
+
+//弹性布局垂直居中水平两边
+.center-class {
+  display: flex;
+  align-content: center;
+  justify-content: space-between;
+}
+
+//滚动条
+::-webkit-scrollbar {
+  width: 0;
+}
+
+hr {
+  border: none;
+  /* color: #F6F8FC; */
+  background-color: #f6f8fc;
+  height: 1px;
+  margin: 0;
+}
+
+body {
+  font-family: PingFang SC, serif;
+}
+
+.ant-carousel .slick-dots li.slick-active button {
+  width: 6px;
+  height: 6px;
+  border-radius: 3px;
+}
+
+.ant-carousel .slick-dots li button {
+  width: 6px;
+  height: 6px;
+  border-radius: 3px;
+}
+.ant-carousel .slick-dots li {
+  margin: 0 8px;
+}
+
+// select样式调整
+.ant-select{
+  margin-top: 5px;
+}
+.ant-select-selector{
+  border: 0;
+  padding: 0;
+}
+
+// pc搜索框
+.code-search-input {
+  background-color: #F0F3FF;
+  border-radius: 4px;
+  border-color: #F0F3FF;
+  .ant-input {
+    height: 42px;
+    background-color: #F0F3FF;
+    color: $font-color-first-content;
+  }
+}
+
+// 移动搜索框
+.code-search-list-box {
+  .ant-input-affix-wrapper {
+    width: calc(100% - 40px);
+    margin-right: 12px;
+    background-color: $background-first-color;
+    .ant-input {
+      height: 36px;
+      background-color: $background-first-color;
+    }
+  }
+}
+
+.code-drawer {
+  .ant-drawer-body {
+    padding: 12px;
+  }
+}
+
+.ant-drawer-wrapper-body {
+  overflow: hidden;
+}
+
+
+.clearfix:after {
+  content: '';
+  height: 0;
+  clear: both;
+  display: block;
+}
+.no-data {
+  width: 100%;
+  height: calc(100vh - 48px);
+  padding-top: 72px;
+  text-align: center;
+  font-style: normal;
+  font-weight: normal;
+  font-size: 14px;
+  line-height: 20px;
+  color: #adb6ca;
+  background-color: #ffffff;
+  border-radius: 8px;
+  .no-data-icon {
+    margin-bottom: 12px;
+  }
+}
+
+.mobile-manpower-tabs .ant-tabs-nav-container .ant-tabs-nav .ant-tabs-tab-active {
+  color: $main-color;
+}
