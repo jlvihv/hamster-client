@@ -6,7 +6,7 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/wailsapp/wails/lib/logger"
 	"gorm.io/gorm"
-	"link-server/utils"
+	"hamster-client/utils"
 )
 
 type ServiceImpl struct {

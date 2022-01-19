@@ -3,7 +3,7 @@ package main
 import (
 	_ "embed"
 	"github.com/wailsapp/wails"
-	"link-server/context"
+	"hamster-client/context"
 )
 
 //go:embed frontend/dist/app.js

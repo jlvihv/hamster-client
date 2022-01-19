@@ -2,7 +2,7 @@ package app
 
 import (
 	"github.com/wailsapp/wails"
-	"link-server/module/account"
+	"hamster-client/module/account"
 )
 
 type Account struct {

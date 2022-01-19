@@ -32,7 +32,7 @@ go install github.com/wailsapp/wails/cmd/wails@latest
 ```
 wails build
 cd build
-./link-server
+./hamster-client
 ```
 ### development and debugging
 ```

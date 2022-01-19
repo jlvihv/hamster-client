@@ -5,7 +5,7 @@ import (
 	"github.com/wailsapp/wails"
 	"github.com/wailsapp/wails/lib/logger"
 	"gorm.io/gorm"
-	"link-server/config"
+	"hamster-client/config"
 	"os/exec"
 )
 

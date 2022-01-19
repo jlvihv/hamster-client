@@ -21,7 +21,7 @@ import (
 	ma "github.com/multiformats/go-multiaddr"
 	madns "github.com/multiformats/go-multiaddr-dns"
 	"github.com/sirupsen/logrus"
-	"link-server/config"
+	"hamster-client/config"
 	"log"
 	"strings"
 	"time"
@@ -75,10 +75,10 @@ func MakeRoutedHost(listenPort int, privstr string, peers []string) (host.Host, 
 	dstore := dsync.MutexWrap(ds.NewMapDatastore())
 
 	// Make the DHT
-	dht := dht.NewDHT(ctx, basicHost, dstore)
+	newDht := dht.NewDHT(ctx, basicHost, dstore)
 
 	// Make the routed host
-	routedHost := rhost.Wrap(basicHost, dht)
+	routedHost := rhost.Wrap(basicHost, newDht)
 
 	// connect to the chosen ipfs nodes
 	cfg := DefaultBootstrapConfig
@@ -87,14 +87,14 @@ func MakeRoutedHost(listenPort int, privstr string, peers []string) (host.Host, 
 	}
 
 	id, err := peer.IDFromPrivateKey(priv)
-	_, err = Bootstrap(id, routedHost, dht, cfg)
+	_, err = Bootstrap(id, routedHost, newDht, cfg)
 
 	if err != nil {
 		return nil, nil, err
 	}
 
 	// Bootstrap the host
-	err = dht.Bootstrap(ctx)
+	err = newDht.Bootstrap(ctx)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -111,7 +111,7 @@ func MakeRoutedHost(listenPort int, privstr string, peers []string) (host.Host, 
 		log.Println(addr.Encapsulate(hostAddr))
 	}
 
-	return routedHost, dht, nil
+	return routedHost, newDht, nil
 }
 
 // MakeIpfsP2p create ipfs p2p object
@@ -276,7 +276,7 @@ func (c *P2pClient) CheckForwardHealth(target string) error {
 	if err != nil {
 		return err
 	} else {
-		stream.Close()
+		_ = stream.Close()
 		return nil
 	}
 }

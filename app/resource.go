@@ -2,8 +2,8 @@ package app
 
 import (
 	"github.com/wailsapp/wails"
-	"link-server/module/account"
-	"link-server/module/resource"
+	"hamster-client/module/account"
+	"hamster-client/module/resource"
 )
 
 type Resource struct {
