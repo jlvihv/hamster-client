@@ -2,7 +2,7 @@ package app
 
 import (
 	"github.com/wailsapp/wails"
-	"link-server/module/p2p"
+	"hamster-client/module/p2p"
 	"time"
 )
 

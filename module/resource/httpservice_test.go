@@ -2,7 +2,7 @@ package resource
 
 import (
 	"fmt"
-	"link-server/utils"
+	"hamster-client/utils"
 	"testing"
 )
 

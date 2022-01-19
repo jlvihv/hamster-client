@@ -1,12 +1,12 @@
 {
- "name": "link",
+ "name": "hamster-client",
  "description": "Enter your project description",
  "author": {
   "name": "liangteng",
-  "email": "teng.liang@newtouch.com"
+  "email": "ltyuanmu@gmail.com"
  },
  "version": "0.1.0",
- "binaryname": "link-server",
+ "binaryname": "hamster-client",
  "frontend": {
   "dir": "frontend",
   "install": "npm install",
@@ -14,7 +14,7 @@
   "bridge": "src",
   "serve": "npm run serve"
  },
- "tags": "",
+ "tags": [],
  "WailsVersion": "",
  "CrossCompile": false,
  "Platform": "",

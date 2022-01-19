@@ -4,8 +4,8 @@ import (
 	"github.com/wailsapp/wails"
 	"github.com/wailsapp/wails/lib/logger"
 	"gorm.io/gorm"
-	"link-server/config"
-	"link-server/utils"
+	"hamster-client/config"
+	"hamster-client/utils"
 )
 
 type HttpService struct {

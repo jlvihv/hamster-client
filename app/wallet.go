@@ -2,7 +2,7 @@ package app
 
 import (
 	"github.com/wailsapp/wails"
-	"link-server/module/wallet"
+	"hamster-client/module/wallet"
 )
 
 type Wallet struct {
