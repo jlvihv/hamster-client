@@ -1,13 +1,14 @@
 package app
 
 import (
-	"github.com/wailsapp/wails"
+	"context"
+	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"hamster-client/module/p2p"
 	"time"
 )
 
 type P2p struct {
-	log       *wails.CustomLogger
+	ctx       context.Context
 	p2pServer p2p.Service
 }
 
@@ -17,11 +18,11 @@ func NewP2pApp(service p2p.Service) P2p {
 	}
 }
 
-func (s *P2p) WailsInit(runtime *wails.Runtime) error {
-	s.log = runtime.Log.New("P2P")
+func (s *P2p) WailsInit(ctx context.Context) error {
+	s.ctx = ctx
 	go func() {
 		for {
-			runtime.Events.Emit("Links", s.p2pServer.GetLinks())
+			runtime.EventsEmit(s.ctx, "Links", s.p2pServer.GetLinks())
 			time.Sleep(5 * time.Second)
 		}
 	}()

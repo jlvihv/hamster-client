@@ -1,35 +1,58 @@
 package main
 
 import (
-	_ "embed"
-	"github.com/wailsapp/wails"
-	"hamster-client/context"
+	"embed"
+	"hamster-client/ctx"
+	"log"
+
+	"github.com/wailsapp/wails/v2"
+	"github.com/wailsapp/wails/v2/pkg/logger"
+	"github.com/wailsapp/wails/v2/pkg/options"
+	"github.com/wailsapp/wails/v2/pkg/options/windows"
 )
 
-//go:embed frontend/dist/app.js
-var js string
-
-//go:embed frontend/dist/app.css
-var css string
+//go:embed frontend/dist
+var assets embed.FS
 
 func main() {
 
-	app := wails.CreateApp(&wails.AppConfig{
+	app := ctx.NewApp()
+	// Create application with options
+	err := wails.Run(&options.App{
+		Title:  "hamster-client",
 		Width:  1024,
 		Height: 768,
-		Title:  "Hamster Client",
-		JS:     js,
-		CSS:    css,
-		Colour: "#131313",
+		// MinWidth:          720,
+		// MinHeight:         570,
+		// MaxWidth:          1280,
+		// MaxHeight:         740,
+		DisableResize:     false,
+		Fullscreen:        false,
+		Frameless:         false,
+		StartHidden:       false,
+		HideWindowOnClose: false,
+		RGBA:              &options.RGBA{R: 255, G: 255, B: 255, A: 255},
+		Assets:            assets,
+		LogLevel:          logger.DEBUG,
+		OnStartup:         app.Startup,
+		OnDomReady:        app.DomReady,
+		OnShutdown:        app.Shutdown,
+		Bind: []interface{}{
+			&app.AccountApp,
+			&app.P2pApp,
+			&app.ResourceApp,
+			&app.SettingApp,
+			&app.WalletApp,
+		},
+		// Windows platform specific options
+		Windows: &windows.Options{
+			WebviewIsTransparent: false,
+			WindowIsTranslucent:  false,
+			DisableWindowIcon:    false,
+		},
 	})
 
-	app.Bind(&context.AccountApp)
-	app.Bind(&context.P2pApp)
-	app.Bind(&context.ResourceApp)
-	app.Bind(&context.SettingApp)
-	app.Bind(&context.WalletApp)
-	err := app.Run()
 	if err != nil {
-		panic("Wails app run error")
+		log.Fatal(err)
 	}
 }

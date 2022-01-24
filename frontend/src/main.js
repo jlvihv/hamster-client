@@ -8,13 +8,9 @@ import './assets/css/app.scss'
 import { VueClipboard } from '@soerenmartius/vue3-clipboard'
 
 // import wails runtime
-import * as Wails from '@wailsapp/runtime';
-
-Wails.Init(() => {
-  createApp(App)
-      .use(Antd)
-      .use(store)
-      .use(router)
-      .use(VueClipboard)
-      .mount('#app')
-})
+createApp(App)
+    .use(Antd)
+    .use(store)
+    .use(router)
+    .use(VueClipboard)
+    .mount('#app')

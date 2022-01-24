@@ -1,7 +1,7 @@
 package app
 
 import (
-	"github.com/wailsapp/wails"
+	"context"
 	"hamster-client/module/account"
 	"hamster-client/module/p2p"
 )
@@ -13,7 +13,7 @@ type Config struct {
 }
 
 type Setting struct {
-	log            *wails.CustomLogger
+	ctx            context.Context
 	p2pService     p2p.Service
 	accountService account.Service
 }
@@ -25,8 +25,8 @@ func NewSettingApp(service p2p.Service, accountService account.Service) Setting 
 	}
 }
 
-func (s *Setting) WailsInit(runtime *wails.Runtime) error {
-	s.log = runtime.Log.New("Setting")
+func (s *Setting) WailsInit(ctx context.Context) error {
+	s.ctx = ctx
 	return nil
 }
 

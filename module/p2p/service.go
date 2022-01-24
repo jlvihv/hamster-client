@@ -1,23 +1,22 @@
 package p2p
 
 import (
+	"context"
 	"fmt"
-	"github.com/wailsapp/wails"
-	"github.com/wailsapp/wails/lib/logger"
+	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"gorm.io/gorm"
 	"hamster-client/config"
 	"os/exec"
 )
 
 type ServiceImpl struct {
-	log       *wails.CustomLogger
+	ctx       context.Context
 	db        *gorm.DB
 	p2pClient *P2pClient
 }
 
-func NewServiceImpl(db *gorm.DB) ServiceImpl {
-	log := logger.NewCustomLogger("Module_P2P")
-	return ServiceImpl{log: log, db: db}
+func NewServiceImpl(ctx context.Context, db *gorm.DB) ServiceImpl {
+	return ServiceImpl{ctx: ctx, db: db}
 }
 
 // initialize p2p link
@@ -27,11 +26,11 @@ func (s *ServiceImpl) getP2pClient() (*P2pClient, error) {
 	}
 	p2pConfig, err := s.GetSetting()
 	if err != nil {
-		s.log.Warnf("getP2pClient GetSetting is error %s\n", err)
+		runtime.LogError(s.ctx, "getP2pClient GetSetting is error %s"+err.Error())
 		return nil, err
 	}
 	if p2pConfig.PrivateKey == "" {
-		s.log.Warnf("getP2pClient p2p config is null")
+		runtime.LogWarning(s.ctx, "getP2pClient p2p config is null")
 		return nil, err
 	}
 	//perform p2p client initialization link
@@ -89,7 +88,7 @@ func (s *ServiceImpl) Destroy() error {
 
 //GetLinks get a list of links
 func (s *ServiceImpl) GetLinks() *[]LinkInfo {
-	s.log.Info("GetLinks start")
+	runtime.LogWarning(s.ctx, "GetLinks start")
 	var links []LinkInfo
 	client, err := s.getP2pClient()
 	if err != nil {
@@ -100,7 +99,7 @@ func (s *ServiceImpl) GetLinks() *[]LinkInfo {
 		linkInfo := LinkInfo{Protocol: value.Protocol, ListenAddress: value.ListenAddress, TargetAddress: value.TargetAddress}
 		err := client.CheckForwardHealth(value.TargetAddress)
 		linkInfo.Status = err == nil
-		s.log.Infof("GetLinks %s\n", linkInfo.Status)
+		runtime.LogInfo(s.ctx, fmt.Sprintf("GetLinks %s\n", linkInfo.Status))
 		links = append(links, linkInfo)
 	}
 	return &links
@@ -108,14 +107,14 @@ func (s *ServiceImpl) GetLinks() *[]LinkInfo {
 
 //InitSetting p2p parameter configuration
 func (s *ServiceImpl) InitSetting() error {
-	s.log.Info("InitSetting start")
+	runtime.LogInfo(s.ctx, "InitSetting start")
 	p2pConfig, err := s.GetSetting()
 	port := config.Port
 	if err != nil {
-		s.log.Errorf("InitSetting error :%s\n ", err)
+		runtime.LogError(s.ctx, fmt.Sprintf("InitSetting error :%s\n ", err))
 		identity, err := CreateIdentity()
 		if err != nil {
-			s.log.Errorf("InitSetting error :%s\n ", err)
+			runtime.LogError(s.ctx, fmt.Sprintf("InitSetting error :%s\n ", err))
 			return err
 		}
 		for {
@@ -133,10 +132,11 @@ func (s *ServiceImpl) InitSetting() error {
 	}
 	_, err = s.initP2pClient(port, p2pConfig.PrivateKey)
 	if err != nil {
-		s.log.Errorf("InitSetting error :%s\n ", err)
+		runtime.LogError(s.ctx, fmt.Sprintf(""))
+		runtime.LogError(s.ctx, fmt.Sprintf("InitSetting error :%s\n ", err))
 		return err
 	}
-	s.log.Info("InitSetting success")
+	runtime.LogInfo(s.ctx, "InitSetting success")
 	return nil
 }
 
@@ -145,7 +145,7 @@ func (s *ServiceImpl) GetSetting() (P2pConfig, error) {
 	var p2pConfig P2pConfig
 	result := s.db.First(&p2pConfig)
 	if result.Error != nil {
-		s.log.Errorf("GetSetting error %s\n", result.Error)
+		runtime.LogError(s.ctx, fmt.Sprintf("GetSetting error %s\n", result.Error))
 	}
 	return p2pConfig, result.Error
 }

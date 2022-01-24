@@ -177,7 +177,7 @@ export default {
     const toLink = () => {
       linkState.value.validate().then(() => {
         state.loading = true
-        window.backend.P2p.Link(parseInt(state.linkForm.port),state.linkForm.peerId).then(() => {
+        window.go.app.P2p.Link(parseInt(state.linkForm.port),state.linkForm.peerId).then(() => {
           state.loading = false;
           proxy.$message.success("connection succeeded")
           state.linkVisible = false
@@ -191,7 +191,7 @@ export default {
     }
     //get my resources
     const getList = async () => {
-      let addressData =  await window.backend.Wallet.GetWalletInfo();
+      let addressData =  await window.go.app.Wallet.GetWalletInfo();
       let API = await api;
       let data = await api.then(t => t.query.resourceOrder.userAgreements(addressData.address)).then(data => {
         return new Promise(function(resolve){
@@ -227,7 +227,7 @@ export default {
     }
     const link = (record) => {
       //query if p2p is configured
-      window.backend.P2p.IsP2PSetting().then(res => {
+      window.go.app.P2p.IsP2PSetting().then(res => {
         if (res) {
           state.linkForm.peerId = record.peer_id
           state.linkVisible = true
@@ -243,7 +243,7 @@ export default {
     })
     const getResourceList = () => {
       state.loadLoading = true
-      window.backend.Resource.GetResources().then(res => {
+      window.go.app.Resource.GetResources().then(res => {
         state.list.data = res
         state.loadLoading = false
       }).catch(() => {
@@ -263,7 +263,7 @@ export default {
 
     }
     const isSettingPublicKey = () => {
-      window.backend.Account.IsAccountSetting().then(res => {
+      window.go.app.Account.IsAccountSetting().then(res => {
         if (res) {
           getList()
           // getResourceList()
@@ -275,7 +275,7 @@ export default {
     //p2p Initialization Configuration
     const setting = () => {
       state.tipLoading = true
-      window.backend.Setting.InitP2pSetting().then(() => {
+      window.go.app.Setting.InitP2pSetting().then(() => {
         proxy.$message.success("configured successfully")
         state.tipLoading = false
         state.linkTipVisible = false
