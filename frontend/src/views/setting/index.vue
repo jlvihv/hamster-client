@@ -87,7 +87,7 @@ export default {
       getAddress();
     })
     const getSetting = () => {
-      window.backend.Setting.GetSetting().then(res => {
+      window.go.app.Setting.GetSetting().then(res => {
         state.settingForm.publicKey = res.PublicKey;
         state.settingData.peerId = res.PeerId;
         state.settingData.port = res.Port;
@@ -95,7 +95,7 @@ export default {
     }
     const setting = () => {
       settingState.value.validate().then(() => {
-        window.backend.Setting.Setting(state.settingForm.publicKey).then(res => {
+        window.go.app.Setting.Setting(state.settingForm.publicKey).then(res => {
           if (res) {
             proxy.$message.success("Configured successfully")
           }
@@ -109,7 +109,7 @@ export default {
     //UNBIND
     const forgotAddress = () => {
       state.loading = true
-      window.backend.Wallet.DeleteWallet();
+      window.go.app.Wallet.DeleteWallet();
       state.address = ""
       setTimeout(() => {
         context.emit("getAddress")
@@ -117,7 +117,7 @@ export default {
     }
     //get account address
     const getAddress = () => {
-      window.backend.Wallet.GetWalletInfo().then(res => {
+      window.go.app.Wallet.GetWalletInfo().then(res => {
         state.address = res.address
         api.then(t => {
           t.query.system.account(res.address).then(res =>{

@@ -23,9 +23,8 @@ export default defineComponent({
     };
 
     const handleOk = () => {
-      console.info(window.backend)
       let param = { user:value.value,ID:props.id }
-      window.backend.WailsApi.UseResource(param).then(() => {
+      window.go.app.WailsApi.UseResource(param).then(() => {
         message.success('SUCCESSFUL');
         visible.value = false;
       });

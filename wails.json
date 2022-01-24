@@ -1,0 +1,21 @@
+{
+  "name": "hamster-client",
+  "assetdir": "frontend/dist",
+  "frontend:build": "npm run build",
+  "frontend:install": "npm install",
+  "frontend:dev": "npm run build",
+  "wailsjsdir": "frontend/src",
+  "version": "2",
+  "Path": "",
+  "BuildDir": "",
+  "outputfilename": "hamster-client",
+  "OutputType": "",
+  "Platform": "",
+  "Author": {
+    "name": "mohaijiang",
+    "email": "mohaijiang110@163.com"
+  },
+  "debounceMS": 100,
+  "devserverurl": "http://localhost:34115",
+  "appargs": ""
+}

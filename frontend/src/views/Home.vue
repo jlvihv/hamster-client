@@ -35,9 +35,10 @@ export default {
       })
     })
     function deleteUse(id){
-      window.backend.WailsApi.DeleteUseResource(id).then(() => {
-        message.success('Succeed');
-      });
+      message.success('Succeed');
+      // window.go.app.WailsApi.DeleteUseResource(id).then(() => {
+      //   message.success('Succeed');
+      // });
     }
     return {
       dataSource,

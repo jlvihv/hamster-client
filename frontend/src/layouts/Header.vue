@@ -44,7 +44,7 @@ export default {
     })
     //get account address
     const getAddress = () => {
-      window.backend.Wallet.GetWalletInfo().then(res => {
+      window.go.app.Wallet.GetWalletInfo().then(res => {
         state.address = res.address
         context.emit("changeLoading")
       }).catch(() => {

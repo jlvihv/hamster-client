@@ -1,26 +1,28 @@
 package wallet
 
 import (
-	"github.com/wailsapp/wails/lib/logger"
+	"context"
+	"fmt"
+	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"gorm.io/gorm"
 )
 
 type ServiceImpl struct {
-	log *logger.CustomLogger
+	ctx context.Context
 	db  *gorm.DB
 }
 
-func NewServiceImpl(db *gorm.DB) ServiceImpl {
-	log := logger.NewCustomLogger("Module_Account")
-	return ServiceImpl{log, db}
+func NewServiceImpl(ctx context.Context, db *gorm.DB) ServiceImpl {
+	return ServiceImpl{ctx, db}
 }
 
 // GetWallet  get wallet information
 func (w *ServiceImpl) GetWallet() (Wallet, error) {
 	var wallet Wallet
+	fmt.Println(w.db)
 	result := w.db.First(&wallet)
 	if result.Error != nil {
-		w.log.Error("GetWallet error")
+		runtime.LogError(w.ctx, "GetWallet error")
 	}
 	return wallet, result.Error
 }

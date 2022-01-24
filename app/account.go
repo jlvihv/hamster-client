@@ -1,14 +1,13 @@
 package app
 
 import (
-	"github.com/wailsapp/wails"
+	"context"
 	"hamster-client/module/account"
 )
 
 type Account struct {
-	log            *wails.CustomLogger
-	runtime        *wails.Runtime
 	accountService account.Service
+	ctx            context.Context
 }
 
 func NewAccountApp(service account.Service) Account {
@@ -17,9 +16,8 @@ func NewAccountApp(service account.Service) Account {
 	}
 }
 
-func (s *Account) WailsInit(runtime *wails.Runtime) error {
-	s.runtime = runtime
-	s.log = runtime.Log.New("Account")
+func (s *Account) WailsInit(ctx context.Context) error {
+	s.ctx = ctx
 	return nil
 }
 

@@ -114,7 +114,7 @@ export default {
     //get connection status
     const getLinkStatus = () => {
       state.loadLoading = true
-      window.backend.P2p.GetLinkStatus().then((res)=> {
+      window.go.app.P2p.GetLinkStatus().then((res)=> {
         state.list.data = []
         if (res) {
           state.list.data = res
@@ -127,7 +127,7 @@ export default {
     }
     //DISCONNECT
     const closeLink = (record) => {
-      window.backend.P2p.CloseLink(record.TargetAddress).then(() => {
+      window.go.app.P2p.CloseLink(record.TargetAddress).then(() => {
         getLinkStatus()
         proxy.$message.success("Disconnected successfully")
       }).catch((err) => {

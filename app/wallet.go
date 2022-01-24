@@ -1,13 +1,12 @@
 package app
 
 import (
-	"github.com/wailsapp/wails"
+	"context"
 	"hamster-client/module/wallet"
 )
 
 type Wallet struct {
-	log           *wails.CustomLogger
-	runtime       *wails.Runtime
+	ctx           context.Context
 	walletService wallet.Service
 }
 
@@ -17,9 +16,8 @@ func NewWalletApp(service wallet.Service) Wallet {
 	}
 }
 
-func (w *Wallet) WailsInit(runtime *wails.Runtime) error {
-	w.runtime = runtime
-	w.log = runtime.Log.New("Wallet")
+func (s *Wallet) WailsInit(ctx context.Context) error {
+	s.ctx = ctx
 	return nil
 }
 
