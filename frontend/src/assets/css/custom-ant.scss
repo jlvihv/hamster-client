@@ -69,7 +69,7 @@ $menu-one-font-open-color: #ffffff;
   background: #353f60;
   color: #ffffff;
   font-weight: 600;
-  padding: 0px 32px !important;
+  //padding: 0px 32px !important;
 }
 .ant-menu-sub.ant-menu-inline > .ant-menu-item {
   font-weight: 600;
@@ -111,7 +111,7 @@ $menu-one-font-open-color: #ffffff;
   color: #fdfeff !important;
 }
 .ant-menu-title-content {
-  margin-left: 12px;
+  margin-left: 8px;
   height: 24px;
   .menu-content {
     height: 24px;
@@ -674,4 +674,14 @@ button[ant-click-animating-without-extra-node]:after {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
+}
+
+.tableStyle {
+  padding: 12px;
+  background: white;
+  border-radius: 8px;
+  //height: 100%;
+}
+.ant-table-tbody>tr>td, .ant-table-thead>tr>th {
+  padding: 16px 8px !important;
 }

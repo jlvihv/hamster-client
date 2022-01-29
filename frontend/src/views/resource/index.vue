@@ -7,7 +7,6 @@
             data-index="resource_index"
         />
         <a-table-column title="System"/>
-        <a-table-column title="CPU Model"/>
         <a-table-column
             title="CPU"
             data-index="cpu"
@@ -24,7 +23,7 @@
             title="Expire"
             data-index="expireTime"
         />
-        <a-table-column title="Operate" :width="80"></a-table-column>
+        <a-table-column title="Operate" :width="90"></a-table-column>
       </no-data-table>
       <p-table
           v-show="list.data.length != 0"
@@ -38,18 +37,6 @@
             title="Resource ID"
             data-index="resource_index"
         />
-        <a-table-column title="System" :ellipsis="true">
-          <template #default="{ record }">
-            <span>{{record.config.system}}</span>
-          </template>
-        </a-table-column>
-        <a-table-column
-            title="CPU Model"
-            :ellipsis="true">
-          <template #default="{ record }">
-            <span>{{record.config.cpu_model}}</span>
-          </template>
-        </a-table-column>
         <a-table-column
             title="CPU"
             :width="70"
@@ -256,7 +243,7 @@ export default {
     const linkClose = () => {
       state.linkVisible = false
     }
-      const linkTipClose = () => {
+    const linkTipClose = () => {
       state.linkTipVisible = false;
     }
     const getAddress = () => {
@@ -313,7 +300,7 @@ export default {
   padding: 12px;
   background: white;
   border-radius: 8px;
-  height: 100%;
+  //height: 100%;
 }
 .tip-content {
   margin-top: 20px;
