@@ -58,7 +58,6 @@ export default {
       }
     });
     const handleClick = (e) => {
-      console.log(e);
       router.push({ name: e.key });
     };
     return {

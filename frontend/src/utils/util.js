@@ -6,5 +6,5 @@ const sd = require("silly-datetime");
  * @returns {string}
  */
 export const timeToDay = time => {
-    return sd.format(new Date(time), "YYYY-MM-DD");
-};
+    return sd.format(new Date(time), "YYYY-MM-DD HH:mm");
+}

@@ -216,7 +216,6 @@ export default {
             state.renewIndex = '';
             getResourceList();
             state.loadLoading = false;
-            console.log(events);
             proxy.$message.success("Received successfully");
           }
         }

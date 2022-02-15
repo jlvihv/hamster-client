@@ -236,11 +236,9 @@ export default {
             getResourceList();
             state.visible = false;
           }
-        } else {
-          state.loading = false;
-          proxy.$message.error('Failed to purchase resources');
         }
-      }).catch(() => {
+      }).catch((error) => {
+        console.log(error);
         state.loading = false;
         proxy.$message.error('Failed to purchase resources');
       })
