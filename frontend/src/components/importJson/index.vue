@@ -156,7 +156,7 @@ export default defineComponent({
           message.error("wrong password");
           console.log(error)
         }
-      }, 1_00);
+      }, 100);
 
     }
 

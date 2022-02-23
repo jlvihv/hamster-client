@@ -4,7 +4,7 @@ import (
 	context "context"
 	_ "embed"
 	"fmt"
-	"github.com/mitchellh/go-homedir"
+	homedir "github.com/mitchellh/go-homedir"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"hamster-client/app"
@@ -60,6 +60,14 @@ func (a *App) initDB() {
 		&resource.Resource{},
 		&wallet.Wallet{},
 	)
+	var user account.Account
+	result := db.First(&user)
+	if result.Error != nil {
+		println("------------------------------------")
+		user := account.Account{Nodes: "/ip4/59.80.40.149/tcp/4001/p2p/12D3KooWSm8rYXfjbMaBkySrt1WhtHEZpqJXyqj36hPJoVkMvQfd,/ip4/183.66.65.247/tcp/4001/p2p/12D3KooWHPbFSqWiKgh1QzuX64otKZNfYuUu1cYRmfCWnxEqjb5k"}
+		db.Create(&user)
+	}
+
 	if err != nil {
 		panic("failed to AutoMigrate Account")
 	}

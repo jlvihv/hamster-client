@@ -2,7 +2,7 @@
   <div class="home">
     <div class="home-container">
       <a-layout class="layout-container">
-        <a-layout-sider width="142px" class="menu-left-style">
+        <a-layout-sider width="150px" class="menu-left-style">
           <div class="logo">
             <img src="@/assets/logo.png" width="100" height="15"/>
           </div>
@@ -72,7 +72,7 @@ export default {
 //  height: 100vh;
 //}
 .body-content {
-  //height: calc(100vh - 64px);
+  height: calc(100vh - 64px);
   overflow-x: hidden;
   overflow-y: scroll;
   padding: 12px;

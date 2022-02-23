@@ -43,18 +43,21 @@ export default {
     const useRouterCurrent = reactive(useRouter());
     watch(useRouterCurrent, o => {
       openKeys.value = [currentRoute.matched[1]?.name]
-      if (o.currentRoute.fullPath.indexOf("resource") != -1) {
-        selectedKeys.value = ["resource"]
-      }else if (o.currentRoute.fullPath.indexOf("setting") != -1) {
+      if (o.currentRoute.fullPath.indexOf("my-resource") != -1) {
+        selectedKeys.value = ["my-resource"]
+      } else if (o.currentRoute.fullPath.indexOf("setting") != -1) {
         selectedKeys.value = ["setting"]
-      }else if (o.currentRoute.fullPath.indexOf("status") != -1) {
+      } else if (o.currentRoute.fullPath.indexOf("status") != -1) {
         selectedKeys.value = ["status"]
+      } else if (o.currentRoute.fullPath.indexOf("order-list") != -1) {
+        selectedKeys.value = ["order-list"]
+      } else if (o.currentRoute.fullPath.indexOf("resource-market") != -1) {
+        selectedKeys.value = ["resource-market"]
       } else {
         selectedKeys.value = [currentRoute.name]
       }
     });
     const handleClick = (e) => {
-      console.log(e);
       router.push({ name: e.key });
     };
     return {
@@ -70,7 +73,8 @@ export default {
 
 <style lang="scss" scoped>
 .ant-menu {
-  padding-left: 32px;
+  padding-left: 8px;
+  padding-right: 8px;
   line-height: normal;
   .title {
     margin-left: 10px;
@@ -96,7 +100,6 @@ export default {
   }
 }
 .menu-content-front {
-  margin-left: 8px;
 }
 .menu-content {
   display: flex;

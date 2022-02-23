@@ -10,6 +10,7 @@ type Config struct {
 	PublicKey string
 	Port      int
 	PeerId    string
+	Nodes     string
 }
 
 type Setting struct {
@@ -46,15 +47,17 @@ func (s *Setting) GetSetting() (*Config, error) {
 	}
 	config.Port = p2pConfig.Port
 	config.PeerId = p2pConfig.PeerId
+	config.Nodes = info.Nodes
 	return config, nil
 }
 
 // Setting set public key information
-func (s *Setting) Setting(publicKey string) (bool, error) {
+func (s *Setting) Setting(publicKey string, nodes string) (bool, error) {
 	accountInfo, _ := s.accountService.GetAccount()
 
 	//set user public key
 	accountInfo.PublicKey = publicKey
+	accountInfo.Nodes = nodes
 	s.accountService.SaveAccount(&accountInfo)
 	return true, nil
 }
