@@ -6,7 +6,9 @@ import (
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"gorm.io/gorm"
 	"hamster-client/config"
+	"hamster-client/module/account"
 	"os/exec"
+	"strings"
 )
 
 type ServiceImpl struct {
@@ -38,7 +40,16 @@ func (s *ServiceImpl) getP2pClient() (*P2pClient, error) {
 }
 
 func (s *ServiceImpl) initP2pClient(port int, privateKey string) (*P2pClient, error) {
-	host, dht, err := MakeRoutedHost(port, privateKey, DEFAULT_IPFS_PEERS)
+	var user account.Account
+	result := s.db.First(&user)
+	var nodes []string
+	if result.Error != nil {
+		nodes = DEFAULT_IPFS_PEERS
+	} else {
+		nodes = strings.Split(user.Nodes, ",")
+	}
+
+	host, dht, err := MakeRoutedHost(port, privateKey, nodes)
 	if err != nil {
 		return nil, err
 	}

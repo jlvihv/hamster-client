@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/dgrijalva/jwt-go"
+	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"gorm.io/gorm"
 	"hamster-client/utils"
@@ -35,6 +35,7 @@ func (a *ServiceImpl) SaveAccount(account *Account) {
 	u, _ := a.GetAccount()
 	//save or update account
 	u.PublicKey = account.PublicKey
+	u.Nodes = account.Nodes
 	a.db.Save(&u)
 }
 

@@ -9,7 +9,7 @@ import (
 	ds "github.com/ipfs/go-datastore"
 	dsync "github.com/ipfs/go-datastore/sync"
 	ipfsp2p "github.com/ipfs/go-ipfs/p2p"
-	"github.com/libp2p/go-libp2p"
+	libp2p "github.com/libp2p/go-libp2p"
 	"github.com/libp2p/go-libp2p-core/crypto"
 	"github.com/libp2p/go-libp2p-core/host"
 	"github.com/libp2p/go-libp2p-core/peer"
@@ -21,7 +21,9 @@ import (
 	ma "github.com/multiformats/go-multiaddr"
 	madns "github.com/multiformats/go-multiaddr-dns"
 	"github.com/sirupsen/logrus"
+	"gorm.io/gorm"
 	"hamster-client/config"
+	"hamster-client/module/account"
 	"log"
 	"strings"
 	"time"
@@ -154,6 +156,7 @@ type P2pClient struct {
 	Host host.Host
 	P2P  *ipfsp2p.P2P
 	DHT  *dht.IpfsDHT
+	db   *gorm.DB
 }
 
 // P2PListenerInfoOutput  p2p monitoring or mapping information
@@ -215,8 +218,15 @@ func (c *P2pClient) Listen(port int) error {
 func (c *P2pClient) Forward(port int, peerId string) error {
 
 	if err := c.CheckForwardHealth(peerId); err != nil {
-
-		bootstrapPeers := randomSubsetOfPeers(convertPeers(DEFAULT_IPFS_PEERS), 1)
+		var user account.Account
+		result := c.db.First(&user)
+		var gatewayNodes []string
+		if result.Error != nil {
+			gatewayNodes = DEFAULT_IPFS_PEERS
+		} else {
+			gatewayNodes = strings.Split(user.Nodes, ",")
+		}
+		bootstrapPeers := randomSubsetOfPeers(convertPeers(gatewayNodes), 1)
 		if len(bootstrapPeers) == 0 {
 			return errors.New("not enough bootstrap peers")
 		}
