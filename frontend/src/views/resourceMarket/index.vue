@@ -109,11 +109,11 @@
 
 <script>
 import {getCurrentInstance, onMounted, reactive, ref, toRefs} from "vue";
-import api from '../../api/index'
 import NoDataTable from "../../components/table/NoDataTable";
 import PTable from "../../components/table/PTable";
 import TransactionModal from "../../components/model/transactionModal";
 import BuyModal from "../../components/model/index";
+import {useStore} from "vuex";
 
 export default {
   name: "index",
@@ -253,6 +253,7 @@ export default {
     const cancelLoading = () =>  {
       state.loading = false;
     }
+    const api = new useStore().state.api;
     return {
       ...toRefs(state),
       getResourceList,
@@ -264,7 +265,8 @@ export default {
       buyResourceRules,
       showTransactionModal,
       getFee,
-      cancelLoading
+      cancelLoading,
+      api
     }
   }
 }

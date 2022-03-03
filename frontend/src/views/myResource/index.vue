@@ -100,7 +100,7 @@
 import {computed, onMounted, reactive, ref, toRefs, getCurrentInstance} from "vue";
 import NoDataTable from "../../components/table/NoDataTable";
 import PTable from "../../components/table/PTable";
-import api from "../../api";
+import {useStore} from 'vuex'
 import {timeToDay} from "@/utils/util";
 import RenewModal from "../../components/model/index"
 import TransactionModal from "../../components/model/transactionModal"
@@ -274,6 +274,7 @@ export default {
       state.loadLoading = false;
       state.loading = false;
     }
+    const api = new useStore().state.api;
     return {
       ...toRefs(state),
       getResourceList,
@@ -288,7 +289,8 @@ export default {
       renewState,
       receiveRef,
       showReceiveAmountModal,
-      cancelLoading
+      cancelLoading,
+      api
     }
   }
 }

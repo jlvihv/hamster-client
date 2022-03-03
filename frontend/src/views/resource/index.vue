@@ -126,7 +126,8 @@ import TipModal from "../../components/model/index"
 import {useRouter} from "vue-router";
 import LinkModal from "../../components/model/index"
 import LinkTip from "../../components/model/index"
-import api from "../../api";
+import {useStore} from "vuex";
+
 export default {
   name: "index",
   components: {
@@ -274,6 +275,7 @@ export default {
     const goSetting = () => {
       router.push("/setting")
     }
+    const api = new useStore().state.api;
     return {
       ...toRefs(state),
       getList,
@@ -289,7 +291,8 @@ export default {
       toLink,
       linkTipClose,
       setting,
-      getAddress
+      getAddress,
+      api
     }
   }
 }

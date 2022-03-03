@@ -70,8 +70,8 @@
 import {getCurrentInstance, onMounted, reactive, ref, toRefs} from "vue";
 import NoDataTable from "../../components/table/NoDataTable";
 import PTable from "../../components/table/PTable";
-import api from "../../api";
 import TransactionModal from "../../components/model/transactionModal"
+import {useStore} from "vuex";
 
 export default {
   name: "index",
@@ -175,6 +175,7 @@ export default {
     const cancelLoading = () => {
       state.loadLoading = false;
     }
+    const api = new useStore().state.api;
     return {
       ...toRefs(state),
       getOrderList,
@@ -182,7 +183,8 @@ export default {
       cancelOrder,
       showCancelOrderModel,
       cancelOrderRef,
-      cancelLoading
+      cancelLoading,
+      api
     }
   }
 }

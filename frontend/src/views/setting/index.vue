@@ -74,14 +74,21 @@
         </a-button>
       </div>
     </add-modal>
+    <div>
+      <span>Please input WsUrl:</span>
+      <input type="text" v-model="msg" placeholder="edit me" @change="editApi">
+    </div>
   </div>
 </template>
 
 <script>
 import {getCurrentInstance, onMounted, reactive, ref, toRefs} from "vue";
-import api from "../../api";
 import { message } from "ant-design-vue";
 import AddModal from "../../components/model/index";
+import {useStore} from 'vuex'
+// test
+import { ApiPromise,WsProvider } from "@polkadot/api";
+import types from "../../api/types";
 export default {
   name: "index",
   components: {
@@ -207,6 +214,8 @@ export default {
     const isSettingPublicKey = () => {
 
     }
+    const store = new useStore();
+    const api = new useStore().state.api;
     return {
       ...toRefs(state),
       settingState,
@@ -221,9 +230,26 @@ export default {
       showAddModal,
       checkAddGateway,
       ok,
-      stringSplice
+      stringSplice,
+      store,
+      api
+    }
+  },
+  methods:{
+    editApi:function () {
+      // test
+      this.store.commit('setUrl',this.msg)
+      const wsProvider = new WsProvider(this.msg);
+      const newApi = ApiPromise.create({provider: wsProvider,types});
+      this.store.commit('setApi',newApi);
+    }
+  },
+  data() {
+    return {
+      msg: this.store.state.wsUrl
     }
   }
+
 }
 </script>
 
