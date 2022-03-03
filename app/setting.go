@@ -40,6 +40,7 @@ func (s *Setting) GetSetting() (*Config, error) {
 		return config, err
 	}
 	config.PublicKey = info.PublicKey
+	config.Nodes = info.Nodes
 	//query the setting information in the p2p setting
 	p2pConfig, err := s.p2pService.GetSetting()
 	if err != nil {
@@ -47,7 +48,6 @@ func (s *Setting) GetSetting() (*Config, error) {
 	}
 	config.Port = p2pConfig.Port
 	config.PeerId = p2pConfig.PeerId
-	config.Nodes = info.Nodes
 	return config, nil
 }
 
