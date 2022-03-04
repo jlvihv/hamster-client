@@ -15,7 +15,7 @@ require (
 	github.com/multiformats/go-multiaddr v0.4.0
 	github.com/multiformats/go-multiaddr-dns v0.3.1
 	github.com/sirupsen/logrus v1.8.1
-	github.com/wailsapp/wails/v2 v2.0.0-beta.30
+	github.com/wailsapp/wails/v2 v2.0.0-beta.27
 	gorm.io/driver/sqlite v1.2.3
 	gorm.io/gorm v1.22.2
 )

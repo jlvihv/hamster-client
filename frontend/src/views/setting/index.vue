@@ -34,19 +34,25 @@
           <a-textarea v-model:value="settingForm.publicKey" placeholder="please enter public key" :rows="5"/>
         </a-form-item>
       </a-form>
+      <div style="display: flex;align-items: center">
+        <span style="width: 160px">Please input WsUrl:</span>
+        <a-input type="text" v-model:value="msg" placeholder="edit me" @change="editApi"/>
+      </div>
       <div>
         <span>Gateway Nodes:</span>
         <div>
           <div v-for="(item,index) in nodes" :key="index">
-            <a-tooltip placement="top">
-              <template #title>
-                <span>{{item}}</span>
-              </template>
-              <span>{{stringSplice(item,60)}}</span>
-            </a-tooltip>
-            <a-button @click="remove(index)" size="small" type="primary" danger style="margin-left: 8px">remove</a-button>
+            <div style="margin-bottom: 8px">
+              <a-tooltip placement="top">
+                <template #title>
+                  <span>{{item}}</span>
+                </template>
+                <span>{{stringSplice(item,60)}}</span>
+              </a-tooltip>
+              <a-button @click="remove(index)" size="small" type="primary" danger style="margin-left: 8px">remove</a-button>
+            </div>
           </div>
-          <a-button @click="showAddModal" v-if="nodes.length < 5" size="small" type="primary" style="margin-top: 8px">add</a-button>
+          <a-button @click="showAddModal" v-if="nodes.length < 5" class="ok-btn" style="width: 120px !important;height: 32px !important;">add</a-button>
         </div>
       </div>
       <div class="node-address-style" v-if="settingData.peerId != ''">
@@ -74,10 +80,6 @@
         </a-button>
       </div>
     </add-modal>
-    <div>
-      <span>Please input WsUrl:</span>
-      <input type="text" v-model="msg" placeholder="edit me" @change="editApi">
-    </div>
   </div>
 </template>
 
@@ -96,7 +98,8 @@ export default {
   },
   setup(pro,context) {
     const { proxy } = getCurrentInstance();
-    const settingState = ref()
+    const settingState = ref();
+    const store = new useStore();
     const state = reactive({
       settingForm: {
         publicKey: ""
@@ -111,7 +114,8 @@ export default {
       settingData: {
         peerId: "",
         port: ""
-      }
+      },
+      msg: store.state.wsUrl
     })
     const settingRules = {
       publicKey: [
@@ -211,11 +215,17 @@ export default {
         state.address = ""
       })
     }
-    const isSettingPublicKey = () => {
-
-    }
-    const store = new useStore();
     const api = new useStore().state.api;
+    const editApi = () => {
+      if (state.msg === '') {
+        proxy.$message.warning("WsUrl cannot be empty");
+        return;
+      }
+      store.commit('setUrl',state.msg);
+      const wsProvider = new WsProvider(state.msg);
+      const newApi = ApiPromise.create({provider: wsProvider,types});
+      store.commit('setApi',newApi);
+    }
     return {
       ...toRefs(state),
       settingState,
@@ -224,7 +234,6 @@ export default {
       forgotAddress,
       getAddress,
       message,
-      isSettingPublicKey,
       remove,
       addClose,
       showAddModal,
@@ -232,25 +241,13 @@ export default {
       ok,
       stringSplice,
       store,
-      api
+      api,
+      editApi
     }
   },
-  methods:{
-    editApi:function () {
-      // test
-      this.store.commit('setUrl',this.msg)
-      const wsProvider = new WsProvider(this.msg);
-      const newApi = ApiPromise.create({provider: wsProvider,types});
-      this.store.commit('setApi',newApi);
-    }
-  },
-  data() {
-    return {
-      msg: this.store.state.wsUrl
-    }
-  }
-
 }
+
+
 </script>
 
 <style lang="scss" >
