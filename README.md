@@ -134,17 +134,17 @@ wails dev
 
 ```
 .
-├── app							(Objects of the core)
-├── build						(Compiled executable file)
-├── config					(config)
-├── ctx							(init app)
-├── frontend				(frontend)
+├── app			(Objects of the core)
+├── build			(Compiled executable file)
+├── config			(config)
+├── ctx			(init app)
+├── frontend			(frontend)
 ├── module
 │   ├── account			(Managed Accounts)
-│   ├── p2p					(p2p util)
-│   ├── resource		(resource util)
+│   ├── p2p			(p2p util)
+│   ├── resource			(resource util)
 │   └── wallet			(wallet util)
-└── utils						(http util)
+└── utils			(http util)
 ```
 
 ## 5. Features
