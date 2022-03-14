@@ -1,7 +1,7 @@
 package app
 
 import (
-	"github.com/wailsapp/wails"
+	"context"
 	"hamster-client/module/account"
 	"hamster-client/module/p2p"
 )
@@ -10,10 +10,11 @@ type Config struct {
 	PublicKey string
 	Port      int
 	PeerId    string
+	Nodes     string
 }
 
 type Setting struct {
-	log            *wails.CustomLogger
+	ctx            context.Context
 	p2pService     p2p.Service
 	accountService account.Service
 }
@@ -25,8 +26,8 @@ func NewSettingApp(service p2p.Service, accountService account.Service) Setting 
 	}
 }
 
-func (s *Setting) WailsInit(runtime *wails.Runtime) error {
-	s.log = runtime.Log.New("Setting")
+func (s *Setting) WailsInit(ctx context.Context) error {
+	s.ctx = ctx
 	return nil
 }
 
@@ -39,6 +40,7 @@ func (s *Setting) GetSetting() (*Config, error) {
 		return config, err
 	}
 	config.PublicKey = info.PublicKey
+	config.Nodes = info.Nodes
 	//query the setting information in the p2p setting
 	p2pConfig, err := s.p2pService.GetSetting()
 	if err != nil {
@@ -50,11 +52,12 @@ func (s *Setting) GetSetting() (*Config, error) {
 }
 
 // Setting set public key information
-func (s *Setting) Setting(publicKey string) (bool, error) {
+func (s *Setting) Setting(publicKey string, nodes string) (bool, error) {
 	accountInfo, _ := s.accountService.GetAccount()
 
 	//set user public key
 	accountInfo.PublicKey = publicKey
+	accountInfo.Nodes = nodes
 	s.accountService.SaveAccount(&accountInfo)
 	return true, nil
 }

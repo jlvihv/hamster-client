@@ -7,7 +7,6 @@
             data-index="resource_index"
         />
         <a-table-column title="System"/>
-        <a-table-column title="CPU Model"/>
         <a-table-column
             title="CPU"
             data-index="cpu"
@@ -24,7 +23,7 @@
             title="Expire"
             data-index="expireTime"
         />
-        <a-table-column title="Operate" :width="80"></a-table-column>
+        <a-table-column title="Operate" :width="90"></a-table-column>
       </no-data-table>
       <p-table
           v-show="list.data.length != 0"
@@ -38,18 +37,6 @@
             title="Resource ID"
             data-index="resource_index"
         />
-        <a-table-column title="System" :ellipsis="true">
-          <template #default="{ record }">
-            <span>{{record.config.system}}</span>
-          </template>
-        </a-table-column>
-        <a-table-column
-            title="CPU Model"
-            :ellipsis="true">
-          <template #default="{ record }">
-            <span>{{record.config.cpu_model}}</span>
-          </template>
-        </a-table-column>
         <a-table-column
             title="CPU"
             :width="70"
@@ -139,7 +126,8 @@ import TipModal from "../../components/model/index"
 import {useRouter} from "vue-router";
 import LinkModal from "../../components/model/index"
 import LinkTip from "../../components/model/index"
-import api from "../../api";
+import {useStore} from "vuex";
+
 export default {
   name: "index",
   components: {
@@ -177,7 +165,7 @@ export default {
     const toLink = () => {
       linkState.value.validate().then(() => {
         state.loading = true
-        window.backend.P2p.Link(parseInt(state.linkForm.port),state.linkForm.peerId).then(() => {
+        window.go.app.P2p.Link(parseInt(state.linkForm.port),state.linkForm.peerId).then(() => {
           state.loading = false;
           proxy.$message.success("connection succeeded")
           state.linkVisible = false
@@ -191,7 +179,7 @@ export default {
     }
     //get my resources
     const getList = async () => {
-      let addressData =  await window.backend.Wallet.GetWalletInfo();
+      let addressData =  await window.go.app.Wallet.GetWalletInfo();
       let API = await api;
       let data = await api.then(t => t.query.resourceOrder.userAgreements(addressData.address)).then(data => {
         return new Promise(function(resolve){
@@ -227,7 +215,7 @@ export default {
     }
     const link = (record) => {
       //query if p2p is configured
-      window.backend.P2p.IsP2PSetting().then(res => {
+      window.go.app.P2p.IsP2PSetting().then(res => {
         if (res) {
           state.linkForm.peerId = record.peer_id
           state.linkVisible = true
@@ -243,7 +231,7 @@ export default {
     })
     const getResourceList = () => {
       state.loadLoading = true
-      window.backend.Resource.GetResources().then(res => {
+      window.go.app.Resource.GetResources().then(res => {
         state.list.data = res
         state.loadLoading = false
       }).catch(() => {
@@ -256,14 +244,14 @@ export default {
     const linkClose = () => {
       state.linkVisible = false
     }
-      const linkTipClose = () => {
+    const linkTipClose = () => {
       state.linkTipVisible = false;
     }
     const getAddress = () => {
 
     }
     const isSettingPublicKey = () => {
-      window.backend.Account.IsAccountSetting().then(res => {
+      window.go.app.Account.IsAccountSetting().then(res => {
         if (res) {
           getList()
           // getResourceList()
@@ -275,7 +263,7 @@ export default {
     //p2p Initialization Configuration
     const setting = () => {
       state.tipLoading = true
-      window.backend.Setting.InitP2pSetting().then(() => {
+      window.go.app.Setting.InitP2pSetting().then(() => {
         proxy.$message.success("configured successfully")
         state.tipLoading = false
         state.linkTipVisible = false
@@ -287,6 +275,7 @@ export default {
     const goSetting = () => {
       router.push("/setting")
     }
+    const api = new useStore().state.api;
     return {
       ...toRefs(state),
       getList,
@@ -302,7 +291,8 @@ export default {
       toLink,
       linkTipClose,
       setting,
-      getAddress
+      getAddress,
+      api
     }
   }
 }
@@ -313,7 +303,7 @@ export default {
   padding: 12px;
   background: white;
   border-radius: 8px;
-  height: 100%;
+  //height: 100%;
 }
 .tip-content {
   margin-top: 20px;

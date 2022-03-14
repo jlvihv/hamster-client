@@ -22,7 +22,7 @@
 
 *.db
 
-/build/*
+/build/bin
 
 # local env files
 .env.local

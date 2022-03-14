@@ -45,10 +45,9 @@
       "plugin:vue/vue3-essential",
       "eslint:recommended"
     ],
-    "parserOptions": {
-      "parser": "babel-eslint"
-    },
-    "rules": {}
+    "rules": {
+      "no-unused-vars": "off"
+    }
   },
   "browserslist": [
     "> 1%",

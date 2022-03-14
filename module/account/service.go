@@ -1,23 +1,23 @@
 package account
 
 import (
+	"context"
 	"errors"
 	"fmt"
-	"github.com/dgrijalva/jwt-go"
-	"github.com/wailsapp/wails/lib/logger"
+	jwt "github.com/dgrijalva/jwt-go"
+	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"gorm.io/gorm"
 	"hamster-client/utils"
 )
 
 type ServiceImpl struct {
-	log      *logger.CustomLogger
+	ctx      context.Context
 	db       *gorm.DB
 	httpUtil *utils.HttpUtil
 }
 
-func NewServiceImpl(db *gorm.DB, httpUtil *utils.HttpUtil) ServiceImpl {
-	log := logger.NewCustomLogger("Module_Account")
-	return ServiceImpl{log, db, httpUtil}
+func NewServiceImpl(ctx context.Context, db *gorm.DB, httpUtil *utils.HttpUtil) ServiceImpl {
+	return ServiceImpl{ctx, db, httpUtil}
 }
 
 // GetAccount get account information
@@ -25,7 +25,7 @@ func (a *ServiceImpl) GetAccount() (Account, error) {
 	var account Account
 	result := a.db.First(&account)
 	if result.Error != nil {
-		a.log.Error("GetAccount error")
+		runtime.LogError(a.ctx, "GetAccount error")
 	}
 	return account, result.Error
 }
@@ -35,6 +35,7 @@ func (a *ServiceImpl) SaveAccount(account *Account) {
 	u, _ := a.GetAccount()
 	//save or update account
 	u.PublicKey = account.PublicKey
+	u.Nodes = account.Nodes
 	a.db.Save(&u)
 }
 

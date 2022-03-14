@@ -146,7 +146,7 @@ export default defineComponent({
           // verify password
           krp.decodePkcs8(pwd);
           // backend
-          window.backend.Wallet.SaveWallet(json.address, JSON.stringify(json)).then(() => {
+          window.go.app.Wallet.SaveWallet(json.address, JSON.stringify(json)).then(() => {
             context.emit('getAddress');
             context.emit('setAddress');
           })
@@ -154,6 +154,7 @@ export default defineComponent({
         } catch (error) {
           loadFlag.value = false;
           message.error("wrong password");
+          console.log(error)
         }
       }, 100);
 

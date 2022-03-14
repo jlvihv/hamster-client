@@ -1,27 +1,26 @@
 package resource
 
 import (
-	"github.com/wailsapp/wails"
-	"github.com/wailsapp/wails/lib/logger"
+	"context"
+	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"gorm.io/gorm"
 	"hamster-client/config"
 	"hamster-client/utils"
 )
 
 type HttpService struct {
-	log      *wails.CustomLogger
+	ctx      context.Context
 	db       *gorm.DB
 	httpUtil *utils.HttpUtil
 }
 
-func NewServiceImpl(db *gorm.DB, httpUtil *utils.HttpUtil) HttpService {
-	log := logger.NewCustomLogger("Module_P2P")
-	return HttpService{log, db, httpUtil}
+func NewServiceImpl(ctx context.Context, db *gorm.DB, httpUtil *utils.HttpUtil) HttpService {
+	return HttpService{ctx, db, httpUtil}
 }
 
 // GetResourceList query my resource list
 func (r *HttpService) GetResourceList(publicKey string) ([]Resource, error) {
-	r.log.Info("start GetResourceList")
+	runtime.LogInfo(r.ctx, "start GetResourceList")
 	var resources []Resource
 	// get my resource list via http request
 	res, err := r.httpUtil.NewRequest().
@@ -29,10 +28,10 @@ func (r *HttpService) GetResourceList(publicKey string) ([]Resource, error) {
 		SetResult(&resources).
 		Get(config.HttpGetResource)
 	if err != nil {
-		r.log.Errorf("GetResourceList http error: %s\n", err)
+		runtime.LogError(r.ctx, "GetResourceList http error:"+err.Error())
 	}
 	if !res.IsSuccess() {
-		r.log.Errorf("GetResourceList Response error: %s\n", res.Status())
+		runtime.LogError(r.ctx, "GetResourceList Response error: "+res.Status())
 	}
 	return resources, err
 }
