@@ -4,7 +4,9 @@ import (
 	context "context"
 	_ "embed"
 	"fmt"
+	gsrpc "github.com/centrifuge/go-substrate-rpc-client/v4"
 	homedir "github.com/mitchellh/go-homedir"
+	"github.com/sirupsen/logrus"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"hamster-client/app"
@@ -17,10 +19,16 @@ import (
 	"path/filepath"
 )
 
+const (
+	CONFIG_DEFAULT_CHAIN_API = "ws://127.0.0.1:9944"
+	//CONFIG_DEFAULT_CHAIN_API = "ws://183.66.65.207:49944"
+)
+
 type App struct {
-	gormDB   *gorm.DB
-	httpUtil *utils.HttpUtil
-	ctx      context.Context
+	gormDB       *gorm.DB
+	substrateApi *gsrpc.SubstrateAPI
+	httpUtil     *utils.HttpUtil
+	ctx          context.Context
 
 	AccountService  account.Service
 	P2pService      p2p.Service
@@ -45,6 +53,8 @@ func (a *App) init() {
 	a.initDB()
 	//tired of initializing http tools
 	a.initHttp()
+	//init substrateApi
+	a.initApi()
 
 }
 
@@ -72,6 +82,14 @@ func (a *App) initDB() {
 		panic("failed to AutoMigrate Account")
 	}
 	a.gormDB = db
+}
+func (a *App) initApi() {
+	substrateApi, err := gsrpc.NewSubstrateAPI(CONFIG_DEFAULT_CHAIN_API)
+	if err != nil {
+		logrus.Error(err)
+		os.Exit(1)
+	}
+	a.substrateApi = substrateApi
 }
 
 func (a *App) initHttp() {

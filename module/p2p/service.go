@@ -6,15 +6,18 @@ import (
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"gorm.io/gorm"
 	"hamster-client/config"
-	"hamster-client/module/account"
+	//"hamster-client/module/account"
 	"os/exec"
-	"strings"
+	//"strings"
+	gsrpc "github.com/centrifuge/go-substrate-rpc-client/v4"
+	"github.com/centrifuge/go-substrate-rpc-client/v4/types"
 )
 
 type ServiceImpl struct {
 	ctx       context.Context
 	db        *gorm.DB
 	p2pClient *P2pClient
+	api       *gsrpc.SubstrateAPI
 }
 
 func NewServiceImpl(ctx context.Context, db *gorm.DB) ServiceImpl {
@@ -40,15 +43,19 @@ func (s *ServiceImpl) getP2pClient() (*P2pClient, error) {
 }
 
 func (s *ServiceImpl) initP2pClient(port int, privateKey string) (*P2pClient, error) {
-	var user account.Account
-	result := s.db.First(&user)
 	var nodes []string
-	if result.Error != nil {
-		nodes = DEFAULT_IPFS_PEERS
-	} else {
-		nodes = strings.Split(user.Nodes, ",")
-	}
-
+	meta, _ := s.api.RPC.State.GetMetadataLatest()
+	key, err := types.CreateStorageKey(meta, "Gateway", "Gateways")
+	s.api.RPC.State.GetStorageLatest(key, &nodes)
+	//var user account.Account
+	//result := s.db.First(&user)
+	//if result.Error != nil {
+	//	nodes = DEFAULT_IPFS_PEERS
+	//} else {
+	//	nodes = strings.Split(user.Nodes, ",")
+	//}
+	fmt.Println(nodes)
+	println(8888888)
 	host, dht, err := MakeRoutedHost(port, privateKey, nodes)
 	if err != nil {
 		return nil, err
