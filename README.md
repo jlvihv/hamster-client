@@ -93,6 +93,8 @@ Run `go install github.com/wailsapp/wails/v2/cmd/wails@latest` to install the Wa
 
 Running `wails doctor` will check if you have the correct dependencies installed. If not, it will advise on what is missing and help on how to rectify any problems.
 
+If you can't find the command, please try to configure GOROOT, add the following statement to ~/.bash_profile: `export GOROOT=/usr/local/go`, and run `source ~/.bash_profile`
+
 ### 2.4 project compile
 
 ```bash
