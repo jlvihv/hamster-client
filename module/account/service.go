@@ -35,7 +35,6 @@ func (a *ServiceImpl) SaveAccount(account *Account) {
 	u, _ := a.GetAccount()
 	//save or update account
 	u.PublicKey = account.PublicKey
-	u.Nodes = account.Nodes
 	a.db.Save(&u)
 }
 
