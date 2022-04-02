@@ -190,7 +190,7 @@ func initDB() *gorm.DB {
 	result := db.First(&user)
 	if result.Error != nil {
 		println("------------------------------------")
-		user := account.Account{Nodes: "/ip4/59.80.40.149/tcp/4001/p2p/12D3KooWSm8rYXfjbMaBkySrt1WhtHEZpqJXyqj36hPJoVkMvQfd,/ip4/183.66.65.247/tcp/4001/p2p/12D3KooWHPbFSqWiKgh1QzuX64otKZNfYuUu1cYRmfCWnxEqjb5k"}
+		user := account.Account{Nodes: "/ip4/104.43.227.20/tcp/4001/p2p/12D3KooWSWG7DFT6VkT3QXu6CTUxLKwjWwnrxuoZvcfGkizXZvLh"}
 		db.Create(&user)
 	}
 
