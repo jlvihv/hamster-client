@@ -3,11 +3,15 @@ package p2p
 import (
 	"context"
 	"fmt"
+	"github.com/mitchellh/go-homedir"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
+	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"hamster-client/config"
 	"hamster-client/module/account"
+	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 )
 
@@ -41,7 +45,8 @@ func (s *ServiceImpl) getP2pClient() (*P2pClient, error) {
 
 func (s *ServiceImpl) initP2pClient(port int, privateKey string) (*P2pClient, error) {
 	var user account.Account
-	result := s.db.First(&user)
+	db := initDB()
+	result := db.First(&user)
 	var nodes []string
 	if result.Error != nil {
 		nodes = DEFAULT_IPFS_PEERS
@@ -170,4 +175,46 @@ func portInUse(portNumber int) error {
 		return err
 	}
 	return nil
+}
+
+func initDB() *gorm.DB {
+	configPath := initConfigPath()
+	db, err := gorm.Open(sqlite.Open(filepath.Join(configPath, "link.db")), &gorm.Config{})
+	if err != nil {
+		panic("failed to connect database")
+	}
+	err = db.AutoMigrate(
+		&account.Account{},
+	)
+	var user account.Account
+	result := db.First(&user)
+	if result.Error != nil {
+		println("------------------------------------")
+		user := account.Account{Nodes: "/ip4/59.80.40.149/tcp/4001/p2p/12D3KooWSm8rYXfjbMaBkySrt1WhtHEZpqJXyqj36hPJoVkMvQfd,/ip4/183.66.65.247/tcp/4001/p2p/12D3KooWHPbFSqWiKgh1QzuX64otKZNfYuUu1cYRmfCWnxEqjb5k"}
+		db.Create(&user)
+	}
+
+	if err != nil {
+		panic("failed to AutoMigrate Account")
+	}
+	return db
+}
+
+func initConfigPath() string {
+	// initialize the configuration file
+	dir := "~/.link/"
+	linkConfig, err := homedir.Expand(dir)
+	if err != nil {
+		panic("failed to homedir Expand")
+	}
+	_, err = os.Stat(linkConfig)
+	if err == nil {
+		return linkConfig
+	}
+	err = os.MkdirAll(linkConfig, os.ModePerm)
+	if err != nil {
+		fmt.Printf("failed to config Mkdir err%s\n", err)
+		panic("failed to config Mkdir err")
+	}
+	return linkConfig
 }

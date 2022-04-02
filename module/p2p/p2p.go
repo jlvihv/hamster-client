@@ -219,13 +219,15 @@ func (c *P2pClient) Forward(port int, peerId string) error {
 
 	if err := c.CheckForwardHealth(peerId); err != nil {
 		var user account.Account
-		result := c.db.First(&user)
+		db := initDB()
+		result := db.First(&user)
 		var gatewayNodes []string
 		if result.Error != nil {
 			gatewayNodes = DEFAULT_IPFS_PEERS
 		} else {
 			gatewayNodes = strings.Split(user.Nodes, ",")
 		}
+		fmt.Println(gatewayNodes)
 		bootstrapPeers := randomSubsetOfPeers(convertPeers(gatewayNodes), 1)
 		if len(bootstrapPeers) == 0 {
 			return errors.New("not enough bootstrap peers")
