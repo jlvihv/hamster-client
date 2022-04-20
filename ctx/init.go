@@ -60,13 +60,6 @@ func (a *App) initDB() {
 		&resource.Resource{},
 		&wallet.Wallet{},
 	)
-	var user account.Account
-	result := db.First(&user)
-	if result.Error != nil {
-		println("------------------------------------")
-		user := account.Account{Nodes: "/ip4/104.43.227.20/tcp/4001/p2p/12D3KooWSWG7DFT6VkT3QXu6CTUxLKwjWwnrxuoZvcfGkizXZvLh"}
-		db.Create(&user)
-	}
 
 	if err != nil {
 		panic("failed to AutoMigrate Account")

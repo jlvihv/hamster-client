@@ -23,7 +23,8 @@ import (
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 	"hamster-client/config"
-	"hamster-client/module/account"
+
+	"github.com/centrifuge/go-substrate-rpc-client/v4/types"
 	"log"
 	"strings"
 	"time"
@@ -218,17 +219,11 @@ func (c *P2pClient) Listen(port int) error {
 func (c *P2pClient) Forward(port int, peerId string) error {
 
 	if err := c.CheckForwardHealth(peerId); err != nil {
-		var user account.Account
-		db := initDB()
-		result := db.First(&user)
-		var gatewayNodes []string
-		if result.Error != nil {
-			gatewayNodes = DEFAULT_IPFS_PEERS
-		} else {
-			gatewayNodes = strings.Split(user.Nodes, ",")
-		}
-		fmt.Println(gatewayNodes)
-		bootstrapPeers := randomSubsetOfPeers(convertPeers(gatewayNodes), 1)
+		var nodes []string
+		meta, _ := api.RPC.State.GetMetadataLatest()
+		key, err := types.CreateStorageKey(meta, "Gateway", "Gateways")
+		api.RPC.State.GetStorageLatest(key, &nodes)
+		bootstrapPeers := randomSubsetOfPeers(convertPeers(nodes), 1)
 		if len(bootstrapPeers) == 0 {
 			return errors.New("not enough bootstrap peers")
 		}
