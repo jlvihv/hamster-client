@@ -32,8 +32,8 @@ var (
 )
 
 const (
-	CONFIG_DEFAULT_CHAIN_API = "ws://127.0.0.1:9944"
-	//CONFIG_DEFAULT_CHAIN_API = "ws://183.66.65.207:49944"
+	//CONFIG_DEFAULT_CHAIN_API = "ws://127.0.0.1:9944"
+	CONFIG_DEFAULT_CHAIN_API = "ws://183.66.65.207:49944"
 )
 
 // ErrNotEnoughBootstrapPeers signals that we do not have enough bootstrap
