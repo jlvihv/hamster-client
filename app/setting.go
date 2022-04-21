@@ -10,6 +10,7 @@ type Config struct {
 	PublicKey string
 	Port      int
 	PeerId    string
+	WsUrl     string
 }
 
 type Setting struct {
@@ -39,6 +40,7 @@ func (s *Setting) GetSetting() (*Config, error) {
 		return config, err
 	}
 	config.PublicKey = info.PublicKey
+	config.WsUrl = info.WsUrl
 	//query the setting information in the p2p setting
 	p2pConfig, err := s.p2pService.GetSetting()
 	if err != nil {
@@ -50,11 +52,12 @@ func (s *Setting) GetSetting() (*Config, error) {
 }
 
 // Setting set public key information
-func (s *Setting) Setting(publicKey string) (bool, error) {
+func (s *Setting) Setting(publicKey string, wsUrl string) (bool, error) {
 	accountInfo, _ := s.accountService.GetAccount()
 
 	//set user public key
 	accountInfo.PublicKey = publicKey
+	accountInfo.WsUrl = wsUrl
 	s.accountService.SaveAccount(&accountInfo)
 	return true, nil
 }

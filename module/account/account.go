@@ -7,6 +7,7 @@ import (
 type Account struct {
 	gorm.Model
 	PublicKey string `json:"publicKey"`
+	WsUrl     string
 }
 
 type Service interface {

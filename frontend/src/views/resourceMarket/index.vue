@@ -114,6 +114,8 @@ import PTable from "../../components/table/PTable";
 import TransactionModal from "../../components/model/transactionModal";
 import BuyModal from "../../components/model/index";
 import {useStore} from "vuex";
+import {ApiPromise, WsProvider} from "@polkadot/api";
+import types from "../../api/types";
 
 export default {
   name: "index",
@@ -145,6 +147,15 @@ export default {
         current: 1
       },
     });
+    const store = new useStore();
+    const initApi = async () => {
+      let res = await window.go.app.Setting.GetSetting()
+      store.commit('setUrl',res.WsUrl);
+      const wsProvider = new WsProvider(res.WsUrl);
+      const newApi = ApiPromise.create({provider: wsProvider,types});
+      store.commit('setApi',newApi);
+    }
+    initApi()
     const buyResourceRules = {
       rentalDuration: [
         { required: true, message: 'Please enter the renewal duration', trigger: 'blur' }

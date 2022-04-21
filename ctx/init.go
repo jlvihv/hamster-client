@@ -60,7 +60,13 @@ func (a *App) initDB() {
 		&resource.Resource{},
 		&wallet.Wallet{},
 	)
-
+	var user account.Account
+	result := db.First(&user)
+	if result.Error != nil {
+		println("------------------------------------")
+		user := account.Account{WsUrl: "ws://127.0.0.1:9944"}
+		db.Create(&user)
+	}
 	if err != nil {
 		panic("failed to AutoMigrate Account")
 	}

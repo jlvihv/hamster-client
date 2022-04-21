@@ -35,6 +35,7 @@ func (a *ServiceImpl) SaveAccount(account *Account) {
 	u, _ := a.GetAccount()
 	//save or update account
 	u.PublicKey = account.PublicKey
+	u.WsUrl = account.WsUrl
 	a.db.Save(&u)
 }
 
