@@ -41,6 +41,7 @@ func (s *ServiceImpl) getP2pClient() (*P2pClient, error) {
 
 func (s *ServiceImpl) initP2pClient(port int, privateKey string) (*P2pClient, error) {
 	var nodes []string
+	api := CreateApi()
 	meta, _ := api.RPC.State.GetMetadataLatest()
 	key, err := types.CreateStorageKey(meta, "Gateway", "Gateways")
 	api.RPC.State.GetStorageLatest(key, &nodes)

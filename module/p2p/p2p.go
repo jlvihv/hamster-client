@@ -220,6 +220,7 @@ func (c *P2pClient) Forward(port int, peerId string) error {
 
 	if err := c.CheckForwardHealth(peerId); err != nil {
 		var nodes []string
+		api := CreateApi()
 		meta, _ := api.RPC.State.GetMetadataLatest()
 		key, err := types.CreateStorageKey(meta, "Gateway", "Gateways")
 		api.RPC.State.GetStorageLatest(key, &nodes)

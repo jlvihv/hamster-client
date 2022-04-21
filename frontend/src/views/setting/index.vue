@@ -36,7 +36,7 @@
       </a-form>
       <div style="display: flex;align-items: center">
         <span style="width: 160px">Please input WsUrl:</span>
-        <a-input type="text" v-model:value="msg" placeholder="edit me" @change="editApi"/>
+        <a-input type="text" v-model:value="settingForm.wsUrl" placeholder="please enter public key"/>
       </div>
       <div class="node-address-style" v-if="settingData.peerId != ''">
         <span class="font-style">Node address：</span>
@@ -71,7 +71,8 @@ export default {
     const store = new useStore();
     const state = reactive({
       settingForm: {
-        publicKey: ""
+        publicKey: "",
+        wsUrl: ""
       },
       loading: false,
       address: "",
@@ -90,10 +91,10 @@ export default {
           trigger: "blur",
         },
       ],
-      privateKey: [
+      wsUrl: [
         {
           required: true,
-          message: "Please enter private key",
+          message: "Please enter chain address",
           trigger: "blur",
         },
       ]
@@ -114,12 +115,17 @@ export default {
         state.settingForm.publicKey = res.PublicKey;
         state.settingData.peerId = res.PeerId;
         state.settingData.port = res.Port;
+        state.settingForm.wsUrl = res.WsUrl;
       })
     }
     const setting = () => {
       settingState.value.validate().then(() => {
-        window.go.app.Setting.Setting(state.settingForm.publicKey).then(res => {
+        window.go.app.Setting.Setting(state.settingForm.publicKey,state.settingForm.wsUrl).then(res => {
           if (res) {
+            store.commit('setUrl',state.settingForm.wsUrl);
+            const wsProvider = new WsProvider(state.settingForm.wsUrl);
+            const newApi = ApiPromise.create({provider: wsProvider,types});
+            store.commit('setApi',newApi);
             proxy.$message.success("Configured successfully")
           }
         }).catch((err) => {

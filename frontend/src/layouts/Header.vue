@@ -22,6 +22,9 @@
 import {reactive, toRefs, ref, onMounted} from "vue";
 import ImportJsonModal from "../components/importJson/index";
 import { message } from "ant-design-vue";
+import {ApiPromise, WsProvider} from "@polkadot/api";
+import types from "../api/types";
+import {useStore} from "vuex";
 export default {
   name: "MobileHeader",
   components: {
@@ -39,8 +42,18 @@ export default {
     const showImportJsonModal = () => {
       refImportJson.value.openModal();
     }
+    const store = new useStore();
+    const initApi = () => {
+      window.go.app.Setting.GetSetting().then(res => {
+        store.commit('setUrl',res.WsUrl);
+        const wsProvider = new WsProvider(res.WsUrl);
+        const newApi = ApiPromise.create({provider: wsProvider,types});
+        store.commit('setApi',newApi);
+      })
+    }
     onMounted(() => {
       getAddress()
+      initApi()
     })
     //get account address
     const getAddress = () => {
