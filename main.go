@@ -43,6 +43,7 @@ func main() {
 			&app.ResourceApp,
 			&app.SettingApp,
 			&app.WalletApp,
+			&app.DeployApp,
 		},
 		// Windows platform specific options
 		Windows: &windows.Options{

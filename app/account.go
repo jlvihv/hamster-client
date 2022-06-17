@@ -27,6 +27,10 @@ func (s *Account) GetAccountInfo() (account.Account, error) {
 	return info, err
 }
 
+func (s *Account) SaveOrderIndex(index int) {
+	s.accountService.SaveOrderIndex(index)
+}
+
 // IsAccount determine if the user exists
 func (s *Account) IsAccount() bool {
 	_, err := s.accountService.GetAccount()

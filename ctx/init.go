@@ -9,7 +9,9 @@ import (
 	"gorm.io/gorm"
 	"hamster-client/app"
 	"hamster-client/module/account"
+	"hamster-client/module/deploy"
 	"hamster-client/module/p2p"
+	"hamster-client/module/pallet"
 	"hamster-client/module/resource"
 	"hamster-client/module/wallet"
 	"hamster-client/utils"
@@ -26,12 +28,14 @@ type App struct {
 	P2pService      p2p.Service
 	ResourceService resource.Service
 	WalletService   wallet.Service
+	DeployService   deploy.Service
 
 	AccountApp  app.Account
 	P2pApp      app.P2p
 	ResourceApp app.Resource
 	SettingApp  app.Setting
 	WalletApp   app.Wallet
+	DeployApp   app.Deploy
 }
 
 func NewApp() *App {
@@ -45,7 +49,7 @@ func (a *App) init() {
 	a.initDB()
 	//tired of initializing http tools
 	a.initHttp()
-
+	go pallet.WatchEvent(a.gormDB)
 }
 
 func (a *App) initDB() {
@@ -86,6 +90,8 @@ func (a *App) initService() {
 	a.ResourceService = &resourceServiceImpl
 	walletServiceImpl := wallet.NewServiceImpl(a.ctx, a.gormDB)
 	a.WalletService = &walletServiceImpl
+	deployServiceImpl := deploy.NewServiceImpl(a.ctx, a.httpUtil)
+	a.DeployService = &deployServiceImpl
 }
 
 func (a *App) initApp() {
@@ -94,6 +100,7 @@ func (a *App) initApp() {
 	a.ResourceApp = app.NewResourceApp(a.ResourceService, a.AccountService)
 	a.SettingApp = app.NewSettingApp(a.P2pService, a.AccountService)
 	a.WalletApp = app.NewWalletApp(a.WalletService)
+	a.DeployApp = app.NewDeployApp(a.DeployService)
 }
 
 func initConfigPath() string {

@@ -6,7 +6,8 @@ const (
 	// HttpGetCode get verification code
 	HttpGetCode = "https://ttchain.tntlinking.com/api/authorization/verification/code"
 	// HttpLogin login
-	HttpLogin = "https://ttchain.tntlinking.com/api/authorization/oauth/token"
+	HttpLogin    = "https://ttchain.tntlinking.com/api/authorization/oauth/token"
+	Httpprovider = "http://172.16.8.189:10771/api/v1/thegraph/deploy"
 
 	//Port p2p port configuration
 	Port = 4001

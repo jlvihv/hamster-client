@@ -6,6 +6,7 @@ import Status from "../views/status/index"
 import ResourceMarket from "@/views/resourceMarket";
 import OrderList from "@/views/orderList";
 import MyResource from "@/views/myResource";
+import Websocket from "@/views/websocket"
 
 const routes = [
   {
@@ -78,6 +79,16 @@ const routes = [
         },
         // You can only use pre-loading to add routes, not the on-demand loading method.
         component: Status
+      },
+      {
+        path: '/Deploy',
+        name: 'Deploy',
+        showLevelFlag: false,
+        isShow: true,
+        meta: {
+          title: 'Deploy',
+        },
+        component: Websocket
       }
     ]
   }
