@@ -26,4 +26,5 @@ type Service interface {
 	GetLinks() *[]LinkInfo
 	InitSetting() error
 	GetSetting() (P2pConfig, error)
+	ProLink(peerId string) error
 }

@@ -139,18 +139,18 @@ export default {
         publicKey: ""
       },
       deployForm: {
-        nodeEthereumUrl: "",
-        ethereumUrl: "",
-        ethereumNetwork: "",
-        indexerAddress: "",
-        mnemonic:""
+        nodeEthereumUrl: "mainnet:https://eth-mainnet.alchemyapi.io/v2/wHl5-FZKD68DlhCuUiOXgYh4Z0q0L5fh",
+        ethereumUrl: "https://rinkeby.infura.io/v3/af7a79eb36f64e609b5dda130cd62946",
+        ethereumNetwork: "rinkeby",
+        indexerAddress: "0x9438BbE4E7AF1ec6b13f75ECd1f53391506A12DF",
+        mnemonic:"please output text solve glare exit divert boil nerve eagle attack turkey"
       }
     })
     onMounted(() => {
       var term = new Terminal();
       var fitAddon = new FitAddon()
       // var socket = new WebSocket(`ws://localhost:2375/containers/1eae0f865dc9/attach/ws?logs=0&stream=1&stdin=1&stdout=1&stderr=1`)
-      var socket = new WebSocket(`ws://172.16.8.189:10771/api/v1/thegraph/ws?serviceName=index-cli`)
+      var socket = new WebSocket(`ws://localhost:10771/api/v1/thegraph/ws?serviceName=index-cli`)
       var attachAddon = new AttachAddon(socket)
       term.loadAddon(attachAddon)
       term.loadAddon(fitAddon)
@@ -168,7 +168,7 @@ export default {
       state.loadLoading = true;
       state.applyLoading = true
       let API = await api;
-      let transaction = API.tx.resourceOrder.applyFreeResource(state.applyForm.cpu,state.applyForm.memory,state.applyForm.duration,1);
+      let transaction = API.tx.resourceOrder.applyFreeResource(state.applyForm.cpu,state.applyForm.memory,state.applyForm.duration,state.applyForm.publicKey,1);
       applyTransRef.value.openModal(transaction.method.toHex());
     }
     const showApplyResourceModal = () => {
@@ -179,7 +179,7 @@ export default {
     }
     const apply = async (krp) => {
       let API = await api;
-      API.tx.resourceOrder.applyFreeResource(state.applyForm.cpu,state.applyForm.memory,state.applyForm.duration,1).signAndSend(krp,{nonce: -1},({ status, events, dispatchError }) => {
+      API.tx.resourceOrder.applyFreeResource(state.applyForm.cpu,state.applyForm.memory,state.applyForm.duration,state.applyForm.publicKey,1).signAndSend(krp,{nonce: -1},({ status, events, dispatchError }) => {
         if (status.isInBlock) {
           if (dispatchError) {
             if (dispatchError.isModule) {
@@ -215,8 +215,10 @@ export default {
       })
     }
     const deploy = () => {
+      // window.go.app.Setting.InitP2pSetting().then(() => {
+
+      // })
       state.deployLoading = true
-      console.log(6666666)
       window.go.app.Deploy.DeployTheGraph(state.deployForm.nodeEthereumUrl,state.deployForm.ethereumUrl,state.deployForm.ethereumNetwork,state.deployForm.indexerAddress,state.deployForm.mnemonic).then(() => {
         state.deployLoading = false
         state.deployVisible =false

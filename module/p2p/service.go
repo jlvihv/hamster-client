@@ -64,7 +64,8 @@ func (s *ServiceImpl) Link(port int, peerId string) error {
 	if err != nil {
 		return err
 	}
-	err = client.Forward(port, peerId)
+	protocol := "/x/ssh"
+	err = client.Forward(protocol, port, peerId)
 	if err != nil {
 		return err
 	}
@@ -96,6 +97,7 @@ func (s *ServiceImpl) Destroy() error {
 //GetLinks get a list of links
 func (s *ServiceImpl) GetLinks() *[]LinkInfo {
 	runtime.LogWarning(s.ctx, "GetLinks start")
+	protocol := "/x/ssh"
 	var links []LinkInfo
 	client, err := s.getP2pClient()
 	if err != nil {
@@ -104,7 +106,7 @@ func (s *ServiceImpl) GetLinks() *[]LinkInfo {
 	outPut := client.List()
 	for _, value := range outPut.Listeners {
 		linkInfo := LinkInfo{Protocol: value.Protocol, ListenAddress: value.ListenAddress, TargetAddress: value.TargetAddress}
-		err := client.CheckForwardHealth(value.TargetAddress)
+		err := client.CheckForwardHealth(protocol, value.TargetAddress)
 		linkInfo.Status = err == nil
 		runtime.LogInfo(s.ctx, fmt.Sprintf("GetLinks %s\n", linkInfo.Status))
 		links = append(links, linkInfo)
@@ -162,6 +164,20 @@ func portInUse(portNumber int) error {
 	cmdStr := fmt.Sprintf("netstat -nlp | grep :%d", portNumber)
 	cmd := exec.Command("bash", "-c", cmdStr)
 	_, err := cmd.CombinedOutput()
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *ServiceImpl) ProLink(peerId string) error {
+	client, err := s.getP2pClient()
+	if err != nil {
+		return err
+	}
+	protocol := "/x/provider"
+	port := 10771
+	err = client.Forward(protocol, port, peerId)
 	if err != nil {
 		return err
 	}

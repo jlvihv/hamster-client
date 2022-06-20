@@ -1,20 +1,3 @@
-export namespace account {
-	
-	export class Account {
-	    publicKey: string;
-	
-	    static createFrom(source: any = {}) {
-	        return new Account(source);
-	    }
-	
-	    constructor(source: any = {}) {
-	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.publicKey = source["publicKey"];
-	    }
-	}
-
-}
-
 export namespace resource {
 	
 	export class Resource {
@@ -81,6 +64,23 @@ export namespace wallet {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.address = source["address"];
 	        this.address_json = source["address_json"];
+	    }
+	}
+
+}
+
+export namespace account {
+	
+	export class Account {
+	    publicKey: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new Account(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.publicKey = source["publicKey"];
 	    }
 	}
 

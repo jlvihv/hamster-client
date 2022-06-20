@@ -100,7 +100,7 @@ func (a *App) initApp() {
 	a.ResourceApp = app.NewResourceApp(a.ResourceService, a.AccountService)
 	a.SettingApp = app.NewSettingApp(a.P2pService, a.AccountService)
 	a.WalletApp = app.NewWalletApp(a.WalletService)
-	a.DeployApp = app.NewDeployApp(a.DeployService)
+	a.DeployApp = app.NewDeployApp(a.DeployService, a.AccountService, a.P2pService)
 }
 
 func initConfigPath() string {
