@@ -28,13 +28,11 @@ func WatchEvent(db *gorm.DB) {
 	defer sub.Unsubscribe()
 	for {
 		set := <-sub.Chan()
-		fmt.Println(22222)
 		for _, chng := range set.Changes {
 			if !types.Eq(chng.StorageKey, key) || !chng.HasStorageData {
 				// skip, we are only interested in events with content
 				continue
 			}
-			fmt.Println(11111111111)
 			// Decode the event records
 			evt := MyEventRecords{}
 			storageData := chng.StorageData

@@ -139,11 +139,11 @@ export default {
         publicKey: ""
       },
       deployForm: {
-        nodeEthereumUrl: "mainnet:https://eth-mainnet.alchemyapi.io/v2/wHl5-FZKD68DlhCuUiOXgYh4Z0q0L5fh",
-        ethereumUrl: "https://rinkeby.infura.io/v3/af7a79eb36f64e609b5dda130cd62946",
-        ethereumNetwork: "rinkeby",
-        indexerAddress: "0x9438BbE4E7AF1ec6b13f75ECd1f53391506A12DF",
-        mnemonic:"please output text solve glare exit divert boil nerve eagle attack turkey"
+        nodeEthereumUrl: "mainnet:https://eth-mainnet.alchemyapi.io/v2/wHl5-FZKD68DlhCuUiOXgYh4Z0q0L5fh",   //graph_node 配置的以太坊节点
+        ethereumUrl: "https://rinkeby.infura.io/v3/af7a79eb36f64e609b5dda130cd62946",     // index-service,index-agent配置的以太坊节点
+        ethereumNetwork: "rinkeby",  //以太坊网络
+        indexerAddress: "0x9438BbE4E7AF1ec6b13f75ECd1f53391506A12DF",   //索引人地址
+        mnemonic:"please output text solve glare exit divert boil nerve eagle attack turkey"  //索引人助记词
       }
     })
     onMounted(() => {
