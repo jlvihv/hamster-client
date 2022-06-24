@@ -4,6 +4,7 @@ import (
 	"context"
 	"hamster-client/module/account"
 	"hamster-client/module/p2p"
+	"hamster-client/module/pallet"
 )
 
 type Config struct {
@@ -17,6 +18,7 @@ type Setting struct {
 	ctx            context.Context
 	p2pService     p2p.Service
 	accountService account.Service
+	chainListener  pallet.ChainListener
 }
 
 func NewSettingApp(service p2p.Service, accountService account.Service) Setting {
@@ -59,6 +61,10 @@ func (s *Setting) Setting(publicKey string, wsUrl string) (bool, error) {
 	accountInfo.PublicKey = publicKey
 	accountInfo.WsUrl = wsUrl
 	s.accountService.SaveAccount(&accountInfo)
+	// close go func
+	s.chainListener.CancelListen()
+	//start go func
+	s.chainListener.StartListen()
 	return true, nil
 }
 

@@ -3,6 +3,7 @@ package main
 import (
 	"embed"
 	"hamster-client/ctx"
+	"hamster-client/listener"
 	"log"
 
 	"github.com/wailsapp/wails/v2"
@@ -17,6 +18,7 @@ var assets embed.FS
 func main() {
 
 	app := ctx.NewApp()
+	listener.NewListener()
 	// Create application with options
 	err := wails.Run(&options.App{
 		Title:  "hamster-client",
@@ -44,6 +46,7 @@ func main() {
 			&app.SettingApp,
 			&app.WalletApp,
 			&app.DeployApp,
+			&app.ApplicationApp,
 		},
 		// Windows platform specific options
 		Windows: &windows.Options{

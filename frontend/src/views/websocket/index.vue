@@ -175,6 +175,11 @@ export default {
       state.applyVisible = true
     }
     const showDeployModal = () => {
+      // window.go.app.Application.DeleteGraphAndParams(1).then((res) => {
+      //   console.log(res);
+      // }).catch(() => {
+      //
+      // })
       state.deployVisible = true
     }
     const apply = async (krp) => {

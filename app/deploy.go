@@ -29,13 +29,14 @@ func (d *Deploy) WailsInit(ctx context.Context) error {
 }
 
 // DeployTheGraph deploy the graph
-func (d *Deploy) DeployTheGraph(nodeEthereumUrl string, ethereumUrl string, ethereumNetwork string, indexerAddress string, mnemonic string) error {
+func (d *Deploy) DeployTheGraph(params deploy.DeployParams) error {
 	var data deploy.DeployParams
-	data.Mnemonic = mnemonic
-	data.IndexerAddress = indexerAddress
-	data.NodeEthereumUrl = nodeEthereumUrl
-	data.EthereumUrl = ethereumUrl
-	data.EthereumNetwork = ethereumNetwork
+	data.Mnemonic = params.Mnemonic
+	data.IndexerAddress = params.IndexerAddress
+	data.NodeEthereumUrl = params.NodeEthereumUrl
+	data.EthereumUrl = params.EthereumUrl
+	data.EthereumNetwork = params.EthereumNetwork
+	data.Id = params.Id
 	fmt.Println("p2p start")
 	info, err := d.accountService.GetAccount()
 	if err != nil {
