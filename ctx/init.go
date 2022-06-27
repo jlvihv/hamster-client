@@ -89,7 +89,7 @@ func (a *App) initHttp() {
 }
 
 func (a *App) initService() {
-	graphParamServiceImpl := graph.NewServiceImpl(a.ctx, a.gormDB)
+	graphParamServiceImpl := graph.NewServiceImpl(a.ctx, a.gormDB, a.httpUtil)
 	a.GraphParamsService = &graphParamServiceImpl
 	accountServiceImpl := account.NewServiceImpl(a.ctx, a.gormDB, a.httpUtil)
 	a.AccountService = &accountServiceImpl

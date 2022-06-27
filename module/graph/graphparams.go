@@ -20,4 +20,5 @@ type Service interface {
 	SaveGraphParameter(data GraphParameter) error
 	QueryParamByApplyId(applicationId int) (GraphParameter, error)
 	DeleteGraphAndParams(applicationId int) error
+	QueryGraphStatus(serviceName string) (int, error)
 }
