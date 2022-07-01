@@ -77,3 +77,27 @@ func (s *Setting) InitP2pSetting() (bool, error) {
 	}
 	return true, nil
 }
+
+func (s *Setting) SettingWsUrl(wsUrl string) (bool, error) {
+	accountInfo, err := s.accountService.GetAccount()
+	if err != nil {
+		return false, err
+	}
+	accountInfo.WsUrl = wsUrl
+	s.accountService.SaveAccount(&accountInfo)
+	// close go func
+	s.chainListener.CancelListen()
+	//start go func
+	s.chainListener.StartListen()
+	return true, nil
+}
+
+func (s *Setting) SettingPublicKey(publicKey string) (bool, error) {
+	accountInfo, err := s.accountService.GetAccount()
+	if err != nil {
+		return false, err
+	}
+	accountInfo.PublicKey = publicKey
+	s.accountService.SaveAccount(&accountInfo)
+	return true, nil
+}

@@ -3,10 +3,10 @@
 import {wallet} from '../models';
 import {context} from '../models';
 
-export function DeleteWallet():void;
-
-export function GetWalletInfo():Promise<wallet.Wallet|Error>;
-
 export function SaveWallet(arg1:string,arg2:string):Promise<wallet.Wallet|Error>;
 
 export function WailsInit(arg1:context.Context):Promise<Error>;
+
+export function DeleteWallet():void;
+
+export function GetWalletInfo():Promise<wallet.Wallet|Error>;
