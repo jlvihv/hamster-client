@@ -41,7 +41,7 @@ func (a *Application) DeleteApplication(id int) error {
 }
 
 // ApplicationList Paging query application list
-func (a *Application) ApplicationList(page, pageSize int, name string, status int) (data []application.Application, err error) {
+func (a *Application) ApplicationList(page, pageSize int, name string, status int) (data []application.Application, count int64, err error) {
 	return a.applicationService.ApplicationList(page, pageSize, name, status)
 }
 

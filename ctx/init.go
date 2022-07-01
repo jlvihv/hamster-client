@@ -42,6 +42,7 @@ type App struct {
 	WalletApp      app.Wallet
 	DeployApp      app.Deploy
 	ApplicationApp app.Application
+	GraphApp       app.Graph
 }
 
 func NewApp() *App {
@@ -115,6 +116,7 @@ func (a *App) initApp() {
 	a.WalletApp = app.NewWalletApp(a.WalletService)
 	a.DeployApp = app.NewDeployApp(a.DeployService, a.AccountService, a.P2pService)
 	a.ApplicationApp = app.NewApplicationApp(a.ApplicationService, a.GraphParamsService)
+	a.GraphApp = app.NewGraphApp(a.GraphParamsService)
 }
 
 func initConfigPath() string {

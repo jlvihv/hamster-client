@@ -58,7 +58,8 @@ func (a *ServiceImpl) QueryApplicationById(id int) (Application, error) {
 }
 
 // ApplicationList Paging query application data
-func (a *ServiceImpl) ApplicationList(page, pageSize int, name string, status int) (data []Application, err error) {
+func (a *ServiceImpl) ApplicationList(page, pageSize int, name string, status int) (data []Application, count int64, err error) {
+	var total int64
 	var list []Application
 	tx := a.db.Model(Application{})
 	if name != "" {
@@ -67,11 +68,11 @@ func (a *ServiceImpl) ApplicationList(page, pageSize int, name string, status in
 	if status != 2 {
 		tx = tx.Where("status = ?", status)
 	}
-	result := tx.Offset((page - 1) * pageSize).Limit(pageSize).Find(&list)
+	result := tx.Offset((page - 1) * pageSize).Limit(pageSize).Find(&list).Count(&total)
 	if result.Error != nil {
-		return nil, result.Error
+		return nil, total, result.Error
 	}
-	return list, nil
+	return list, total, nil
 }
 
 // UpdateApplicationStatus update deploy status

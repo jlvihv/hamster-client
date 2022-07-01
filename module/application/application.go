@@ -17,6 +17,6 @@ type Service interface {
 	UpdateApplication(id int, name string, abbreviation string, des string) error
 	DeleteApplication(id int) error
 	QueryApplicationById(id int) (Application, error)
-	ApplicationList(page, pageSize int, name string, status int) (data []Application, err error)
+	ApplicationList(page, pageSize int, name string, status int) (data []Application, count int64, err error)
 	UpdateApplicationStatus(id, status int) error
 }
