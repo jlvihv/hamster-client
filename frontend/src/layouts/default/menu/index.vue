@@ -4,19 +4,19 @@
       <template v-for="item in menus.filter((x) => !x.hideMenu)">
         <SubMenu v-if="item.children.length > 0 && !item.hideChildrenInMenu" :key="item.name">
           <template #icon v-if="item.icon">
-            <Icon :name="item.icon" />
+            <Icon :icon="item.icon" />
           </template>
           <template #title>{{ getMenuTitle(item) }}</template>
           <MenuItem :key="subItem.name" v-for="subItem in item.children.filter((x) => !x.hideMenu)">
             <template #icon v-if="subItem.icon">
-              <Icon :name="subItem.icon" />
+              <Icon :icon="subItem.icon" />
             </template>
             {{ getMenuTitle(subItem) }}
           </MenuItem>
         </SubMenu>
         <MenuItem :key="item.name" v-else>
           <template #icon v-if="item.icon">
-            <Icon :name="item.icon" />
+            <Icon :icon="item.icon" />
           </template>
           {{ getMenuTitle(item) }}
         </MenuItem>
@@ -26,11 +26,9 @@
 </template>
 
 <script lang="ts" setup>
-  import type { PropType, CSSProperties } from 'vue';
   import type { Menu as MenuType } from '/@/router/types';
-  import { ref } from 'vue';
   import { useRouter } from 'vue-router';
-  // import { Icon } from '/@/components/Icon';
+  import { Icon } from '/@/components/Icon';
   import { getMenus } from '/@/router/menus';
   import { useDesign } from '/@/hooks/web/useDesign';
   import { useI18n } from '/@/hooks/web/useI18n';

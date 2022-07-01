@@ -30,6 +30,7 @@
 
     &-main {
       background-color: #f7f3ee;
+
       &-header {
         background-color: @white;
       }
