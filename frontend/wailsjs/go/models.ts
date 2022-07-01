@@ -17,6 +17,56 @@ export namespace wallet {
 
 }
 
+export namespace deploy {
+	
+	export class DeployParams {
+	    id: number;
+	    nodeEthereumUrl: string;
+	    ethereumUrl: string;
+	    ethereumNetwork: string;
+	    indexerAddress: string;
+	    mnemonic: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new DeployParams(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.id = source["id"];
+	        this.nodeEthereumUrl = source["nodeEthereumUrl"];
+	        this.ethereumUrl = source["ethereumUrl"];
+	        this.ethereumNetwork = source["ethereumNetwork"];
+	        this.indexerAddress = source["indexerAddress"];
+	        this.mnemonic = source["mnemonic"];
+	    }
+	}
+
+}
+
+export namespace application {
+	
+	export class Application {
+	    name: string;
+	    abbreviation: string;
+	    describe: string;
+	    status: number;
+	
+	    static createFrom(source: any = {}) {
+	        return new Application(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.name = source["name"];
+	        this.abbreviation = source["abbreviation"];
+	        this.describe = source["describe"];
+	        this.status = source["status"];
+	    }
+	}
+
+}
+
 export namespace account {
 	
 	export class Account {
