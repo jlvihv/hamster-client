@@ -1,61 +1,108 @@
 {
-  "name": "link",
-  "version": "1.0.0",
+  "name": "hamster-client-frontend",
   "private": true,
+  "version": "2.0.0",
   "scripts": {
-    "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint"
+    "serve": "npm run dev",
+    "dev": "vite",
+    "build": "cross-env NODE_ENV=production vite build",
+    "report": "cross-env REPORT=true npm run build",
+    "type:check": "vue-tsc --noEmit --skipLibCheck",
+    "preview": "npm run build && vite preview",
+    "preview:dist": "vite preview",
+    "lint:eslint": "eslint --cache --max-warnings 0  \"{src,mock}/**/*.{vue,ts,tsx}\" --fix",
+    "lint:prettier": "prettier --write  \"src/**/*.{js,json,tsx,css,less,scss,vue,html,md}\"",
+    "lint:stylelint": "stylelint --cache --fix \"**/*.{vue,less,postcss,css,scss}\" --cache --cache-location node_modules/.cache/stylelint/",
+    "lint:lint-staged": "lint-staged",
+    "test": "jest"
   },
   "dependencies": {
-    "@polkadot/api": "^5.1.1",
-    "@polkadot/wasm-crypto": "4.5.1",
-    "@polkadot/wasm-crypto-asmjs": "4.5.1",
-    "@polkadot/wasm-crypto-wasm": "4.5.1",
-    "@soerenmartius/vue3-clipboard": "^0.1.2",
-    "@wailsapp/runtime": "^1.1.1",
-    "ant-design-vue": "^2.2.8",
-    "core-js": "^3.6.5",
-    "node-sass": "^6.0.1",
-    "sass": "^1.26.5",
-    "sass-loader": "^10.0.1",
-    "silly-datetime": "^0.1.2",
-    "stylus-loader": "^6.2.0",
-    "vue": "^3.0.0",
-    "vue-router": "^4.0.0-0",
-    "vuex": "^4.0.0-0",
-    "webpack": "^4.46.0",
-    "xterm": "^4.18.0",
-    "xterm-addon-fit": "^0.5.0",
-    "xterm-addon-attach": "^0.6.0"
+    "@ant-design/colors": "^6.0.0",
+    "@ant-design/icons-vue": "^6.1.0",
+    "@iconify/iconify": "^2.2.1",
+    "@polkadot/api": "^8.10.1",
+    "@polkadot/wasm-crypto": "^6.1.5",
+    "@polkadot/wasm-crypto-asmjs": "^6.1.5",
+    "@polkadot/wasm-crypto-wasm": "^6.1.5",
+    "@vueuse/core": "^8.7.5",
+    "ant-design-vue": "^3.2.9",
+    "date-fns": "^2.28.0",
+    "dayjs": "^1.11.3",
+    "lodash-es": "^4.17.21",
+    "pinia": "^2.0.14",
+    "tailwindcss": "^3.1.4",
+    "vue": "^3.2.25",
+    "vue-i18n": "^9.1.10",
+    "vue-router": "^4.0.16",
+    "vue-types": "^4.1.1"
   },
   "devDependencies": {
-    "@vue/cli-plugin-babel": "~4.5.0",
-    "@vue/cli-plugin-eslint": "~4.5.0",
-    "@vue/cli-plugin-router": "~4.5.0",
-    "@vue/cli-plugin-vuex": "~4.5.0",
-    "@vue/cli-service": "~4.5.0",
-    "@vue/compiler-sfc": "^3.0.0",
-    "babel-eslint": "^10.1.0",
-    "eslint": "^6.7.2",
-    "eslint-plugin-vue": "^7.0.0"
+    "@types/node": "^18.0.0",
+    "@typescript-eslint/eslint-plugin": "^5.30.0",
+    "@typescript-eslint/parser": "^5.30.0",
+    "@vitejs/plugin-legacy": "^1.8.2",
+    "@vitejs/plugin-vue": "^2.3.3",
+    "autoprefixer": "^10.4.7",
+    "cross-env": "^7.0.3",
+    "eslint": "^8.18.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-define-config": "^1.5.1",
+    "eslint-plugin-jest": "^26.5.3",
+    "eslint-plugin-prettier": "^4.1.0",
+    "eslint-plugin-vue": "^9.1.1",
+    "esno": "^0.16.3",
+    "husky": "^8.0.1",
+    "less": "^4.1.3",
+    "lint-staged": "^13.0.3",
+    "postcss": "^8.4.14",
+    "postcss-html": "^1.4.1",
+    "postcss-less": "^6.0.0",
+    "prettier": "^2.7.1",
+    "stylelint": "^14.9.1",
+    "stylelint-config-html": "^1.0.0",
+    "stylelint-config-prettier": "^9.0.3",
+    "stylelint-config-recommended": "^8.0.0",
+    "stylelint-config-recommended-vue": "^1.4.0",
+    "stylelint-config-standard": "^26.0.0",
+    "stylelint-order": "^5.0.0",
+    "typescript": "^4.7.4",
+    "vite": "^2.9.9",
+    "vite-plugin-html": "^3.2.0",
+    "vite-plugin-purge-icons": "^0.8.1",
+    "vite-plugin-style-import": "^2.0.0",
+    "vite-plugin-svg-icons": "^2.0.1",
+    "vite-plugin-vue-setup-extend": "^0.4.0",
+    "vue-eslint-parser": "^9.0.3",
+    "vue-tsc": "^0.38.2"
   },
-  "eslintConfig": {
-    "root": true,
-    "env": {
-      "node": true
-    },
-    "extends": [
-      "plugin:vue/vue3-essential",
-      "eslint:recommended"
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hamster-shared/hamster-client.git"
+  },
+  "license": "Apache License 2.0",
+  "homepage": "https://github.com/hamster-shared/hamster-client",
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
     ],
-    "rules": {
-      "no-unused-vars": "off"
-    }
-  },
-  "browserslist": [
-    "> 1%",
-    "last 2 versions",
-    "not dead"
-  ]
+    "{!(package)*.json,*.code-snippets,.!(browserslist)*rc}": [
+      "prettier --write--parser json"
+    ],
+    "package.json": [
+      "prettier --write"
+    ],
+    "*.vue": [
+      "eslint --fix",
+      "prettier --write",
+      "stylelint --fix"
+    ],
+    "*.{scss,less,styl,html}": [
+      "stylelint --fix",
+      "prettier --write"
+    ],
+    "*.md": [
+      "prettier --write"
+    ]
+  }
 }
