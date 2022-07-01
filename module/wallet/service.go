@@ -28,13 +28,16 @@ func (w *ServiceImpl) GetWallet() (Wallet, error) {
 }
 
 // SaveWallet save wallet information
-func (w *ServiceImpl) SaveWallet(address string, json string) (*Wallet, error) {
-	u, _ := w.GetWallet()
+func (w *ServiceImpl) SaveWallet(address string, json string) error {
+	u, err := w.GetWallet()
+	if err != nil {
+		return err
+	}
 	//save or update account
 	u.Address = address
 	u.AddressJson = json
 	w.db.Save(&u)
-	return &u, nil
+	return nil
 }
 
 // DeleteWallet delete wallet information

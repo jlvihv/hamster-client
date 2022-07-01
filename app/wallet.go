@@ -28,7 +28,7 @@ func (w *Wallet) GetWalletInfo() (wallet.Wallet, error) {
 }
 
 // SaveWallet save wallet information
-func (w *Wallet) SaveWallet(address string, json string) (*wallet.Wallet, error) {
+func (w *Wallet) SaveWallet(address string, json string) error {
 	return w.walletService.SaveWallet(address, json)
 }
 
