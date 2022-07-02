@@ -26,6 +26,8 @@ export interface MenuTag {
 export interface Menu {
   name: string;
 
+  title?: string;
+
   icon?: string;
 
   path: string;
@@ -44,6 +46,8 @@ export interface Menu {
   tag?: MenuTag;
 
   hideMenu?: boolean;
+
+  hideChildrenInMenu?: boolean;
 }
 
 export interface MenuModule {
