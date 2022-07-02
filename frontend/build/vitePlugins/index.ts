@@ -1,5 +1,6 @@
 import { PluginOption } from 'vite';
 import vue from '@vitejs/plugin-vue';
+import vueJsx from '@vitejs/plugin-vue-jsx';
 import vueSetupExtend from 'vite-plugin-vue-setup-extend';
 import purgeIcons from 'vite-plugin-purge-icons';
 import legacy from '@vitejs/plugin-legacy';
@@ -14,6 +15,8 @@ export function createVitePlugins(viteEnv: ViteEnv, isBuild: boolean) {
   const vitePlugins: (PluginOption | PluginOption[])[] = [
     // have to
     vue(),
+    // support tsx/jsx
+    vueJsx(),
     // support name
     vueSetupExtend(),
   ];
