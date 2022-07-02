@@ -17,7 +17,6 @@ var assets embed.FS
 func main() {
 
 	app := ctx.NewApp()
-	//listener.NewListener()
 	// Create application with options
 	err := wails.Run(&options.App{
 		Title:  "hamster-client",
