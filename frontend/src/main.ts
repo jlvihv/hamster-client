@@ -24,7 +24,7 @@ async function bootstrap() {
 
   // Configure wails api mocking
   if (process.env.NODE_ENV !== 'production') {
-    if (import.meta.env.VITE_USE_MOCK) {
+    if (import.meta.env.VITE_USE_MOCK === 'true') {
       import('../mock');
     }
   }

@@ -5,7 +5,7 @@ let walletInfo: { address: string; address_json: string } | undefined;
 
 export default {
   GetWalletInfo: () => {
-    return walletInfo ? resultSuccess(walletInfo) : resultError('No Wallet');
+    return walletInfo ? resultSuccess(walletInfo) : resultError('Wallet record not found');
   },
   DeleteWallet: () => {
     walletInfo = undefined;
