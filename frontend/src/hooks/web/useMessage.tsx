@@ -102,6 +102,17 @@ function createWarningModal(options: ModalOptionsPartial) {
   return Modal.warning(createModalOptions(options, 'warning'));
 }
 
+function createApiErrorModal(error: Error, options?: ModalOptionsPartial) {
+  const { t } = useI18n();
+  const { content, ...restOptions } = options || {};
+
+  return createErrorModal({
+    title: t('sys.api.errorTip'),
+    content: error.message || content,
+    ...restOptions,
+  });
+}
+
 notification.config({
   placement: 'topRight',
   duration: 3,
@@ -119,5 +130,6 @@ export function useMessage() {
     createErrorModal,
     createInfoModal,
     createWarningModal,
+    createApiErrorModal,
   };
 }
