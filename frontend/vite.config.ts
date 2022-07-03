@@ -47,6 +47,11 @@ export default ({ command, mode }: ConfigEnv): UserConfig => {
       brotliSize: false,
       chunkSizeWarningLimit: 2000,
     },
+    define: {
+      // setting vue-i18-next
+      // Suppress warning
+      __INTLIFY_PROD_DEVTOOLS__: false,
+    },
     css: {
       preprocessorOptions: {
         less: {

@@ -22,6 +22,13 @@ async function bootstrap() {
   // router-guard
   setupRouterGuard(router);
 
+  // Configure wails api mocking
+  if (process.env.NODE_ENV !== 'production') {
+    if (import.meta.env.VITE_USE_MOCK) {
+      import('../mock');
+    }
+  }
+
   // Mount app
   app.mount('#app');
 }
