@@ -22,7 +22,8 @@ async function bootstrap() {
   // router-guard
   setupRouterGuard(router);
 
-  // Configure wails api mocking
+  // Configure wails api mocking,
+  // will run when in development env and VITE_USE_MOCK is true
   if (process.env.NODE_ENV !== 'production') {
     if (import.meta.env.VITE_USE_MOCK === 'true') {
       import('../mock');

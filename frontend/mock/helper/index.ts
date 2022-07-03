@@ -1,5 +1,9 @@
-export function resultSuccess<T = any>(result: T) {
-  return Promise.resolve(result);
+import { cloneDeep } from 'lodash-es';
+
+export function resultSuccess<T = any>(result?: T) {
+  const cloneResult = cloneDeep(result);
+
+  return Promise.resolve(cloneResult);
 }
 
 export function resultPageSuccess<T = any>(page: number, pageSize: number, list: T[]) {
