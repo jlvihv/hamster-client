@@ -50,6 +50,15 @@ const applications: AppRouteModule = {
         hideMenu: true,
       },
     },
+    {
+      path: ':id/deploy',
+      name: 'DeployApplication',
+      component: () => import('/@/views/modules/applications/application-deploy/index.vue'),
+      meta: {
+        title: t('routes.applications.deployApplication'),
+        hideMenu: true,
+      },
+    },
   ],
 };
 
