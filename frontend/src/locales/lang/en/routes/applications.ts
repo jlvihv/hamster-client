@@ -3,4 +3,5 @@ export default {
   addApplication: 'Add Application',
   editApplication: 'Edit Application',
   showApplication: 'View Application',
+  deployApplication: 'Deploy Application',
 };
