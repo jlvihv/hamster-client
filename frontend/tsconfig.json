@@ -5,7 +5,6 @@
     "moduleResolution": "node",
     "strict": true,
     "noLib": false,
-    "useDefineForClassFields": true,
     "forceConsistentCasingInFileNames": true,
     "allowSyntheticDefaultImports": true,
     "strictFunctionTypes": false,
@@ -29,17 +28,17 @@
     }
   },
   "include": [
-    "typing/**/*.ts",
-    "typing/**/*.d.ts",
-    "src/**/*.ts",
     "src/**/*.d.ts",
+    "src/**/*.ts",
     "src/**/*.tsx",
     "src/**/*.vue",
+    "typing/**/*.d.ts",
+    "typing/**/*.ts",
     "build/**/*.ts",
     "build/**/*.d.ts",
     "mock/**/*.ts",
-    "test/**/*.ts"
+    "test/**/*.ts",
+    "vite.config.ts"
   ],
-  "exclude": ["node_modules", "test/server/**/*.ts", "dist", "**/*.js"],
-  "references": [{ "path": "./tsconfig.node.json" }]
+  "exclude": ["node_modules", "test/server/**/*.ts", "dist", "**/*.js"]
 }
