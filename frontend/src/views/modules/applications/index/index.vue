@@ -23,7 +23,7 @@
       </Card>
     </div>
     <div class="mt-4">
-      <Card class="table-card">
+      <Card class="application-table-card">
         <div class="mx-4">
           <Button type="primary" ghost @click="addApplication"
             ><PlusOutlined class="!inline-flex" />Add</Button
@@ -297,28 +297,24 @@
     style: { width: '90px' },
   });
 </script>
-<style lang="less">
-  .search-header {
-    .input-width {
-      width: 180px !important;
-    }
-
-    .ant-card-head-title {
-      @apply !font-bold;
-    }
-
-    .ant-card-head {
-      @apply !border-b-0;
-    }
+<style lang="less" scoped>
+  :deep(.input-width) {
+    width: 180px !important;
   }
 
-  .table-card {
-    .ant-card-body {
-      @apply !px-0;
-    }
+  :deep(.ant-card-head-title) {
+    @apply !font-bold;
+  }
 
-    .ant-table-pagination.ant-pagination {
-      @apply !mx-4;
-    }
+  :deep(.ant-card-head) {
+    @apply !border-b-0;
+  }
+
+  :deep(.application-table-card .ant-card-body) {
+    @apply !px-0;
+  }
+
+  :deep(.application-table-card .ant-table-pagination .ant-pagination) {
+    @apply !mx-4;
   }
 </style>
