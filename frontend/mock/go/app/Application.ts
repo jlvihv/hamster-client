@@ -3,8 +3,8 @@ import * as Application from '/@wails/go/app/Application';
 import { isEqualWith, lowerCase, remove } from 'lodash-es';
 
 const applications = [
-  { id: 1, name: 'Example', abbreviation: 'ex', describe: 'I am an example record', status: 0 },
-  { id: 2, name: 'Test', abbreviation: 'test', describe: 'I am an test record', status: 1 },
+  { id: 1, name: 'Example', describe: 'I am an example record', status: 0 },
+  { id: 2, name: 'Test', describe: 'I am an test record', status: 1 },
 ];
 
 let idCursor = applications.length;

@@ -36,4 +36,19 @@
       }
     }
   }
+
+  .ant-modal-title {
+    @apply font-bold;
+  }
+
+  .ant-modal-footer {
+    @apply pt-0 text-center;
+    padding-bottom: 30px;
+  }
+
+  .ant-table-thead
+    > tr
+    > th:not(:last-child):not(.ant-table-selection-column):not(.ant-table-row-expand-icon-cell):not([colspan])::before {
+    @apply w-0;
+  }
 </style>

@@ -2,7 +2,7 @@
   <PageWrapper>
     <div class="search-header">
       <Card :title="t('applications.index.appList')">
-        <Form layout="inline" v-model:model="searchForm" :label-col="labelCol">
+        <Form layout="inline" v-model:model="searchForm">
           <FormItem :label="t('applications.index.nameText')" name="name">
             <Input :allowClear="true" class="input-width" v-model:value="searchForm.name" />
           </FormItem>
@@ -70,20 +70,17 @@
         </Table>
       </Card>
     </div>
-    <!-- <appModal></appModal> -->
     <Modal
       v-model:visible="visible"
       :title="[
         formData.name != '' ? t('applications.index.editApp') : t('applications.index.addApp'),
       ]"
+      :okText="t('common.confirmText')"
       @ok="handleOk"
     >
       <Form ref="formRef" :rules="formRules" v-model:model="formData" :label-col="labelCol">
         <FormItem :label="t('applications.index.nameText')" name="name">
           <Input :allowClear="true" class="input-width" v-model:value="formData.name" />
-        </FormItem>
-        <FormItem :label="t('applications.index.abbText')" name="abbreviation">
-          <Input :allowClear="true" class="input-width" v-model:value="formData.abbreviation" />
         </FormItem>
         <FormItem :label="t('applications.index.desText')" name="describe">
           <Textarea :allowClear="true" v-model:value="formData.describe" />
@@ -120,17 +117,16 @@
   const { t } = useI18n();
   const statusOptions = reactive([]);
   const searchForm = reactive({
-    status: '', //应用状态
-    name: '', //应用名称
+    status: '', //Application status
+    name: '', //Application name
   });
 
   const visible = ref(false);
   // Form data
   const formRef = ref();
   const formData = reactive({
-    name: '', //应用名称
-    abbreviation: '', //应用简写
-    describe: '', //应用描述
+    name: '', //Application name
+    describe: '', //Application description
   });
   // Form rules
   const formRules = computed(() => ({
@@ -160,13 +156,6 @@
       align: 'center',
       ellipsis: 'fixed',
       key: 'name',
-    },
-    {
-      title: t('applications.index.abbText'),
-      dataIndex: 'abbreviation',
-      align: 'center',
-      ellipsis: 'fixed',
-      key: 'abbreviation',
     },
     {
       title: t('applications.index.desText'),
@@ -200,43 +189,41 @@
   ]);
 
   const pagination = reactive({
-    // 分页配置器
-    pageSize: 10, // 一页的数据限制
-    current: 1, // 当前页
-    total: 10, // 总数
-    hideOnSinglePage: false, // 只有一页时是否隐藏分页器
-    showQuickJumper: true, // 是否可以快速跳转至某页
-    showSizeChanger: true, // 是否可以改变 pageSize
-    pageSizeOptions: ['10', '20', '30'], // 指定每页可以显示多少条
+    // Paging configurator
+    pageSize: 10, // One-page data limit
+    current: 1, // Current page
+    total: 10, // Total
+    hideOnSinglePage: false, // Whether to hide the paginator when only one page is available
+    showQuickJumper: true, // Is it possible to jump quickly to a page
+    showSizeChanger: true, // Is it possible to change the pageSize
+    pageSizeOptions: ['10', '20', '30'], // Specify how many items can be displayed per page
     onShowSizeChange: (current, pagesize) => {
-      // 改变 pageSize时的回调
+      // Callback when changing pageSize
       pagination.current = current;
       pagination.pageSize = pagesize;
       getAppList();
     },
     onChange: (current) => {
-      // 切换分页时的回调，
+      // callback when switching paging.
       pagination.current = current;
       getAppList();
     },
-    // showTotal: total => `总数：${total}人`, // 可以展示总数
+    // showTotal: total => `total：${total}`, // Total number of displays possible
   });
 
   const tableAction = {
-    //启用/禁用应用状态
+    //Enable/Disable application status
     async changeStatus(index, id, status) {
       console.log(index, id, status);
       // try {
-      //   const newStatus = ref(DictCodeEnum.ApplicationStatus_Inactive.value); //禁用
+      //   const newStatus = ref(DictCodeEnum.ApplicationStatus_Inactive.value); //Disable
       //   if (DictCodeEnum.ApplicationStatus_Inactive.is(status)) {
       //     newStatus.value = DictCodeEnum.ApplicationStatus_Active.value;
       //   }
       //   const result = await changeStatusApi({ id: id, status: newStatus.value });
       //   tableData.value[index].status = result.status;
-      //   //设置提示信息
       //   setMessageInfo('suc');
       // } catch (error: any) {
-      //   //设置提示信息
       //   setMessageInfo('error');
       // }
     },
@@ -246,10 +233,8 @@
       // try {
       //   await deleteAppApi(id);
       //   tableData.value.splice(index, 1);
-      //   //设置提示信息
       //   setMessageInfo('suc');
       // } catch (error: any) {
-      //   //设置提示信息
       //   setMessageInfo('error');
       // }
     },
@@ -312,9 +297,19 @@
     style: { width: '90px' },
   });
 </script>
-<style lang="less" scope>
-  .search-header .input-width {
-    width: 180px !important;
+<style lang="less">
+  .search-header {
+    .input-width {
+      width: 180px !important;
+    }
+
+    .ant-card-head-title {
+      @apply !font-bold;
+    }
+
+    .ant-card-head {
+      @apply !border-b-0;
+    }
   }
 
   .table-card {

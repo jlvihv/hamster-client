@@ -4,7 +4,6 @@ export default {
     nameText: 'Name',
     statusText: 'Status',
     noText: 'No',
-    abbText: 'Abbreviation',
     desText: 'Description',
     addTimeText: 'Add Time',
     operText: 'Operation',
