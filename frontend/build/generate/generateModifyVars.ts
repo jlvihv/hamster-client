@@ -35,5 +35,10 @@ export function generateModifyVars(dark = false) {
     'border-radius-base': '2px', //  Component/float fillet
     'link-color': primary, //   Link color
     'app-content-background': '#fafafa', //   Link color
+    'card-radius': '10px',
+    'btn-border-radius-base': '4px',
+    'table-header-bg': '#F7F3EE',
+    'table-header-color': primary,
+    'table-border-color': '#EAE4DD',
   };
 }
