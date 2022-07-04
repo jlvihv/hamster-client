@@ -14,14 +14,6 @@ export function Setting(arg1, arg2) {
   return window['go']['app']['Setting']['Setting'](arg1, arg2);
 }
 
-export function SettingPublicKey(arg1) {
-  return window['go']['app']['Setting']['SettingPublicKey'](arg1);
-}
-
-export function SettingWsUrl(arg1) {
-  return window['go']['app']['Setting']['SettingWsUrl'](arg1);
-}
-
 export function WailsInit(arg1) {
   return window['go']['app']['Setting']['WailsInit'](arg1);
 }

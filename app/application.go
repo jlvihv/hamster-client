@@ -2,7 +2,6 @@ package app
 
 import (
 	"context"
-	"fmt"
 	"hamster-client/module/application"
 	"hamster-client/module/graph"
 )
@@ -26,32 +25,31 @@ func (a *Application) WailsInit(ctx context.Context) error {
 }
 
 // AddApplication add application
-func (a *Application) AddApplication(application application.Application) error {
-	fmt.Println(application.Name)
+func (a *Application) AddApplication(application application.AddApplicationParam) (bool, error) {
 	return a.applicationService.AddApplication(&application)
 }
 
 // UpdateApplication edit application
-func (a *Application) UpdateApplication(application application.Application) error {
+func (a *Application) UpdateApplication(application application.UpdateApplicationParam) (bool, error) {
 	return a.applicationService.UpdateApplication(int(application.ID), application.Name, application.Abbreviation, application.Describe)
 }
 
-func (a *Application) DeleteApplication(id int) error {
+func (a *Application) DeleteApplication(id int) (bool, error) {
 	return a.applicationService.DeleteApplication(id)
 }
 
 // ApplicationList Paging query application list
-func (a *Application) ApplicationList(page, pageSize int, name string, status int) (data []application.Application, count int64, err error) {
+func (a *Application) ApplicationList(page, pageSize int, name string, status int) (application.PageApplicationVo, error) {
 	return a.applicationService.ApplicationList(page, pageSize, name, status)
 }
 
 // QueryApplicationById query application by applicationId
-func (a *Application) QueryApplicationById(id int) (application.Application, error) {
+func (a *Application) QueryApplicationById(id int) (application.ApplyVo, error) {
 	return a.applicationService.QueryApplicationById(id)
 }
 
 // DeleteGraphAndParams delete application
-func (a *Application) DeleteGraphAndParams(applicationId int) error {
+func (a *Application) DeleteGraphAndParams(applicationId int) (bool, error) {
 	return a.graphService.DeleteGraphAndParams(applicationId)
 }
 

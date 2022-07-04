@@ -29,7 +29,7 @@ func (d *Deploy) WailsInit(ctx context.Context) error {
 }
 
 // DeployTheGraph deploy the graph
-func (d *Deploy) DeployTheGraph(params deploy.DeployParams) error {
+func (d *Deploy) DeployTheGraph(params deploy.DeployParams) (bool, error) {
 	var data deploy.DeployParams
 	data.Mnemonic = params.Mnemonic
 	data.IndexerAddress = params.IndexerAddress
@@ -40,12 +40,12 @@ func (d *Deploy) DeployTheGraph(params deploy.DeployParams) error {
 	fmt.Println("p2p start")
 	info, err := d.accountService.GetAccount()
 	if err != nil {
-		return nil
+		return false, err
 	}
 	fmt.Println(info.PeerId)
 	proErr := d.p2pServer.ProLink(info.PeerId)
 	if proErr != nil {
-		return proErr
+		return false, proErr
 	}
 	fmt.Println("p2p end")
 	return d.deployService.DeployTheGraph(data)

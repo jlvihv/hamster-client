@@ -10,5 +10,5 @@ type DeployParams struct {
 }
 
 type Service interface {
-	DeployTheGraph(data DeployParams) error
+	DeployTheGraph(data DeployParams) (bool, error)
 }

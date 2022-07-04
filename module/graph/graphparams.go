@@ -3,6 +3,7 @@ package graph
 import (
 	"gorm.io/gorm"
 	"hamster-client/module/application"
+	"time"
 )
 
 type GraphParameter struct {
@@ -16,9 +17,24 @@ type GraphParameter struct {
 	ApplicationId   uint                    `json:"applicationId"`   //application id
 }
 
+type GraphParameterVo struct {
+	NodeEthereumUrl string `json:"nodeEthereumUrl"` //graph-node eth-url
+	EthereumUrl     string `json:"ethereumUrl"`     //indexer-service、indexer-agent eth-url
+	EthereumNetwork string `json:"ethereumNetwork"` //eth network
+	IndexerAddress  string `json:"indexerAddress"`  //indexer address
+	Mnemonic        string `json:"mnemonic"`        // mnemonic
+	ApplicationId   uint   `json:"applicationId"`   //application id
+	Name            string `json:"name"`            //apply name
+	Abbreviation    string `json:"abbreviation"`    //apply abbreviation
+	Describe        string `json:"describe"`        //apply describe
+	Status          int    `json:"status"`          //apply status 0: not deploy 1:deployed 2:ALL
+	CreatedAt       time.Time
+	UpdatedAt       time.Time
+}
+
 type Service interface {
-	SaveGraphParameter(data GraphParameter) error
-	QueryParamByApplyId(applicationId int) (GraphParameter, error)
-	DeleteGraphAndParams(applicationId int) error
+	SaveGraphParameter(data GraphParameter) (bool, error)
+	QueryParamByApplyId(applicationId int) (GraphParameterVo, error)
+	DeleteGraphAndParams(applicationId int) (bool, error)
 	QueryGraphStatus(serviceName string) (int, error)
 }

@@ -21,6 +21,6 @@ func (g *Graph) WailsInit(ctx context.Context) error {
 	return nil
 }
 
-func (g *Graph) QueryApplyAndParams(applicationId int) (graph.GraphParameter, error) {
+func (g *Graph) QueryApplyAndParams(applicationId int) (graph.GraphParameterVo, error) {
 	return g.graphService.QueryParamByApplyId(applicationId)
 }
