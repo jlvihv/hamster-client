@@ -310,11 +310,13 @@
     @apply !border-b-0;
   }
 
-  :deep(.application-table-card .ant-card-body) {
-    @apply !px-0;
-  }
+  .application-table-card {
+    :deep(.ant-card-body) {
+      @apply !px-0;
+    }
 
-  :deep(.application-table-card .ant-table-pagination .ant-pagination) {
-    @apply !mx-4;
+    :deep(.ant-table-pagination.ant-pagination) {
+      @apply !mx-4;
+    }
   }
 </style>

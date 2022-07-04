@@ -1,10 +1,7 @@
 html {
-  .ant-table-thead
-    > tr
-    > th:not(:last-child)
-    :not(.ant-table-selection-column)
-    :not(.ant-table-row-expand-icon-cell)
-    :not([colspan])::before {
-    @apply w-0;
+  .ant-table {
+    .ant-table-thead > tr > th::before {
+      @apply !w-0;
+    }
   }
 }
