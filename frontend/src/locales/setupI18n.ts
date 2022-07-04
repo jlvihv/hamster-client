@@ -15,7 +15,7 @@ function createI18nOptions(): I18nOptions {
     locale: Locale.EN,
     fallbackLocale: Locale.EN,
     messages: {
-      [Locale.EN]: EnLang.message,
+      [Locale.EN]: EnLang.message as any,
     },
     availableLocales: [Locale.EN],
     sync: true, // Inherit locale from global scope

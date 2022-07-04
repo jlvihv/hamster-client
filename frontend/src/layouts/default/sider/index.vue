@@ -1,7 +1,7 @@
 <template>
   <div :class="prefixCls">
     <div :class="`${prefixCls}-logo`">
-      <div class="text-white text-2xl">{{ appTitle }}</div>
+      <img :src="logoImage" />
     </div>
     <LayoutMenu />
   </div>
@@ -10,7 +10,7 @@
 <script lang="ts" setup>
   import LayoutMenu from '../menu/index.vue';
   import { useDesign } from '/@/hooks/web/useDesign';
-  import { appTitle } from '/@/settings/siteSetting';
+  import logoImage from '/@/assets/images/logo.png';
 
   const { prefixCls } = useDesign('layout-sider');
 </script>
@@ -21,7 +21,7 @@
   .@{prefix-cls} {
     &-logo {
       margin-top: 20px;
-      margin-bottom: 50px;
+      padding: 20px;
       display: flex;
       justify-content: center;
     }

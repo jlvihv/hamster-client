@@ -16,7 +16,7 @@ export function useTitle() {
   const pageTitle = usePageTitle();
 
   watch(
-    [() => currentRoute.value.path, () => locale.value],
+    [() => currentRoute.value.path, () => locale?.value],
     () => {
       const route = unref(currentRoute);
 

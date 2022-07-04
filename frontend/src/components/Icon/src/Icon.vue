@@ -26,8 +26,9 @@
     CSSProperties,
   } from 'vue';
   import SvgIcon from './SvgIcon.vue';
-  import Iconify from '@purge-icons/generated';
+  import Iconify from '@iconify/iconify';
   import { isString } from '/@/utils/is';
+  import { propTypes } from '/@/utils/propTypes';
 
   const SVG_END_WITH_FLAG = '|svg';
   export default defineComponent({
@@ -35,22 +36,16 @@
     components: { SvgIcon },
     props: {
       // icon name
-      icon: String as PropType<string>,
+      icon: propTypes.string,
       // icon color
-      color: String as PropType<string>,
+      color: propTypes.string,
       // icon size
       size: {
         type: [String, Number] as PropType<string | number>,
         default: 16,
       },
-      spin: {
-        type: Boolean as PropType<boolean>,
-        default: false,
-      },
-      prefix: {
-        type: String as PropType<string>,
-        default: '',
-      },
+      spin: propTypes.bool.def(false),
+      prefix: propTypes.string.def(''),
     },
     setup(props) {
       const elRef = ref<ElRef>(null);

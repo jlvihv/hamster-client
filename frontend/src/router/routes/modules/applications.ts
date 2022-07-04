@@ -9,7 +9,7 @@ const applications: AppRouteModule = {
   redirect: '/applications/index',
   meta: {
     hideChildrenInMenu: true,
-    icon: 'simple-icons:about-dot-me',
+    icon: 'icon-park-solid:blockchain',
     title: t('routes.applications.applications'),
     orderNo: 100000,
   },
@@ -20,7 +20,6 @@ const applications: AppRouteModule = {
       component: () => import('/@/views/modules/applications/index/index.vue'),
       meta: {
         title: t('routes.applications.applications'),
-        icon: 'simple-icons:about-dot-me',
         hideMenu: true,
       },
     },
@@ -30,7 +29,6 @@ const applications: AppRouteModule = {
       component: () => import('/@/views/modules/applications/application-add/index.vue'),
       meta: {
         title: t('routes.applications.addApplication'),
-        icon: 'simple-icons:about-dot-me',
         hideMenu: true,
       },
     },
@@ -40,7 +38,6 @@ const applications: AppRouteModule = {
       component: () => import('/@/views/modules/applications/application-edit/index.vue'),
       meta: {
         title: t('routes.applications.editApplication'),
-        icon: 'simple-icons:about-dot-me',
         hideMenu: true,
       },
     },
@@ -50,7 +47,6 @@ const applications: AppRouteModule = {
       component: () => import('/@/views/modules/applications/application/index.vue'),
       meta: {
         title: t('routes.applications.showApplication'),
-        icon: 'simple-icons:about-dot-me',
         hideMenu: true,
       },
     },

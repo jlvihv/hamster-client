@@ -17,6 +17,8 @@
 .idea/
 /frontend/node_modules
 /frontend/dist
+/frontend/package.json.md5
+/frontend/.eslintcache
 
 .DS_Store
 

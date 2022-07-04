@@ -9,7 +9,7 @@ const settings: AppRouteModule = {
   redirect: '/settings/index',
   meta: {
     hideChildrenInMenu: true,
-    icon: 'simple-icons:about-dot-me',
+    icon: 'ep:setting',
     title: t('routes.settings.settings'),
     orderNo: 200000,
   },
@@ -20,7 +20,6 @@ const settings: AppRouteModule = {
       component: () => import('/@/views/modules/settings/index.vue'),
       meta: {
         title: t('routes.settings.settings'),
-        icon: 'simple-icons:about-dot-me',
         hideMenu: true,
       },
     },

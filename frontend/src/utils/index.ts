@@ -1,3 +1,5 @@
+import type { App, Plugin } from 'vue';
+
 export function openWindow(
   url: string,
   opt?: { target?: TargetContext | string; noopener?: boolean; noreferrer?: boolean },
