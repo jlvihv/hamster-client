@@ -36,4 +36,8 @@
       }
     }
   }
+
+  svg {
+    vertical-align: baseline;
+  }
 </style>

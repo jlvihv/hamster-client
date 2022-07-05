@@ -1,0 +1,47 @@
+html {
+  .ant-steps {
+    .ant-steps-item-finish
+      > .ant-steps-item-container
+      > .ant-steps-item-content
+      > .ant-steps-item-title,
+    .ant-steps-item-process
+      > .ant-steps-item-container
+      > .ant-steps-item-content
+      > .ant-steps-item-title {
+      @apply text-primary;
+    }
+
+    .ant-steps-item::after {
+      @apply border-primary border-2;
+    }
+
+    .ant-steps-item-wait .ant-steps-item-icon {
+      background-color: #d5d5d5;
+      border-color: #d5d5d5;
+    }
+
+    .ant-steps-item-wait .ant-steps-item-icon > .ant-steps-icon {
+      color: #fff;
+    }
+  }
+
+  .ant-steps-label-vertical {
+    .ant-steps-item-content {
+      @apply w-full;
+    }
+
+    .ant-steps-item-icon {
+      margin-left: 40%;
+    }
+  }
+
+  .ant-steps-navigation {
+    .ant-steps-item::before {
+      @apply hidden;
+    }
+
+    .ant-steps-item-container .ant-steps-item-title {
+      @apply overflow-visible;
+    }
+  }
+}

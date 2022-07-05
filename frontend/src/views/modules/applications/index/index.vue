@@ -302,14 +302,6 @@
     width: 180px !important;
   }
 
-  :deep(.ant-card-head-title) {
-    @apply !font-bold;
-  }
-
-  :deep(.ant-card-head) {
-    @apply !border-b-0;
-  }
-
   .application-table-card {
     :deep(.ant-card-body) {
       @apply !px-0;
