@@ -1,6 +1,5 @@
 <template>
   <PageWrapper>
-    <!-- Application Id: {{ $route.params.id }} -->
     <Card>
       <Descriptions :title="t('applications.see.appInfo')" bordered>
         <template #extra v-if="true">
@@ -9,7 +8,6 @@
         <DescriptionsItem :label="t('applications.index.nameText')"
           >Cloud Database</DescriptionsItem
         >
-        <DescriptionsItem :label="t('applications.index.abbText')">Cloud Database</DescriptionsItem>
         <DescriptionsItem :label="t('applications.index.addTimeText')"
           >Cloud Database</DescriptionsItem
         >
@@ -19,15 +17,26 @@
         <DescriptionsItem :label="t('applications.index.desText')">Cloud Database</DescriptionsItem>
       </Descriptions>
     </Card>
+    <div class="h-4"></div>
+    <DeployInfo />
+    <div class="mt-4 text-right">
+      <Button type="primary" @click="onClose">{{ t('common.closeText') }}</Button>
+    </div>
   </PageWrapper>
 </template>
 <script lang="ts" setup>
   import { PageWrapper } from '/@/components/Page';
-  import { useRoute } from 'vue-router';
+  import { useRoute, useRouter } from 'vue-router';
+  import DeployInfo from './components/DeployInfo.vue';
   import { useI18n } from '/@/hooks/web/useI18n';
-  import { Card, Descriptions, DescriptionsItem } from 'ant-design-vue';
+  import { Card, Descriptions, DescriptionsItem, Button } from 'ant-design-vue';
 
   const { t } = useI18n();
+  const router = useRouter();
   const { params } = useRoute();
   const { id: applicationId } = params;
+
+  async function onClose() {
+    router.push('/applications/index');
+  }
 </script>

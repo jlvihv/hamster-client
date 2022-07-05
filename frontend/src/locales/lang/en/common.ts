@@ -9,9 +9,8 @@ export default {
   searchText: 'Search',
   queryText: 'Search',
   confirmText: 'Confirm',
-
-  inputText: 'Please enter',
-  chooseText: 'Please choose',
+  nextText: 'Next',
+  deployText: 'Deploy',
 
   redo: 'Refresh',
   back: 'Back',
