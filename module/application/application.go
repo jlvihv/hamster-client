@@ -6,41 +6,41 @@ import (
 )
 
 type Application struct {
-	ID           uint   `gorm:"primarykey"`
-	Name         string `json:"name"`         //apply name
-	Abbreviation string `json:"abbreviation"` //apply abbreviation
-	Describe     string `json:"describe"`     //apply describe
-	Status       int    `json:"status"`       //apply status 0: not deploy 1:deployed 2:ALL
-	CreatedAt    time.Time
-	UpdatedAt    time.Time
-	DeletedAt    gorm.DeletedAt `gorm:"index"`
+	ID           uint           `json:"id" gorm:"primarykey"`
+	Name         string         `json:"name"`         //apply name
+	Abbreviation string         `json:"abbreviation"` //apply abbreviation
+	Describe     string         `json:"describe"`     //apply describe
+	Status       int            `json:"status"`       //apply status 0: not deploy 1:deployed 2:ALL
+	CreatedAt    time.Time      `json:"createdAt"`
+	UpdatedAt    time.Time      `json:"updatedAt"`
+	DeletedAt    gorm.DeletedAt `json:"deletedAt" gorm:"index"`
 }
 
 type AddApplicationParam struct {
-	Name         string //apply name
-	Abbreviation string //apply abbreviation
-	Describe     string //apply describe
+	Name         string `json:"name"`         //apply name
+	Abbreviation string `json:"abbreviation"` //apply abbreviation
+	Describe     string `json:"describe"`     //apply describe
 }
 
 type UpdateApplicationParam struct {
-	ID           uint   //application ID
-	Name         string //apply name
-	Abbreviation string //apply abbreviation
-	Describe     string //apply describe
+	ID           uint   `json:"id"`           //application ID
+	Name         string `json:"name"`         //apply name
+	Abbreviation string `json:"abbreviation"` //apply abbreviation
+	Describe     string `json:"describe"`     //apply describe
 }
 
 type PageApplicationVo struct {
-	Item  []Application
-	Total int64
+	Item  []Application `json:"item"`
+	Total int64         `json:"total"`
 }
 
 type ApplyVo struct {
-	ID           uint
-	CreatedAt    time.Time
-	UpdatedAt    time.Time
-	Name         string //apply name
-	Abbreviation string //apply abbreviation
-	Describe     string //apply describe
+	ID           uint      `json:"id"`
+	CreatedAt    time.Time `json:"createdAt"`
+	UpdatedAt    time.Time `json:"updatedAt"`
+	Name         string    `json:"name"`         //apply name
+	Abbreviation string    `json:"abbreviation"` //apply abbreviation
+	Describe     string    `json:"describe"`     //apply describe
 }
 
 type Service interface {

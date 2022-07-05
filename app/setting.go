@@ -8,10 +8,10 @@ import (
 )
 
 type Config struct {
-	PublicKey string
-	Port      int
-	PeerId    string
-	WsUrl     string
+	PublicKey string `json:"publicKey"`
+	Port      int    `json:"port"`
+	PeerId    string `json:"peerId"`
+	WsUrl     string `json:"wsRrl"`
 }
 
 type Setting struct {

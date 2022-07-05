@@ -7,9 +7,9 @@ import (
 type Account struct {
 	gorm.Model
 	PublicKey  string `json:"publicKey"`
-	WsUrl      string
-	OrderIndex int
-	PeerId     string
+	WsUrl      string `json:"wsUrl"`
+	OrderIndex int    `json:"orderIndex"`
+	PeerId     string `json:"peerId"`
 }
 
 type Service interface {
