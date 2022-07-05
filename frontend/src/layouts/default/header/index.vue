@@ -1,32 +1,43 @@
 <template>
   <div class="float-right">
-    <Button type="link" size="large" @click="showModal">import account</Button>
+    <Button type="link" size="large" @click="showModal">
+      {{ t('routes.header.importAccount') }}
+    </Button>
     <Modal
       v-model:visible="visible"
-      title="Import json"
-      ok-text="OK"
-      cancel-text="Cancel"
+      :title="t('routes.header.importJson')"
+      :ok-text="t('routes.header.ok')"
+      :cancel-text="t('routes.header.cancle')"
       @ok="handleOk"
     >
       <Form layout="vertical" ref="formRef" :model="formData" :rules="formRules">
-        <FormItem name="file">
+        <FormItem :name="t('routes.header.file')">
           <Upload
             accept=".json"
             v-model:fileList="formData.fileList"
-            name="file"
+            name="t('routes.header.file')"
             @change="handleChange"
             :beforeUpload="beforeUpload"
           >
-            <Button type="dashed"> click to import json </Button>
+            <Button type="dashed"> {{ t('routes.header.buttonImportJson') }} </Button>
           </Upload>
         </FormItem>
         <FormItem v-if="contentvisible">
           <Descriptions>
-            <DescriptionsItem label="NAME:">user</DescriptionsItem>
+            <DescriptionsItem :label="t('routes.header.name')">
+              {{ t('routes.header.user') }}
+            </DescriptionsItem>
           </Descriptions>
         </FormItem>
-        <FormItem name="password" v-if="contentvisible" label="PASSWORD:">
-          <Input placeholder="Please enter password" v-model:value="formData.password" />
+        <FormItem
+          :name="t('routes.header.password')"
+          v-if="contentvisible"
+          :label="t('routes.header.upperPassword')"
+        >
+          <Input
+            :placeholder="t('routes.header.PleaseEnterPassword')"
+            v-model:value="formData.password"
+          />
         </FormItem>
       </Form>
     </Modal>
@@ -34,6 +45,7 @@
 </template>
 <script lang="ts" setup>
   import { ref, reactive, computed } from 'vue';
+  import { useI18n } from '/@/hooks/web/useI18n';
   import {
     Button,
     Modal,
@@ -46,6 +58,7 @@
     message,
   } from 'ant-design-vue';
 
+  const { t } = useI18n();
   const visible = ref<boolean>(false);
   const contentvisible = ref<boolean>(false);
   const formRef = ref();
@@ -57,8 +70,10 @@
   }>({});
 
   const formRules = computed(() => ({
-    fileList: [{ message: '请传入文件', trigger: 'change', required: true }],
-    password: [{ message: '请输入密码', trigger: 'change', required: true }],
+    fileList: [{ message: t('routes.header.uploadFile'), trigger: 'change', required: true }],
+    password: [
+      { message: t('routes.header.PleaseEnterPassword'), trigger: 'change', required: true },
+    ],
   }));
 
   const showModal = () => {
