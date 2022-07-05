@@ -4,7 +4,12 @@
       <div class="text-color-[#141212] text-xl font-bold mb-8 ml-5 mt-3">{{
         t('routes.settings.settings')
       }}</div>
-      <Form :model="formData" :label-col="{ style: { width: '150px' } }">
+      <Form
+        ref="formRef"
+        :model="formData"
+        :rules="formRules"
+        :label-col="{ style: { width: '150px' } }"
+      >
         <FormItem :label="t('routes.settings.pleaseInputWsUrl')" name="wsurl">
           <Input
             v-model:value="formData.wsurl"
@@ -19,7 +24,7 @@
           <span class="text-[#666666]">{{ formData.balance }}</span>
         </FormItem>
         <FormItem>
-          <Button type="primary" class="w-[50%] ml-[25%] mt-16">{{
+          <Button type="primary" class="w-[50%] ml-[25%] mt-16" @click="handleWsurl">{{
             t('routes.settings.save')
           }}</Button>
         </FormItem>
@@ -29,18 +34,36 @@
 </template>
 
 <script lang="ts" setup>
-  import { reactive } from 'vue';
+  import { reactive, computed, ref } from 'vue';
   import { PageWrapper } from '/@/components/Page';
   import { useI18n } from '/@/hooks/web/useI18n';
+  import { SettingWsUrl } from '/@wails/go/app/Setting';
   import { Button, Form, FormItem, Input } from 'ant-design-vue';
 
   const { t } = useI18n();
+  const formRef = ref();
 
   const formData = reactive<{
     wsurl?: string;
-    address: string;
-    balance: string;
-  }>({ address: 'ws://183.66.65.207:49944', balance: 'ws://183.66.65.207:49944' });
+    address?: string;
+    balance?: string;
+  }>({});
+
+  const formRules = computed(() => ({
+    wsurl: [{ message: t('routes.settings.pleaseInputWsUrl'), trigger: 'change', required: true }],
+  }));
+
+  async function handleWsurl() {
+    await formRef.value?.validate();
+    if (!formData.wsurl) return;
+
+    try {
+      const data = await SettingWsUrl(formData.wsurl);
+      console.log(data);
+    } catch (err) {
+      console.log('error', err);
+    }
+  }
 </script>
 
 <style lang="less" scoped>
