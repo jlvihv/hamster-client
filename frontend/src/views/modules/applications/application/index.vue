@@ -18,7 +18,7 @@
       </Descriptions>
     </Card>
     <div class="h-4"></div>
-    <!-- <DeployInfo /> -->
+    <DeployInfo />
     <div class="mt-4 text-right">
       <Button type="primary" @click="onClose">{{ t('common.closeText') }}</Button>
     </div>
@@ -27,7 +27,7 @@
 <script lang="ts" setup>
   import { PageWrapper } from '/@/components/Page';
   import { useRoute, useRouter } from 'vue-router';
-  // import DeployInfo from './components/DeployInfo.vue';
+  import DeployInfo from './components/DeployInfo.vue';
   import { useI18n } from '/@/hooks/web/useI18n';
   import { Card, Descriptions, DescriptionsItem, Button } from 'ant-design-vue';
 
