@@ -38,8 +38,10 @@ export default {
     pledgeAmountBtn: 'Staking amount',
     pledgeAmountTips: 'Are you sure about stacking amount?',
     nodeMainnet: 'nodeEthereumUrl:"mainnet"',
+    nodeUrl: 'nodeEthereumUrl',
     ethereumUrl: 'ethereumUrl',
     ethereumNetWork: 'ethereumNetWork',
     indexerAddress: 'indexerAddress',
+    mnemonic: 'mnemonic',
   },
 };

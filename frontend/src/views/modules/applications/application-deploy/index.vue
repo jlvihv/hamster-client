@@ -127,7 +127,7 @@
             </FormItem>
             <FormItem class="text-right">
               <Button @click="tabAction.onLast(1)">{{ t('common.cancelText') }}</Button>
-              <Button class="ml-4" type="primary" @click="tabAction.onNext(3)">{{
+              <Button class="ml-4" type="primary" @click="visibleDeploy = true">{{
                 t('common.nextText')
               }}</Button>
             </FormItem>
@@ -163,6 +163,16 @@
         </FormItem>
       </Form>
     </Modal>
+    <Modal
+      width="80%"
+      :bodyStyle="bodyStyle"
+      v-model:visible="visibleDeploy"
+      title="Tips"
+      :okText="t('common.deployText')"
+      @ok="tabAction.onCancel"
+    >
+      <deployInfo />
+    </Modal>
   </PageWrapper>
 </template>
 <script lang="ts" setup>
@@ -170,18 +180,19 @@
   import { PageWrapper } from '/@/components/Page';
   import { useRoute, useRouter } from 'vue-router';
   import { useI18n } from '/@/hooks/web/useI18n';
+  import deployInfo from '.././application/components/deployInfo.vue';
   import { Steps, Step, Form, FormItem, Button, Input, Select, Modal } from 'ant-design-vue';
 
   const { t } = useI18n();
   const router = useRouter();
   const { params } = useRoute();
   const { id: applicationId } = params;
-  console.log('applicationId:', applicationId);
 
   const currentStep = ref(0);
   const visibleAmount = ref(false);
   const visibleStack = ref(false);
   const visibleAddress = ref(false);
+  const visibleDeploy = ref(false);
   const networkOptions = reactive([{ label: 'http://193.65.66.207:9500', value: 1 }]);
   const formInit = reactive({
     lease_term: '',
@@ -204,9 +215,6 @@
   const stakAction = {
     async changeNetWork() {},
     async generateStack() {},
-    async showPledgeAmount() {
-      visibleAmount.value = true;
-    },
     async onPledgeAmount() {},
     async stackAmount() {},
   };
@@ -219,13 +227,14 @@
       currentStep.value = lastStep;
     },
     async onNext(nextStep) {
-      if (nextStep === 3) {
-        router.push('/applications/' + applicationId);
-      } else {
-        currentStep.value = nextStep;
-      }
+      currentStep.value = nextStep;
     },
   };
+
+  const bodyStyle = reactive({
+    height: '360px',
+    overflow: 'auto',
+  });
 </script>
 <style lang="less" scoped>
   :deep(.input-width) {
