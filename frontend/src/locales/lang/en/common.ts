@@ -12,9 +12,6 @@ export default {
   nextText: 'Next',
   deployText: 'Deploy',
 
-  inputText: 'Please enter ',
-  chooseText: 'Please choose ',
-
   redo: 'Refresh',
   back: 'Back',
 };

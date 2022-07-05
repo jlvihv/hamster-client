@@ -19,7 +19,7 @@
                 :allowClear="true"
                 class="input-width"
                 v-model:value="formInit.lease_term"
-                :placeholder="t('common.inputText') + t('applications.deploy.leaseTerm')"
+                :placeholder="t('applications.deploy.leaseTermPlaceholder')"
               />
             </FormItem>
             <FormItem :label="t('applications.deploy.publicKey')" name="public_key">
@@ -27,7 +27,7 @@
                 :allowClear="true"
                 class="input-width"
                 v-model:value="formInit.public_key"
-                :placeholder="t('common.inputText') + t('applications.deploy.publicKey')"
+                :placeholder="t('applications.deploy.publicKeyPlaceholder')"
               />
             </FormItem>
             <FormItem :label="t('applications.deploy.importAccount')" name="import_account">
@@ -35,7 +35,7 @@
                 :allowClear="true"
                 class="input-width"
                 v-model:value="formInit.import_account"
-                :placeholder="t('common.inputText') + t('applications.deploy.importAccount')"
+                :placeholder="t('applications.deploy.importAccountPlaceholder')"
               />
             </FormItem>
             <FormItem class="text-right">
