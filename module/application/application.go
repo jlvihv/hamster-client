@@ -30,7 +30,7 @@ type UpdateApplicationParam struct {
 }
 
 type PageApplicationVo struct {
-	Item  []Application `json:"item"`
+	Items []Application `json:"items"`
 	Total int64         `json:"total"`
 }
 
@@ -41,6 +41,7 @@ type ApplyVo struct {
 	Name         string    `json:"name"`         //apply name
 	Abbreviation string    `json:"abbreviation"` //apply abbreviation
 	Describe     string    `json:"describe"`     //apply describe
+	Status       int       `json:"status"`
 }
 
 type Service interface {

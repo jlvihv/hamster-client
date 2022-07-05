@@ -1,4 +1,3 @@
-// eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace graph {
   export class GraphParameterVo {
     nodeEthereumUrl: string;
@@ -11,6 +10,10 @@ export namespace graph {
     abbreviation: string;
     describe: string;
     status: number;
+    // Go type: time.Time
+    createdAt: any;
+    // Go type: time.Time
+    updatedAt: any;
 
     static createFrom(source: any = {}) {
       return new GraphParameterVo(source);
@@ -28,11 +31,30 @@ export namespace graph {
       this.abbreviation = source['abbreviation'];
       this.describe = source['describe'];
       this.status = source['status'];
+      this.createdAt = this.convertValues(source['createdAt'], null);
+      this.updatedAt = this.convertValues(source['updatedAt'], null);
+    }
+
+    convertValues(a: any, classs: any, asMap: boolean = false): any {
+      if (!a) {
+        return a;
+      }
+      if (a.slice) {
+        return (a as any[]).map((elem) => this.convertValues(elem, classs));
+      } else if ('object' === typeof a) {
+        if (asMap) {
+          for (const key of Object.keys(a)) {
+            a[key] = new classs(a[key]);
+          }
+          return a;
+        }
+        return new classs(a);
+      }
+      return a;
     }
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace account {
   export class Account {
     publicKey: string;
@@ -84,7 +106,7 @@ export namespace resource {
       this.status = source['status'];
     }
 
-    convertValues(a: any, classs: any, asMap = false): any {
+    convertValues(a: any, classs: any, asMap: boolean = false): any {
       if (!a) {
         return a;
       }
@@ -168,22 +190,6 @@ export namespace deploy {
 }
 
 export namespace application {
-  export class AddApplicationParam {
-    name: string;
-    abbreviation: string;
-    describe: string;
-
-    static createFrom(source: any = {}) {
-      return new AddApplicationParam(source);
-    }
-
-    constructor(source: any = {}) {
-      if ('string' === typeof source) source = JSON.parse(source);
-      this.name = source['name'];
-      this.abbreviation = source['abbreviation'];
-      this.describe = source['describe'];
-    }
-  }
   export class Application {
     id: number;
     name: string;
@@ -213,7 +219,7 @@ export namespace application {
       this.deletedAt = this.convertValues(source['deletedAt'], null);
     }
 
-    convertValues(a: any, classs: any, asMap = false): any {
+    convertValues(a: any, classs: any, asMap: boolean = false): any {
       if (!a) {
         return a;
       }
@@ -232,7 +238,7 @@ export namespace application {
     }
   }
   export class PageApplicationVo {
-    item: Application[];
+    items: Application[];
     total: number;
 
     static createFrom(source: any = {}) {
@@ -241,11 +247,11 @@ export namespace application {
 
     constructor(source: any = {}) {
       if ('string' === typeof source) source = JSON.parse(source);
-      this.item = this.convertValues(source['item'], Application);
+      this.items = this.convertValues(source['items'], Application);
       this.total = source['total'];
     }
 
-    convertValues(a: any, classs: any, asMap = false): any {
+    convertValues(a: any, classs: any, asMap: boolean = false): any {
       if (!a) {
         return a;
       }
@@ -272,6 +278,7 @@ export namespace application {
     name: string;
     abbreviation: string;
     describe: string;
+    status: number;
 
     static createFrom(source: any = {}) {
       return new ApplyVo(source);
@@ -285,9 +292,10 @@ export namespace application {
       this.name = source['name'];
       this.abbreviation = source['abbreviation'];
       this.describe = source['describe'];
+      this.status = source['status'];
     }
 
-    convertValues(a: any, classs: any, asMap = false): any {
+    convertValues(a: any, classs: any, asMap: boolean = false): any {
       if (!a) {
         return a;
       }
@@ -318,6 +326,22 @@ export namespace application {
     constructor(source: any = {}) {
       if ('string' === typeof source) source = JSON.parse(source);
       this.id = source['id'];
+      this.name = source['name'];
+      this.abbreviation = source['abbreviation'];
+      this.describe = source['describe'];
+    }
+  }
+  export class AddApplicationParam {
+    name: string;
+    abbreviation: string;
+    describe: string;
+
+    static createFrom(source: any = {}) {
+      return new AddApplicationParam(source);
+    }
+
+    constructor(source: any = {}) {
+      if ('string' === typeof source) source = JSON.parse(source);
       this.name = source['name'];
       this.abbreviation = source['abbreviation'];
       this.describe = source['describe'];

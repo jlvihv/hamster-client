@@ -83,7 +83,7 @@ func (a *ServiceImpl) ApplicationList(page, pageSize int, name string, status in
 	if result.Error != nil {
 		return data, result.Error
 	}
-	data.Item = list
+	data.Items = list
 	data.Total = total
 	return data, nil
 }
