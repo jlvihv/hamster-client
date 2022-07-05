@@ -1,41 +1,41 @@
 <template>
   <div class="float-right">
     <Button type="link" size="large" @click="showModal">
-      {{ t('routes.header.importAccount') }}
+      {{ t('layouts.header.importAccount') }}
     </Button>
     <Modal
       v-model:visible="visible"
-      :title="t('routes.header.importJson')"
-      :ok-text="t('routes.header.ok')"
-      :cancel-text="t('routes.header.cancle')"
+      :title="t('layouts.header.importJson')"
+      :ok-text="t('common.okText')"
+      :cancel-text="t('common.closeText')"
       @ok="handleOk"
     >
       <Form layout="vertical" ref="formRef" :model="formData" :rules="formRules">
-        <FormItem :name="t('routes.header.file')">
+        <FormItem :name="t('layouts.header.file')">
           <Upload
             accept=".json"
             v-model:fileList="formData.fileList"
-            name="t('routes.header.file')"
+            name="t('layouts.header.file')"
             @change="handleChange"
             :beforeUpload="beforeUpload"
           >
-            <Button type="dashed"> {{ t('routes.header.buttonImportJson') }} </Button>
+            <Button type="dashed"> {{ t('layouts.header.buttonImportJson') }} </Button>
           </Upload>
         </FormItem>
         <FormItem v-if="contentvisible">
           <Descriptions>
-            <DescriptionsItem :label="t('routes.header.name')">
-              {{ t('routes.header.user') }}
+            <DescriptionsItem :label="t('layouts.header.name')">
+              {{ t('layouts.header.user') }}
             </DescriptionsItem>
           </Descriptions>
         </FormItem>
         <FormItem
-          :name="t('routes.header.password')"
+          :name="t('layouts.header.password')"
           v-if="contentvisible"
-          :label="t('routes.header.upperPassword')"
+          :label="t('layouts.header.upperPassword')"
         >
           <Input
-            :placeholder="t('routes.header.PleaseEnterPassword')"
+            :placeholder="t('layouts.header.PleaseEnterPassword')"
             v-model:value="formData.password"
           />
         </FormItem>
@@ -70,9 +70,9 @@
   }>({});
 
   const formRules = computed(() => ({
-    fileList: [{ message: t('routes.header.uploadFile'), trigger: 'change', required: true }],
+    fileList: [{ message: t('layouts.header.uploadFile'), trigger: 'change', required: true }],
     password: [
-      { message: t('routes.header.PleaseEnterPassword'), trigger: 'change', required: true },
+      { message: t('layouts.header.PleaseEnterPassword'), trigger: 'change', required: true },
     ],
   }));
 
