@@ -171,7 +171,7 @@
       :okText="t('common.deployText')"
       @ok="tabAction.onCancel"
     >
-      <deployInfo />
+      <!-- <DeployInfo /> -->
     </Modal>
   </PageWrapper>
 </template>
@@ -180,7 +180,7 @@
   import { PageWrapper } from '/@/components/Page';
   import { useRoute, useRouter } from 'vue-router';
   import { useI18n } from '/@/hooks/web/useI18n';
-  import deployInfo from '.././application/components/deployInfo.vue';
+  // import DeployInfo from '.././application/components/DeployInfo.vue';
   import { Steps, Step, Form, FormItem, Button, Input, Select, Modal } from 'ant-design-vue';
 
   const { t } = useI18n();
