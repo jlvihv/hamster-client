@@ -17,50 +17,61 @@ func NewServiceImpl(ctx context.Context, db *gorm.DB) ServiceImpl {
 }
 
 // AddApplication add application data
-func (a *ServiceImpl) AddApplication(application *Application) error {
+func (a *ServiceImpl) AddApplication(application *AddApplicationParam) (bool, error) {
 	var applyData Application
 	err := a.db.Where("name=?", application.Name).First(&applyData).Error
 	if err == gorm.ErrRecordNotFound {
-		a.db.Create(&application)
-		return nil
+		applyData.Describe = application.Describe
+		applyData.Name = application.Name
+		applyData.Abbreviation = application.Abbreviation
+		a.db.Create(&applyData)
+		return true, nil
 	}
-	return errors.New(fmt.Sprintf("application:%s already exists", application.Name))
+	return false, errors.New(fmt.Sprintf("application:%s already exists", application.Name))
 }
 
 // UpdateApplication update application field
-func (a *ServiceImpl) UpdateApplication(id int, name string, abbreviation string, des string) error {
+func (a *ServiceImpl) UpdateApplication(id int, name string, abbreviation string, des string) (bool, error) {
 	var applyData Application
 	result := a.db.Model(applyData).Where("id = ?", id).Updates(Application{Name: name, Abbreviation: abbreviation, Describe: des})
 	if result.Error != nil {
-		return result.Error
+		return false, result.Error
 	}
-	return nil
+	return true, nil
 }
 
 // DeleteApplication delete application by id
-func (a *ServiceImpl) DeleteApplication(id int) error {
+func (a *ServiceImpl) DeleteApplication(id int) (bool, error) {
 	result := a.db.Debug().Where("id = ?", id).Delete(&Application{})
 	fmt.Println(result.Error)
 	if result.Error != nil {
-		return result.Error
+		return false, result.Error
 	}
-	return nil
+	return true, nil
 }
 
 // QueryApplicationById query application data by id
-func (a *ServiceImpl) QueryApplicationById(id int) (Application, error) {
+func (a *ServiceImpl) QueryApplicationById(id int) (ApplyVo, error) {
 	var data Application
+	var resultData ApplyVo
 	result := a.db.Where("id = ? ", id).First(&data)
 	if result.Error != nil {
-		return Application{}, result.Error
+		return resultData, result.Error
 	}
-	return data, nil
+	resultData.ID = data.ID
+	resultData.Name = data.Name
+	resultData.Describe = data.Describe
+	resultData.Abbreviation = data.Abbreviation
+	resultData.CreatedAt = data.CreatedAt
+	resultData.UpdatedAt = data.UpdatedAt
+	return resultData, nil
 }
 
 // ApplicationList Paging query application data
-func (a *ServiceImpl) ApplicationList(page, pageSize int, name string, status int) (data []Application, count int64, err error) {
+func (a *ServiceImpl) ApplicationList(page, pageSize int, name string, status int) (PageApplicationVo, error) {
 	var total int64
 	var list []Application
+	var data PageApplicationVo
 	tx := a.db.Model(Application{})
 	if name != "" {
 		tx = tx.Where("name like ? ", "%"+name+"%")
@@ -70,9 +81,11 @@ func (a *ServiceImpl) ApplicationList(page, pageSize int, name string, status in
 	}
 	result := tx.Offset((page - 1) * pageSize).Limit(pageSize).Find(&list).Count(&total)
 	if result.Error != nil {
-		return nil, total, result.Error
+		return data, result.Error
 	}
-	return list, total, nil
+	data.Item = list
+	data.Total = total
+	return data, nil
 }
 
 // UpdateApplicationStatus update deploy status

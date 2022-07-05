@@ -2,21 +2,52 @@ package application
 
 import (
 	"gorm.io/gorm"
+	"time"
 )
 
 type Application struct {
-	gorm.Model
+	ID           uint           `json:"id" gorm:"primarykey"`
+	Name         string         `json:"name"`         //apply name
+	Abbreviation string         `json:"abbreviation"` //apply abbreviation
+	Describe     string         `json:"describe"`     //apply describe
+	Status       int            `json:"status"`       //apply status 0: not deploy 1:deployed 2:ALL
+	CreatedAt    time.Time      `json:"createdAt"`
+	UpdatedAt    time.Time      `json:"updatedAt"`
+	DeletedAt    gorm.DeletedAt `json:"deletedAt" gorm:"index"`
+}
+
+type AddApplicationParam struct {
 	Name         string `json:"name"`         //apply name
 	Abbreviation string `json:"abbreviation"` //apply abbreviation
 	Describe     string `json:"describe"`     //apply describe
-	Status       int    `json:"status"`       //apply status 0: not deploy 1:deployed 2:ALL
+}
+
+type UpdateApplicationParam struct {
+	ID           uint   `json:"id"`           //application ID
+	Name         string `json:"name"`         //apply name
+	Abbreviation string `json:"abbreviation"` //apply abbreviation
+	Describe     string `json:"describe"`     //apply describe
+}
+
+type PageApplicationVo struct {
+	Item  []Application `json:"item"`
+	Total int64         `json:"total"`
+}
+
+type ApplyVo struct {
+	ID           uint      `json:"id"`
+	CreatedAt    time.Time `json:"createdAt"`
+	UpdatedAt    time.Time `json:"updatedAt"`
+	Name         string    `json:"name"`         //apply name
+	Abbreviation string    `json:"abbreviation"` //apply abbreviation
+	Describe     string    `json:"describe"`     //apply describe
 }
 
 type Service interface {
-	AddApplication(application *Application) error
-	UpdateApplication(id int, name string, abbreviation string, des string) error
-	DeleteApplication(id int) error
-	QueryApplicationById(id int) (Application, error)
-	ApplicationList(page, pageSize int, name string, status int) (data []Application, count int64, err error)
+	AddApplication(application *AddApplicationParam) (bool, error)
+	UpdateApplication(id int, name string, abbreviation string, des string) (bool, error)
+	DeleteApplication(id int) (bool, error)
+	QueryApplicationById(id int) (ApplyVo, error)
+	ApplicationList(page, pageSize int, name string, status int) (PageApplicationVo, error)
 	UpdateApplicationStatus(id, status int) error
 }

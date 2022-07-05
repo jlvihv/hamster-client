@@ -146,6 +146,8 @@ func (a *App) Startup(context context.Context) {
 	a.initService()
 	//initialize app
 	a.initApp()
+	a.ChainListener.CancelListen()
+	a.ChainListener.StartListen()
 }
 
 // DomReady is called after the front-end dom has been loaded

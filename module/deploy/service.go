@@ -21,12 +21,12 @@ func NewServiceImpl(ctx context.Context, httpUtil *utils.HttpUtil, db *gorm.DB, 
 	return ServiceImpl{ctx, httpUtil, db, graphService}
 }
 
-func (s *ServiceImpl) DeployTheGraph(data DeployParams) error {
+func (s *ServiceImpl) DeployTheGraph(data DeployParams) (bool, error) {
 	runtime.LogInfo(s.ctx, "start Deploy the graph")
 	res, err := s.httpUtil.NewRequest().SetBody(data).Post(config.Httpprovider)
 	if err != nil {
 		runtime.LogError(s.ctx, "DeployTheGraph http error:"+err.Error())
-		return err
+		return false, err
 	}
 	if !res.IsSuccess() {
 		runtime.LogError(s.ctx, "DeployTheGraph Response error: "+res.Status())
@@ -35,7 +35,7 @@ func (s *ServiceImpl) DeployTheGraph(data DeployParams) error {
 	var applyData application.Application
 	result := s.db.Where("id = ? ", data.Id).First(&applyData)
 	if result.Error != nil {
-		return result.Error
+		return false, result.Error
 	}
 	var graphData graph.GraphParameter
 	graphData.Application = applyData

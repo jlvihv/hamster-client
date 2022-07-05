@@ -21,26 +21,39 @@ func NewServiceImpl(ctx context.Context, db *gorm.DB, httpUtil *utils.HttpUtil) 
 	return ServiceImpl{ctx, db, httpUtil}
 }
 
-func (g *ServiceImpl) SaveGraphParameter(data GraphParameter) error {
+func (g *ServiceImpl) SaveGraphParameter(data GraphParameter) (bool, error) {
 	var graphParams GraphParameter
 	err := g.db.Preload("Application").Where("application_id = ? ", data.ApplicationId).First(&graphParams).Error
 	if err != gorm.ErrRecordNotFound {
 		g.db.Create(&data)
-		return nil
+		return true, nil
 	}
-	return errors.New(fmt.Sprintf("graph param -> application :%s already exists", data.Application.Name))
+	return false, errors.New(fmt.Sprintf("graph param -> application :%s already exists", data.Application.Name))
 }
 
-func (g *ServiceImpl) QueryParamByApplyId(applicationId int) (GraphParameter, error) {
+func (g *ServiceImpl) QueryParamByApplyId(applicationId int) (GraphParameterVo, error) {
 	var data GraphParameter
+	var result GraphParameterVo
 	err := g.db.Preload("Application").Where("application_id = ? ", applicationId).First(&data).Error
 	if err != nil {
-		return data, err
+		return result, err
 	}
-	return data, nil
+	result.UpdatedAt = data.UpdatedAt
+	result.CreatedAt = data.CreatedAt
+	result.Name = data.Application.Name
+	result.Abbreviation = data.Application.Abbreviation
+	result.Describe = data.Application.Describe
+	result.ApplicationId = data.Application.ID
+	result.Mnemonic = data.Mnemonic
+	result.Status = data.Application.Status
+	result.EthereumUrl = data.EthereumUrl
+	result.IndexerAddress = data.IndexerAddress
+	result.NodeEthereumUrl = data.NodeEthereumUrl
+	result.EthereumNetwork = data.EthereumNetwork
+	return result, nil
 }
 
-func (g *ServiceImpl) DeleteGraphAndParams(applicationId int) error {
+func (g *ServiceImpl) DeleteGraphAndParams(applicationId int) (bool, error) {
 	err := g.db.Transaction(func(tx *gorm.DB) error {
 		if err := tx.Preload("Application").Where("application_id = ? ", applicationId).First(&GraphParameter{}).Error; err != nil {
 			return err
@@ -56,7 +69,10 @@ func (g *ServiceImpl) DeleteGraphAndParams(applicationId int) error {
 		}
 		return nil
 	})
-	return err
+	if err != nil {
+		return false, err
+	}
+	return true, nil
 }
 
 func (g *ServiceImpl) QueryGraphStatus(serviceName string) (int, error) {
