@@ -32,7 +32,7 @@ export function generateModifyVars(dark = false) {
     'warning-color': '#EFBD47', //   Warning color
     //'border-color-base': '#EEEEEE',
     'font-size-base': '14px', //  Main font size
-    'border-radius-base': '2px', //  Component/float fillet
+    'border-radius-base': '4px', //  Component/float fillet
     'link-color': primary, //   Link color
     'app-content-background': '#fafafa', //   Link color
     'card-radius': '10px',
@@ -40,5 +40,7 @@ export function generateModifyVars(dark = false) {
     'table-header-bg': '#F7F3EE',
     'table-header-color': primary,
     'table-border-color': '#EAE4DD',
+    'table-border-radius-base': '0',
+    'modal-footer-border-width': '0px',
   };
 }
