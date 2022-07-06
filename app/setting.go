@@ -11,7 +11,7 @@ type Config struct {
 	PublicKey string `json:"publicKey"`
 	Port      int    `json:"port"`
 	PeerId    string `json:"peerId"`
-	WsUrl     string `json:"wsRrl"`
+	WsUrl     string `json:"wsUrl"`
 }
 
 type Setting struct {
