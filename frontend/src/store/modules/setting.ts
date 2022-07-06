@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { store } from '/@/store';
 import { GetWalletInfo, SaveWallet, DeleteWallet } from '/@wails/go/app/Wallet';
-import { GetSetting } from '/@wails/go/app/Setting';
+import { GetSetting, SettingWsUrl } from '/@wails/go/app/Setting';
 
 interface SettingState {
   walletInfo?: { address: string; addressJson: string };
@@ -31,6 +31,10 @@ export const useSettingStore = defineStore({
     async getConfigAction() {
       const config = await GetSetting();
       if (!(config instanceof Error)) this.config = config;
+    },
+    async saveWsUrlAction(wsUrl: string) {
+      await SettingWsUrl(wsUrl);
+      await this.getConfigAction();
     },
   },
 });

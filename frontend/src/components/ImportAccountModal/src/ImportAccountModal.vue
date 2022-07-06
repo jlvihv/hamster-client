@@ -100,7 +100,7 @@
       await settingStore.saveWalletAction(jsonContent.address, jsonContent);
       modalVisible.value = false;
     } else {
-      createErrorModal({ content: 'Password error' });
+      createErrorModal({ content: t('passwordError') });
     }
   };
 
@@ -120,7 +120,7 @@
         }
 
         if (!json || !json.address || !json.encoded || !json.encoding || !json.meta) {
-          createErrorModal({ content: 'please import json in correct format' });
+          createErrorModal({ content: t('correctFormatJson') });
 
           fileList.pop();
           handleFileRemove();

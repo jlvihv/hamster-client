@@ -1,69 +1,97 @@
 <template>
   <PageWrapper>
-    <div class="p-3 bg-white">
-      <div class="text-color-[#141212] text-xl font-bold mb-8 ml-5 mt-3">{{
-        t('routes.settings.settings')
-      }}</div>
-      <Form
-        ref="formRef"
-        :model="formData"
-        :rules="formRules"
-        :label-col="{ style: { width: '150px' } }"
-      >
-        <FormItem :label="t('routes.settings.pleaseInputWsUrl')" name="wsurl">
-          <Input
-            v-model:value="formData.wsurl"
-            :placeholder="t('routes.settings.pleaseInputWsUrl')"
-          />
-        </FormItem>
-        <FormItem :label="t('routes.settings.address')" name="address">
-          <span class="text-[#666666]">{{ formData.address }}</span>
-          <Button class="ml-[50%]">{{ t('routes.settings.unbind') }}</Button>
-        </FormItem>
-        <FormItem :label="t('routes.settings.accountBalance')" name="balance">
-          <span class="text-[#666666]">{{ formData.balance }}</span>
-        </FormItem>
-        <FormItem>
-          <Button type="primary" class="w-[50%] ml-[25%] mt-16" @click="handleWsurl">{{
-            t('routes.settings.save')
-          }}</Button>
-        </FormItem>
-      </Form>
-    </div>
+    <Card>
+      <div class="p-3 bg-white">
+        <div class="text-color-[#141212] text-xl font-bold mb-8 ml-5 mt-3">{{
+          t('routes.settings.settings')
+        }}</div>
+        <Form
+          ref="formRef"
+          :model="formData"
+          :rules="formRules"
+          :label-col="{ style: { width: '150px' } }"
+        >
+          <FormItem :label="t('routes.settings.pleaseInputWsUrl')" name="wsurl">
+            <Input
+              :default-value="wsUrl"
+              v-model:value="formData.wsUrl"
+              :placeholder="t('routes.settings.pleaseInputWsUrl')"
+            />
+          </FormItem>
+          <FormItem :label="t('routes.settings.address')" name="address" v-if="address">
+            <span class="text-[#666666]">{{ address }}</span>
+            <Button class="ml-[50%]" @click="handleUnbind">{{
+              t('routes.settings.unbind')
+            }}</Button>
+          </FormItem>
+          <FormItem :label="t('routes.settings.accountBalance')" name="balance" v-if="address">
+            <span class="text-[#666666]">{{ balance }}</span>
+          </FormItem>
+          <FormItem>
+            <Button type="primary" class="w-[50%] ml-[25%] mt-16" @click="handleSave">{{
+              t('routes.settings.save')
+            }}</Button>
+          </FormItem>
+        </Form>
+      </div>
+    </Card>
   </PageWrapper>
 </template>
 
 <script lang="ts" setup>
-  import { reactive, computed, ref } from 'vue';
+  import '@polkadot/api-augment';
+  import { reactive, computed, ref, onMounted, watch } from 'vue';
   import { PageWrapper } from '/@/components/Page';
   import { useI18n } from '/@/hooks/web/useI18n';
-  import { SettingWsUrl } from '/@wails/go/app/Setting';
-  import { Button, Form, FormItem, Input } from 'ant-design-vue';
+  import { useSettingStore } from '/@/store/modules/setting';
+  import { createPolkadotApi, formatBalance } from '/@/utils/polkadotUtil';
+  import { Button, Form, FormItem, Input, Card } from 'ant-design-vue';
 
   const { t } = useI18n();
+  const settingStore = useSettingStore();
+
+  const address = computed(() => settingStore.walletInfo?.address);
+  const wsUrl = computed(() => settingStore.config?.wsUrl);
+  const balance = ref('');
+
+  watch([address, wsUrl], async ([addressVal, wsUrlVal]) => {
+    if (!addressVal || !wsUrlVal) return;
+    const api = await createPolkadotApi(wsUrlVal);
+    const { data: balanceData } = await api.query.system.account(address);
+    console.log(balanceData);
+    balance.value = formatBalance(balanceData.free);
+  });
+
   const formRef = ref();
-
   const formData = reactive<{
-    wsurl?: string;
-    address?: string;
-    balance?: string;
+    wsUrl?: string;
   }>({});
-
   const formRules = computed(() => ({
-    wsurl: [{ message: t('routes.settings.pleaseInputWsUrl'), trigger: 'change', required: true }],
+    wsUrl: [{ message: t('routes.settings.pleaseInputWsUrl'), trigger: 'change', required: true }],
   }));
 
-  async function handleWsurl() {
-    await formRef.value?.validate();
-    if (!formData.wsurl) return;
-
+  async function handleUnbind() {
     try {
-      const data = await SettingWsUrl(formData.wsurl);
-      console.log(data);
+      settingStore.deleteWalletAction();
     } catch (err) {
       console.log('error', err);
     }
   }
+
+  async function handleSave() {
+    await formRef.value?.validate();
+    if (!formData.wsUrl) return;
+
+    try {
+      settingStore.saveWsUrlAction(formData.wsUrl);
+    } catch (err) {
+      console.log('error', err);
+    }
+  }
+
+  onMounted(() => {
+    settingStore.getConfigAction();
+  });
 </script>
 
 <style lang="less" scoped>
