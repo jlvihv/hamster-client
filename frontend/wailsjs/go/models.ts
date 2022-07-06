@@ -24,6 +24,20 @@ export namespace deploy {
 }
 
 export namespace application {
+  export class AddApplicationParam {
+    name: string;
+    describe: string;
+
+    static createFrom(source: any = {}) {
+      return new AddApplicationParam(source);
+    }
+
+    constructor(source: any = {}) {
+      if ('string' === typeof source) source = JSON.parse(source);
+      this.name = source['name'];
+      this.describe = source['describe'];
+    }
+  }
   export class Application {
     id: number;
     name: string;
@@ -155,20 +169,6 @@ export namespace application {
     constructor(source: any = {}) {
       if ('string' === typeof source) source = JSON.parse(source);
       this.id = source['id'];
-      this.name = source['name'];
-      this.describe = source['describe'];
-    }
-  }
-  export class AddApplicationParam {
-    name: string;
-    describe: string;
-
-    static createFrom(source: any = {}) {
-      return new AddApplicationParam(source);
-    }
-
-    constructor(source: any = {}) {
-      if ('string' === typeof source) source = JSON.parse(source);
       this.name = source['name'];
       this.describe = source['describe'];
     }
@@ -306,7 +306,7 @@ export namespace app {
     publicKey: string;
     port: number;
     peerId: string;
-    wsRrl: string;
+    wsUrl: string;
 
     static createFrom(source: any = {}) {
       return new Config(source);
@@ -317,7 +317,7 @@ export namespace app {
       this.publicKey = source['publicKey'];
       this.port = source['port'];
       this.peerId = source['peerId'];
-      this.wsRrl = source['wsRrl'];
+      this.wsUrl = source['wsUrl'];
     }
   }
 }
@@ -325,7 +325,7 @@ export namespace app {
 export namespace wallet {
   export class WalletVo {
     address: string;
-    address_json: string;
+    addressJson: string;
 
     static createFrom(source: any = {}) {
       return new WalletVo(source);
@@ -334,7 +334,7 @@ export namespace wallet {
     constructor(source: any = {}) {
       if ('string' === typeof source) source = JSON.parse(source);
       this.address = source['address'];
-      this.address_json = source['address_json'];
+      this.addressJson = source['addressJson'];
     }
   }
 }

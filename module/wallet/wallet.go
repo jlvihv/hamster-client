@@ -6,13 +6,13 @@ import (
 
 type Wallet struct {
 	gorm.Model
-	Address     string `json:"address"`      //account address
-	AddressJson string `json:"address_json"` //json file information
+	Address     string `json:"address"`     //account address
+	AddressJson string `json:"addressJson"` //json file information
 }
 
 type WalletVo struct {
-	Address     string `json:"address"`      //account address
-	AddressJson string `json:"address_json"` //json file information
+	Address     string `json:"address"`     //account address
+	AddressJson string `json:"addressJson"` //json file information
 }
 
 type Service interface {
