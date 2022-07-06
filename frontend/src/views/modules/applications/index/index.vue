@@ -123,7 +123,7 @@
   const operateType = ref('add');
   // Form data
   const formRef = ref();
-  const formData = reactive({
+  const formData = reactive<{ id?: number; name: string; describe: string }>({
     name: '', //Application name
     describe: '', //Application description
   });
@@ -282,7 +282,9 @@
     visible.value = true;
   }
   async function editApplication(data) {
-    Object.assign(formData, data);
+    const { id, name, describe } = data;
+    Object.assign(formData, { id, name, describe });
+
     operateType.value = 'edit';
     visible.value = true;
   }
@@ -304,6 +306,7 @@
     style: { width: '90px' },
   });
 </script>
+
 <style lang="less" scoped>
   :deep(.input-width) {
     width: 180px !important;
