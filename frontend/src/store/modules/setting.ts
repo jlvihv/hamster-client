@@ -4,8 +4,8 @@ import { GetWalletInfo, SaveWallet, DeleteWallet } from '/@wails/go/app/Wallet';
 import { GetSetting } from '/@wails/go/app/Setting';
 
 interface SettingState {
-  walletInfo?: { address: string; address_json: string };
-  config?: Recordable;
+  walletInfo?: { address: string; addressJson: string };
+  config?: { wsUrl: string };
 }
 
 export const useSettingStore = defineStore({
