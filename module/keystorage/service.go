@@ -72,7 +72,7 @@ func (self *ServiceImpl) autoMigrate() {
 		return
 	}
 	if self.tableName == "" {
-		self.tableName = "key_story"
+		self.tableName = "key_storage"
 	}
 	if self.db.Migrator().HasTable(self.tableName) {
 		return
