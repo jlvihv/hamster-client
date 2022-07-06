@@ -90,7 +90,7 @@
 
     const { jsonContent, password } = formData;
 
-    if (!jsonContent || !password) return;
+    if (!jsonContent || !jsonContent.address || !password) return;
 
     // Check password
     const isMatch = isJSONAndPasswordMatch(jsonContent, password);

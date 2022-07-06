@@ -25,7 +25,7 @@ export default {
   ApplicationList: (page: number, pageSize: number, name: string, status: number) => {
     let data = applications;
     if (name) data = applications.filter((x) => lowerCase(x.name) === lowerCase(name));
-    if (status) data = applications.filter((x) => x.status === status);
+    if (status != 2) data = applications.filter((x) => x.status === status);
 
     return resultPageSuccess(page, pageSize, data);
   },
