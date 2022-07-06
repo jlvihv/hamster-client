@@ -266,3 +266,31 @@ func TestServiceImpl_Get1(t *testing.T) {
 		})
 	}
 }
+
+func TestServiceImpl_Delete(t *testing.T) {
+	type fields struct {
+		tableName string
+		db        *gorm.DB
+		Error     error
+	}
+	type args struct {
+		key string
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		args   args
+	}{
+		{name: "delete 1", fields: fields{tableName: "", db: getDB(), Error: nil}, args: args{"3721"}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			self := &ServiceImpl{
+				tableName: tt.fields.tableName,
+				db:        tt.fields.db,
+				Error:     tt.fields.Error,
+			}
+			self.Delete(tt.args.key)
+		})
+	}
+}

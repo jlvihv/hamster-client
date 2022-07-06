@@ -43,16 +43,31 @@ func (self *ServiceImpl) Set(key, value string) {
 		Value: value,
 	}
 	self.Get(key)
-	if self.Error != nil && errors.Is(self.Error, gorm.ErrRecordNotFound) {
-		self.Error = nil
-		err := self.db.Table(self.tableName).Create(&k).Error
-		if err != nil {
-			self.Error = err
+	if self.Error != nil {
+		if errors.Is(self.Error, gorm.ErrRecordNotFound) {
+			self.Error = nil
+			err := self.db.Table(self.tableName).Create(&k).Error
+			if err != nil {
+				self.Error = err
+				return
+			}
 			return
 		}
 		return
 	}
-	err := self.db.Table(self.tableName).Save(&k).Error
+	err := self.db.Table(self.tableName).Where("key = ?", key).Updates(&k).Error
+	if err != nil {
+		self.Error = err
+		return
+	}
+}
+
+func (self *ServiceImpl) Delete(key string) {
+	self.autoMigrate()
+	if self == nil || self.Error != nil {
+		return
+	}
+	err := self.db.Table(self.tableName).Where("key = ?", key).Delete(&KeyStorage{}).Error
 	if err != nil {
 		self.Error = err
 		return
@@ -60,10 +75,16 @@ func (self *ServiceImpl) Set(key, value string) {
 }
 
 func (self *ServiceImpl) Err() error {
+	if self == nil {
+		return nil
+	}
 	return self.Error
 }
 
 func (self *ServiceImpl) SetTableName(name string) {
+	if self == nil {
+		return
+	}
 	self.tableName = name
 }
 
@@ -71,8 +92,9 @@ func (self *ServiceImpl) autoMigrate() {
 	if self == nil {
 		return
 	}
+	defaultTableName := "key_storage"
 	if self.tableName == "" {
-		self.tableName = "key_storage"
+		self.tableName = defaultTableName
 	}
 	if self.db.Migrator().HasTable(self.tableName) {
 		return
