@@ -17,7 +17,7 @@ const settings: AppRouteModule = {
     {
       path: 'index',
       name: 'SettingsIndex',
-      component: () => import('/@/views/modules/settings/index.vue'),
+      component: () => import('/@/views/modules/settings/index/index.vue'),
       meta: {
         title: t('routes.settings.settings'),
         hideMenu: true,

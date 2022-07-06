@@ -282,9 +282,9 @@
     visible.value = true;
   }
   async function editApplication(data) {
-    formData.id = data.id;
-    formData.name = data.name;
-    formData.describe = data.describe;
+    const { id, name, describe } = data;
+    Object.assign(formData, { id, name, describe });
+
     operateType.value = 'edit';
     visible.value = true;
   }
@@ -306,6 +306,7 @@
     style: { width: '90px' },
   });
 </script>
+
 <style lang="less" scoped>
   :deep(.input-width) {
     width: 180px !important;
