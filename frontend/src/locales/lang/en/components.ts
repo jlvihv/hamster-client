@@ -7,5 +7,7 @@ export default {
     name: 'NAME',
     uploadFile: 'Please upload a json file',
     upperPassword: 'PASSWORD:',
+    passwordError: 'Password error',
+    correctFormatJson: 'please import json in correct format',
   },
 };
