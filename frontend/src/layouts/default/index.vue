@@ -33,6 +33,7 @@
 
       &-header {
         background-color: @white;
+        padding: 0 1rem;
       }
     }
   }
