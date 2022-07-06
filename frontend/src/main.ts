@@ -4,11 +4,15 @@ import { createApp } from 'vue';
 import App from './App.vue';
 import { router, setupRouter } from '/@/router';
 import { setupRouterGuard } from '/@/router/guard';
+import { setupStore } from '/@/store';
 import { setupI18n } from '/@/locales/setupI18n';
 import { registerGlobComp } from '/@/components/registerGlobComp';
 
 async function bootstrap() {
   const app = createApp(App);
+
+  // Configure store
+  setupStore(app);
 
   // Register global components
   registerGlobComp(app);
