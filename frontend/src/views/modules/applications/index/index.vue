@@ -53,17 +53,11 @@
               /></a>
               <Popconfirm
                 :title="t('application.index.delAppInfo')"
-                @confirm="tableAction.deleteApp(index, record.id)"
+                @confirm="deleteApp(index, record.id)"
               >
                 <a class="mr-3 text-red-600 hover:text-red-600" :title="t('common.delText')"
                   ><DeleteOutlined
                 /></a>
-              </Popconfirm>
-              <Popconfirm
-                :title="t('applications.index.disabledAppInfo')"
-                @confirm="tableAction.changeStatus(index, record.id, record.status)"
-              >
-                <a class="mr-3" :title="t('common.disabledText')"><DisconnectOutlined /></a>
               </Popconfirm>
             </template>
           </template>
@@ -73,7 +67,7 @@
     <Modal
       v-model:visible="visible"
       :title="[
-        formData.name != '' ? t('applications.index.editApp') : t('applications.index.addApp'),
+        operateType === 'edit' ? t('applications.index.editApp') : t('applications.index.addApp'),
       ]"
       :okText="t('common.confirmText')"
       @ok="handleOk"
@@ -94,13 +88,14 @@
   import { reactive, computed, ref, onMounted } from 'vue';
   import { PageWrapper } from '/@/components/Page';
   import { useI18n } from '/@/hooks/web/useI18n';
+  import { useMessage } from '/@/hooks/web/useMessage';
   import {
-    PlusOutlined,
-    FormOutlined,
-    DeleteOutlined,
-    EyeOutlined,
-    DisconnectOutlined,
-  } from '@ant-design/icons-vue';
+    ApplicationList,
+    AddApplication,
+    UpdateApplication,
+    DeleteApplication,
+  } from '/@wails/go/app/Application';
+  import { PlusOutlined, FormOutlined, DeleteOutlined, EyeOutlined } from '@ant-design/icons-vue';
   import {
     Card,
     Button,
@@ -115,13 +110,15 @@
   } from 'ant-design-vue';
 
   const { t } = useI18n();
+  const { notification, createErrorModal } = useMessage();
   const statusOptions = reactive([]);
   const searchForm = reactive({
-    status: '', //Application status
+    status: 0, //Application status
     name: '', //Application name
   });
 
   const visible = ref(false);
+  const operateType = ref('add');
   // Form data
   const formRef = ref();
   const formData = reactive({
@@ -134,13 +131,7 @@
   }));
 
   const loading = ref(false);
-  const tableData = ref([
-    {
-      id: 2,
-      createdAt: '2022-7-4',
-      name: 'name',
-    },
-  ]);
+  const tableData = ref([]);
   const tableColumns = computed<any[]>(() => [
     {
       title: t('applications.index.noText'),
@@ -211,54 +202,33 @@
     // showTotal: total => `total：${total}`, // Total number of displays possible
   });
 
-  const tableAction = {
-    //Enable/Disable application status
-    async changeStatus(index, id, status) {
-      console.log(index, id, status);
-      // try {
-      //   const newStatus = ref(DictCodeEnum.ApplicationStatus_Inactive.value); //Disable
-      //   if (DictCodeEnum.ApplicationStatus_Inactive.is(status)) {
-      //     newStatus.value = DictCodeEnum.ApplicationStatus_Active.value;
-      //   }
-      //   const result = await changeStatusApi({ id: id, status: newStatus.value });
-      //   tableData.value[index].status = result.status;
-      //   setMessageInfo('suc');
-      // } catch (error: any) {
-      //   setMessageInfo('error');
-      // }
-    },
-
-    async deleteApp(index, id) {
-      console.log(index, id);
-      // try {
-      //   await deleteAppApi(id);
-      //   tableData.value.splice(index, 1);
-      //   setMessageInfo('suc');
-      // } catch (error: any) {
-      //   setMessageInfo('error');
-      // }
-    },
-  };
+  async function deleteApp(index, id) {
+    try {
+      await DeleteApplication(id);
+      tableData.value.splice(index, 1);
+      setMessageInfo('suc');
+    } catch (error: any) {
+      setMessageInfo('error');
+    }
+  }
 
   onMounted(async () => {
     getAppList();
   });
 
   async function getAppList() {
-    // loading.value = true;
-    // try {
-    //   const page = pagination.current;
-    //   const pageSize = pagination.pageSize;
-    //   const result = await getAppListApi({ ...formData, page, pageSize });
-    //   pagination.pageSize = result.pageSize;
-    //   pagination.current = result.page;
-    //   pagination.total = result.total;
-    //   tableData.value = result.list;
-    // } catch (error: any) {
-    //   setMessageInfo('error');
-    // } finally {
-    //   loading.value = false;
-    // }
+    loading.value = true;
+    try {
+      const page = pagination.current;
+      const pageSize = pagination.pageSize;
+      const result = await ApplicationList(page, pageSize, searchForm.name, searchForm.status);
+      pagination.total = result.total;
+      tableData.value = result.items;
+    } catch (error: any) {
+      setMessageInfo('error');
+    } finally {
+      loading.value = false;
+    }
   }
 
   async function resetForm(resetData) {
@@ -273,24 +243,58 @@
   const searchAction = {
     async onReset() {
       resetForm(searchForm);
+      getAppList();
     },
     async onSearch() {
-      console.log('format:', formData);
+      pagination.current = 1;
+      getAppList();
     },
   };
 
   async function handleOk() {
     await formRef.value.validate();
-    console.log('handle Ok ', formData);
+    try {
+      if (operateType.value === 'add') {
+        const result = await AddApplication(formData);
+        setApplicationReload(result);
+      } else {
+        const result = await UpdateApplication(formData);
+        setApplicationReload(result);
+      }
+    } catch (error: any) {
+      setMessageInfo('error');
+    } finally {
+      visible.value = false;
+    }
+  }
+  async function setApplicationReload(result) {
+    if (result === true) {
+      setMessageInfo('suc');
+      getAppList();
+    }
   }
   async function addApplication() {
     resetForm(formData);
+    operateType.value = 'add';
     visible.value = true;
   }
   async function editApplication(data) {
-    resetForm(formData);
     Object.assign(formData, data);
+    operateType.value = 'edit';
     visible.value = true;
+  }
+  async function setMessageInfo(infoType) {
+    if (infoType == 'error') {
+      createErrorModal({
+        title: t('common.errorTip'),
+        content: t('common.operateFailText'),
+      });
+    } else {
+      notification.success({
+        message: t('common.operateSucText'),
+        duration: 3,
+      });
+    }
   }
 
   const labelCol = reactive({

@@ -14,4 +14,8 @@ export default {
 
   redo: 'Refresh',
   back: 'Back',
+
+  operateSucText: 'Operation successful',
+  operateFailText: 'Operation failed',
+  errorTip: 'Error Tip',
 };
