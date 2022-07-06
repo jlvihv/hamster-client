@@ -1,8 +1,8 @@
 <template>
   <PageWrapper>
-    <Card>
+    <Card class="!mb-4">
       <Descriptions :title="t('applications.see.appInfo')" bordered>
-        <template #extra v-if="true">
+        <template #extra v-if="!isAppDeployed">
           <router-link :to="`/applications/${applicationId}/deploy`">Deploy</router-link>
         </template>
         <DescriptionsItem :label="t('applications.index.nameText')">{{
@@ -19,15 +19,15 @@
         }}</DescriptionsItem>
       </Descriptions>
     </Card>
-    <div class="h-4"></div>
-    <DeployInfo />
+    <DeployInfo v-if="isAppDeployed" />
     <div class="mt-4 text-right">
       <Button type="primary" @click="onClose">{{ t('common.closeText') }}</Button>
     </div>
   </PageWrapper>
 </template>
+
 <script lang="ts" setup>
-  import { onMounted, reactive } from 'vue';
+  import { onMounted, reactive, computed } from 'vue';
   import { useRoute, useRouter } from 'vue-router';
   import { useOptionsContent } from '.././useApp';
   import { formatToDateTime } from '/@/utils/dateUtil';
@@ -50,6 +50,9 @@
     status: 0,
     describe: '',
   });
+
+  // 0: Not deployed, 1: Deployed
+  const isAppDeployed = computed(() => appInfo.status === 1);
 
   async function getAppInfo() {
     try {
