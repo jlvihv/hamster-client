@@ -11,6 +11,9 @@ export default {
     delAppInfo: 'Sure to delete this application data?',
     addApp: 'Add Application',
     editApp: 'Edit Application',
+    undeployed: 'Undeployed',
+    deployed: 'Deployed',
+    all: 'All',
   },
   see: {
     appInfo: 'Application information',

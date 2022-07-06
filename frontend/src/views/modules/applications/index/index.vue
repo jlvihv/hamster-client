@@ -86,9 +86,11 @@
 
 <script lang="ts" setup>
   import { reactive, computed, ref, onMounted } from 'vue';
+  import { useOptionsContent } from '.././useApp';
   import { PageWrapper } from '/@/components/Page';
   import { useI18n } from '/@/hooks/web/useI18n';
   import { useMessage } from '/@/hooks/web/useMessage';
+  import { formatToDateTime } from '/@/utils/dateUtil';
   import {
     ApplicationList,
     AddApplication,
@@ -111,9 +113,9 @@
 
   const { t } = useI18n();
   const { notification, createErrorModal } = useMessage();
-  const statusOptions = reactive([]);
+  const { statusOptions } = useOptionsContent();
   const searchForm = reactive({
-    status: 0, //Application status
+    status: 2, //Application status
     name: '', //Application name
   });
 
@@ -161,7 +163,7 @@
       key: 'createdAt',
       ellipsis: 'fixed',
       align: 'center',
-      // customRender: ({ text: date }) => formatToDateTime(date, (f) => f.datetimeWithoutSec),
+      customRender: ({ text: date }) => formatToDateTime(date, (f) => f.datetimeWithoutSec),
     },
     {
       title: t('applications.index.statusText'),
@@ -169,7 +171,8 @@
       align: 'center',
       ellipsis: 'fixed',
       key: 'status',
-      // customRender: ({ text }) => dictStore.getOptionLabel(DictCodeEnum.ApplicationStatus, text),
+      customRender: ({ text }) =>
+        statusOptions.value.find((option) => option.value === text)?.label,
     },
     {
       title: t('applications.index.operText'),
