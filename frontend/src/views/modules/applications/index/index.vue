@@ -52,7 +52,7 @@
                 ><FormOutlined
               /></a>
               <Popconfirm
-                :title="t('application.index.delAppInfo')"
+                :title="t('applications.index.delAppInfo')"
                 @confirm="deleteApp(index, record.id)"
               >
                 <a class="mr-3 text-red-600 hover:text-red-600" :title="t('common.delText')"
@@ -246,6 +246,7 @@
   const searchAction = {
     async onReset() {
       resetForm(searchForm);
+      searchForm.status = 2;
       getAppList();
     },
     async onSearch() {
