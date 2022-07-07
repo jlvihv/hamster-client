@@ -21,9 +21,7 @@ func (w *ServiceImpl) GetWallet() (WalletVo, error) {
 	var data WalletVo
 	result := w.db.First(&wallet)
 	if result.Error != nil {
-
 		runtime.LogError(w.ctx, "GetWallet error")
-		return data, result.Error
 	}
 	data.Address = wallet.Address
 	data.AddressJson = wallet.AddressJson
