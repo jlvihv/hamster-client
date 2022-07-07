@@ -1,3 +1,20 @@
+export namespace wallet {
+  export class WalletVo {
+    address: string;
+    addressJson: string;
+
+    static createFrom(source: any = {}) {
+      return new WalletVo(source);
+    }
+
+    constructor(source: any = {}) {
+      if ('string' === typeof source) source = JSON.parse(source);
+      this.address = source['address'];
+      this.addressJson = source['addressJson'];
+    }
+  }
+}
+
 export namespace deploy {
   export class DeployParams {
     id: number;
@@ -24,20 +41,6 @@ export namespace deploy {
 }
 
 export namespace application {
-  export class AddApplicationParam {
-    name: string;
-    describe: string;
-
-    static createFrom(source: any = {}) {
-      return new AddApplicationParam(source);
-    }
-
-    constructor(source: any = {}) {
-      if ('string' === typeof source) source = JSON.parse(source);
-      this.name = source['name'];
-      this.describe = source['describe'];
-    }
-  }
   export class Application {
     id: number;
     name: string;
@@ -169,6 +172,20 @@ export namespace application {
     constructor(source: any = {}) {
       if ('string' === typeof source) source = JSON.parse(source);
       this.id = source['id'];
+      this.name = source['name'];
+      this.describe = source['describe'];
+    }
+  }
+  export class AddApplicationParam {
+    name: string;
+    describe: string;
+
+    static createFrom(source: any = {}) {
+      return new AddApplicationParam(source);
+    }
+
+    constructor(source: any = {}) {
+      if ('string' === typeof source) source = JSON.parse(source);
       this.name = source['name'];
       this.describe = source['describe'];
     }
@@ -318,23 +335,6 @@ export namespace app {
       this.port = source['port'];
       this.peerId = source['peerId'];
       this.wsUrl = source['wsUrl'];
-    }
-  }
-}
-
-export namespace wallet {
-  export class WalletVo {
-    address: string;
-    addressJson: string;
-
-    static createFrom(source: any = {}) {
-      return new WalletVo(source);
-    }
-
-    constructor(source: any = {}) {
-      if ('string' === typeof source) source = JSON.parse(source);
-      this.address = source['address'];
-      this.addressJson = source['addressJson'];
     }
   }
 }
