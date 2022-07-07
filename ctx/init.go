@@ -12,6 +12,7 @@ import (
 	"hamster-client/module/application"
 	"hamster-client/module/deploy"
 	"hamster-client/module/graph"
+	"hamster-client/module/keystorage"
 	"hamster-client/module/p2p"
 	"hamster-client/module/pallet"
 	"hamster-client/module/resource"
@@ -34,6 +35,7 @@ type App struct {
 	ApplicationService application.Service
 	ChainListener      *pallet.ChainListener
 	GraphParamsService graph.Service
+	KeyStorageService  *keystorage.Service
 
 	AccountApp     app.Account
 	P2pApp         app.P2p
@@ -43,6 +45,7 @@ type App struct {
 	DeployApp      app.Deploy
 	ApplicationApp app.Application
 	GraphApp       app.Graph
+	KeyStorageApp  app.KeyStorage
 }
 
 func NewApp() *App {
@@ -106,6 +109,8 @@ func (a *App) initService() {
 	a.ApplicationService = &applicationServiceImpl
 	chainListener := pallet.NewChainListener(a.gormDB)
 	a.ChainListener = chainListener
+	keyStorageServiceImpl := keystorage.NewServiceImpl(a.ctx, a.gormDB)
+	a.KeyStorageService = &keyStorageServiceImpl
 }
 
 func (a *App) initApp() {
@@ -117,6 +122,7 @@ func (a *App) initApp() {
 	a.DeployApp = app.NewDeployApp(a.DeployService, a.AccountService, a.P2pService)
 	a.ApplicationApp = app.NewApplicationApp(a.ApplicationService, a.GraphParamsService)
 	a.GraphApp = app.NewGraphApp(a.GraphParamsService)
+	a.KeyStorageApp = app.NewKeyStorageApp(a.KeyStorageService)
 }
 
 func initConfigPath() string {
