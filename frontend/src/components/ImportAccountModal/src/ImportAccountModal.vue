@@ -74,6 +74,7 @@
     fileList?: Recordable[];
     password?: string;
     jsonContent?: Recordable;
+    jsonString?: string;
   }>({});
 
   const formRules = computed(() => ({
@@ -97,7 +98,7 @@
 
     if (isMatch) {
       // call api to save wallet info
-      await settingStore.saveWalletAction(jsonContent.address, jsonContent);
+      await settingStore.saveWalletAction(jsonContent.address, jsonString);
       modalVisible.value = false;
     } else {
       createErrorModal({ content: t('passwordError') });
@@ -111,6 +112,7 @@
       reader.readAsText(file);
       reader.onload = (e: any) => {
         const fileContent = e.target?.result;
+        formData.jsonString = fileContent;
         let json: Recordable | undefined;
 
         try {
