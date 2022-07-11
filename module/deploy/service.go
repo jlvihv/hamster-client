@@ -2,26 +2,30 @@ package deploy
 
 import (
 	"context"
+	"encoding/json"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"gorm.io/gorm"
 	"hamster-client/config"
 	"hamster-client/module/application"
 	"hamster-client/module/graph"
+	"hamster-client/module/keystorage"
 	"hamster-client/utils"
+	"strconv"
 )
 
 type ServiceImpl struct {
-	ctx          context.Context
-	httpUtil     *utils.HttpUtil
-	db           *gorm.DB
-	graphService graph.Service
+	ctx               context.Context
+	httpUtil          *utils.HttpUtil
+	db                *gorm.DB
+	graphService      graph.Service
+	keyStorageService keystorage.Service
 }
 
-func NewServiceImpl(ctx context.Context, httpUtil *utils.HttpUtil, db *gorm.DB, graphService graph.Service) ServiceImpl {
-	return ServiceImpl{ctx, httpUtil, db, graphService}
+func NewServiceImpl(ctx context.Context, httpUtil *utils.HttpUtil, db *gorm.DB, graphService graph.Service, keyStorageService *keystorage.Service) ServiceImpl {
+	return ServiceImpl{ctx, httpUtil, db, graphService, *keyStorageService}
 }
 
-func (s *ServiceImpl) DeployTheGraph(data DeployParams) (bool, error) {
+func (s *ServiceImpl) DeployTheGraph(data DeployParams, params string) (bool, error) {
 	runtime.LogInfo(s.ctx, "start Deploy the graph")
 	res, err := s.httpUtil.NewRequest().SetBody(data).Post(config.Httpprovider)
 	if err != nil {
@@ -45,5 +49,15 @@ func (s *ServiceImpl) DeployTheGraph(data DeployParams) (bool, error) {
 	graphData.EthereumUrl = data.EthereumUrl
 	graphData.Mnemonic = data.Mnemonic
 	graphData.IndexerAddress = data.IndexerAddress
+	s.keyStorageService.Set("graph_"+strconv.Itoa(data.Id), params)
 	return s.graphService.SaveGraphParameter(graphData)
+}
+
+func (s *ServiceImpl) GetDeployInfo(id int) (DeployParameter, error) {
+	data := s.keyStorageService.Get("graph_" + strconv.Itoa(id))
+	var param DeployParameter
+	if err := json.Unmarshal([]byte(data), &param); err == nil {
+		return param, err
+	}
+	return param, nil
 }
