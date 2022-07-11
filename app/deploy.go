@@ -30,7 +30,7 @@ func (d *Deploy) WailsInit(ctx context.Context) error {
 }
 
 // DeployTheGraph deploy the graph
-func (d *Deploy) DeployTheGraph(params string) (bool, error) {
+func (d *Deploy) DeployTheGraph(id int, params string) (bool, error) {
 	var param deploy.DeployParameter
 	if err := json.Unmarshal([]byte(params), &param); err == nil {
 		return false, err
@@ -41,7 +41,7 @@ func (d *Deploy) DeployTheGraph(params string) (bool, error) {
 	data.NodeEthereumUrl = param.Data.Deployment.NodeEthereumUrl
 	data.EthereumUrl = param.Data.Deployment.EthereumUrl
 	data.EthereumNetwork = param.Data.Deployment.EthereumNetwork
-	data.Id = param.Id
+	data.Id = id
 	_, err := d.p2pServer.GetSetting()
 	if err != nil {
 		res := d.p2pServer.InitSetting()
@@ -60,9 +60,13 @@ func (d *Deploy) DeployTheGraph(params string) (bool, error) {
 		return false, proErr
 	}
 	fmt.Println("p2p end")
-	return d.deployService.DeployTheGraph(data, params)
+	return d.deployService.DeployTheGraph(data)
 }
 
 func (d *Deploy) GetDeployInfo(id int) (deploy.DeployParameter, error) {
 	return d.deployService.GetDeployInfo(id)
+}
+
+func (d *Deploy) SaveDeployInfo(id int, json string) (bool, error) {
+	return d.deployService.SaveDeployInfo(id, json)
 }

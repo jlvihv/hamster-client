@@ -23,12 +23,22 @@ func NewServiceImpl(ctx context.Context, db *gorm.DB, httpUtil *utils.HttpUtil) 
 
 func (g *ServiceImpl) SaveGraphParameter(data GraphParameter) (bool, error) {
 	var graphParams GraphParameter
-	err := g.db.Preload("Application").Where("application_id = ? ", data.ApplicationId).First(&graphParams).Error
-	if err != gorm.ErrRecordNotFound {
-		g.db.Create(&data)
-		return true, nil
+	err := g.db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Preload("Application").Where("application_id = ? ", data.ApplicationId).First(&graphParams).Error; err == gorm.ErrRecordNotFound {
+			return err
+		}
+		if err := tx.Model(&application.Application{}).Where("id = ?", data.ID).Update("status", 1).Error; err != nil {
+			return err
+		}
+		if err := tx.Create(&data).Error; err != nil {
+			return err
+		}
+		return nil
+	})
+	if err != nil {
+		return false, err
 	}
-	return false, errors.New(fmt.Sprintf("graph param -> application :%s already exists", data.Application.Name))
+	return true, nil
 }
 
 func (g *ServiceImpl) QueryParamByApplyId(applicationId int) (GraphParameterVo, error) {
