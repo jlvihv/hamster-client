@@ -103,14 +103,14 @@ func (a *App) initService() {
 	a.ResourceService = &resourceServiceImpl
 	walletServiceImpl := wallet.NewServiceImpl(a.ctx, a.gormDB)
 	a.WalletService = &walletServiceImpl
-	deployServiceImpl := deploy.NewServiceImpl(a.ctx, a.httpUtil, a.gormDB, a.GraphParamsService)
+	keyStorageServiceImpl := keystorage.NewServiceImpl(a.ctx, a.gormDB)
+	a.KeyStorageService = &keyStorageServiceImpl
+	deployServiceImpl := deploy.NewServiceImpl(a.ctx, a.httpUtil, a.gormDB, a.GraphParamsService, a.KeyStorageService)
 	a.DeployService = &deployServiceImpl
 	applicationServiceImpl := application.NewServiceImpl(a.ctx, a.gormDB)
 	a.ApplicationService = &applicationServiceImpl
 	chainListener := pallet.NewChainListener(a.gormDB)
 	a.ChainListener = chainListener
-	keyStorageServiceImpl := keystorage.NewServiceImpl(a.ctx, a.gormDB)
-	a.KeyStorageService = &keyStorageServiceImpl
 }
 
 func (a *App) initApp() {

@@ -6,6 +6,10 @@ export function DeployTheGraph(arg1) {
   return window['go']['app']['Deploy']['DeployTheGraph'](arg1);
 }
 
+export function GetDeployInfo(arg1) {
+  return window['go']['app']['Deploy']['GetDeployInfo'](arg1);
+}
+
 export function WailsInit(arg1) {
   return window['go']['app']['Deploy']['WailsInit'](arg1);
 }
