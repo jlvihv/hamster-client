@@ -3,8 +3,10 @@
 import { deploy } from '../models';
 import { context } from '../models';
 
-export function DeployTheGraph(arg1: string): Promise<boolean | Error>;
+export function DeployTheGraph(arg1: number, arg2: string): Promise<boolean | Error>;
 
 export function GetDeployInfo(arg1: number): Promise<deploy.DeployParameter | Error>;
+
+export function SaveDeployInfo(arg1: number, arg2: string): Promise<boolean | Error>;
 
 export function WailsInit(arg1: context.Context): Promise<Error>;

@@ -25,7 +25,7 @@ func NewServiceImpl(ctx context.Context, httpUtil *utils.HttpUtil, db *gorm.DB, 
 	return ServiceImpl{ctx, httpUtil, db, graphService, *keyStorageService}
 }
 
-func (s *ServiceImpl) DeployTheGraph(data DeployParams, params string) (bool, error) {
+func (s *ServiceImpl) DeployTheGraph(data DeployParams) (bool, error) {
 	runtime.LogInfo(s.ctx, "start Deploy the graph")
 	res, err := s.httpUtil.NewRequest().SetBody(data).Post(config.Httpprovider)
 	if err != nil {
@@ -49,7 +49,6 @@ func (s *ServiceImpl) DeployTheGraph(data DeployParams, params string) (bool, er
 	graphData.EthereumUrl = data.EthereumUrl
 	graphData.Mnemonic = data.Mnemonic
 	graphData.IndexerAddress = data.IndexerAddress
-	s.keyStorageService.Set("graph_"+strconv.Itoa(data.Id), params)
 	return s.graphService.SaveGraphParameter(graphData)
 }
 
@@ -60,4 +59,13 @@ func (s *ServiceImpl) GetDeployInfo(id int) (DeployParameter, error) {
 		return param, err
 	}
 	return param, nil
+}
+
+func (s *ServiceImpl) SaveDeployInfo(id int, json string) (bool, error) {
+	s.keyStorageService.Set("graph_"+strconv.Itoa(id), json)
+	err := s.keyStorageService.Err()
+	if err != nil {
+		return false, err
+	}
+	return true, nil
 }

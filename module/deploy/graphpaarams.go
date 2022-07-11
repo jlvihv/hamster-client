@@ -23,14 +23,14 @@ type ParameterInfo struct {
 type Initialization struct {
 	LeaseTerm       int    `json:"leaseTerm"`
 	UserPublicKey   string `json:"userPublicKey"`
-	AccountMnemonic string `json:"AccountMnemonic"`
+	AccountMnemonic string `json:"accountMnemonic"`
 }
 
 type Stacking struct {
-	NetworkUrl   string `json:"NetworkUrl"`
+	NetworkUrl   string `json:"networkUrl"`
 	Address      string `json:"address"`
 	AgentAddress string `json:"agentAddress"`
-	PledgeAmount int    `json:"PledgeAmount"`
+	PledgeAmount int    `json:"pledgeAmount"`
 }
 
 type Deployment struct {
@@ -41,6 +41,7 @@ type Deployment struct {
 }
 
 type Service interface {
-	DeployTheGraph(data DeployParams, params string) (bool, error)
+	DeployTheGraph(data DeployParams) (bool, error)
 	GetDeployInfo(id int) (DeployParameter, error)
+	SaveDeployInfo(id int, json string) (bool, error)
 }
