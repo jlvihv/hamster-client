@@ -42,6 +42,13 @@ func (d *Deploy) DeployTheGraph(params string) (bool, error) {
 	data.EthereumUrl = param.Data.Deployment.EthereumUrl
 	data.EthereumNetwork = param.Data.Deployment.EthereumNetwork
 	data.Id = param.Id
+	_, err := d.p2pServer.GetSetting()
+	if err != nil {
+		res := d.p2pServer.InitSetting()
+		if res != nil {
+			return false, err
+		}
+	}
 	fmt.Println("p2p start")
 	info, err := d.accountService.GetAccount()
 	if err != nil {
