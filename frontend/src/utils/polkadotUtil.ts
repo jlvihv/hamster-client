@@ -5,19 +5,17 @@ import { Keyring } from '@polkadot/keyring';
 // export types
 export type { SubmittableResult } from '@polkadot/api';
 
-export function createPolkadotApi(wsUrl: string, callback?: (api: ApiPromise) => any) {
-  const apiPromise = ApiPromise.create({ provider: new WsProvider(wsUrl) });
+export async function createPolkadotApi(wsUrl: string, callback?: (api: ApiPromise) => any) {
+  const api = await ApiPromise.create({ provider: new WsProvider(wsUrl) });
 
   // If callback provided,
   // auto disconnect when callback process finished
   if (callback) {
-    apiPromise.then((api) => {
-      callback(api);
-      api.disconnect();
-    });
+    callback(api);
+    api.disconnect();
   }
 
-  return apiPromise;
+  return api;
 }
 
 export function handleTxResults(options: {
@@ -68,8 +66,8 @@ export function formatBalance(
   return formatBalanceUtil(mount, { ...defaultOptions, ...options });
 }
 
-// Check if match for json file and password
-export function isJSONAndPasswordMatch(json: any, password: string) {
+// Create keyring pair by json file and password
+export function createKeyPair(json: any, password: string) {
   const kr = new Keyring({ type: 'sr25519' });
   const krp = kr.addFromJson(json);
 
@@ -80,5 +78,43 @@ export function isJSONAndPasswordMatch(json: any, password: string) {
     return false;
   }
 
-  return true;
+  return krp;
+}
+
+// Cancel resource order
+export async function cancelResourceOrder(api, keyringPair) {
+  const orderNumber = await api.query.resourceOrder.applyUsers(keyringPair.address);
+
+  console.log('orderNumber', orderNumber);
+
+  if (orderNumber.toJSON() > 0) {
+    const unsubscribe = api.tx.resourceOrder
+      .releaseApplyFreeResource(orderNumber.toJSON())
+      .signAndSend(
+        keyringPair,
+        handleTxResults({
+          txSuccessCb: (result) => {
+            console.log(result);
+          },
+          unsubscribe: () => unsubscribe(),
+        }),
+      );
+  }
+}
+
+// Apply resource order
+export async function applyResourceOrder(
+  api,
+  keyringPair,
+  options: { cpu?: number; memory?: number; leaseTerm: number; publicKey: string; type?: number },
+  callback?: typeof handleTxResults,
+) {
+  const { cpu = 4, memory = 8, leaseTerm, publicKey, type = 1 } = options;
+
+  // Cancel first
+  await cancelResourceOrder(api, keyringPair);
+
+  return api.tx.resourceOrder
+    .applyFreeResource(cpu, memory, leaseTerm, publicKey, type)
+    .signAndSend(keyringPair, callback);
 }
