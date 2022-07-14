@@ -5,21 +5,21 @@
         <template #extra v-if="!isAppDeployed">
           <router-link :to="`/applications/${applicationId}/deploy`">Deploy</router-link>
         </template>
-        <DescriptionsItem :label="t('applications.index.nameText')">{{
-          appInfo.name
-        }}</DescriptionsItem>
-        <DescriptionsItem :label="t('applications.index.addTimeText')">{{
-          formatToDateTime(appInfo.createdAt)
-        }}</DescriptionsItem>
-        <DescriptionsItem :label="t('applications.index.statusText')">{{
-          statusOptions.find((option) => option.value === appInfo.status)?.label
-        }}</DescriptionsItem>
-        <DescriptionsItem :label="t('applications.index.desText')">{{
-          appInfo.describe
-        }}</DescriptionsItem>
+        <DescriptionsItem :label="t('applications.index.nameText')">
+          {{ appInfo.name }}
+        </DescriptionsItem>
+        <DescriptionsItem :label="t('applications.index.addTimeText')">
+          {{ formatToDateTime(appInfo.createdAt) }}
+        </DescriptionsItem>
+        <DescriptionsItem :label="t('applications.index.statusText')">
+          {{ statusOptions.find((option) => option.value === appInfo.status)?.label }}
+        </DescriptionsItem>
+        <DescriptionsItem :label="t('applications.index.desText')">
+          {{ appInfo.describe }}
+        </DescriptionsItem>
       </Descriptions>
     </Card>
-    <DeployInfo v-if="isAppDeployed" />
+    <DeployInfo :deployInfo="deployInfo" v-if="isAppDeployed" />
     <div class="mt-4 text-right">
       <Button type="primary" @click="onClose">{{ t('common.closeText') }}</Button>
     </div>
@@ -35,6 +35,7 @@
   import { useMessage } from '/@/hooks/web/useMessage';
   import DeployInfo from './components/DeployInfo.vue';
   import { QueryApplicationById } from '/@wails/go/app/Application';
+  import { GetDeployInfo } from '/@wails/go/app/Deploy';
   import { useI18n } from '/@/hooks/web/useI18n';
   import { Card, Descriptions, DescriptionsItem, Button } from 'ant-design-vue';
 
@@ -43,20 +44,26 @@
   const { statusOptions } = useOptionsContent();
   const router = useRouter();
   const { params } = useRoute();
-  const { id: applicationId } = params;
+  const applicationId = Number(params.id);
+
   const appInfo = reactive({
     name: '',
     createdAt: '',
     status: 0,
     describe: '',
   });
+  const deployInfo = reactive<{
+    initialization: Recordable;
+    staking: Recordable;
+    deployment: Recordable;
+  }>({ initialization: {}, staking: {}, deployment: {} });
 
   // 0: Not deployed, 1: Deployed
   const isAppDeployed = computed(() => appInfo.status === 1);
 
-  async function getAppInfo() {
+  const getAppInfo = async () => {
     try {
-      const result = await QueryApplicationById(Number(applicationId));
+      const result = await QueryApplicationById(applicationId);
       Object.assign(appInfo, result);
     } catch (error: any) {
       createErrorModal({
@@ -64,10 +71,17 @@
         content: t('common.operateFailText'),
       });
     }
-  }
+  };
+
+  // Get saved deployInfo from API
+  const getDeployInfo = async () => {
+    const { data } = await GetDeployInfo(applicationId);
+    data && Object.assign(deployInfo, data);
+  };
 
   onMounted(async () => {
     getAppInfo();
+    getDeployInfo();
   });
 
   async function onClose() {

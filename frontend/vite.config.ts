@@ -1,7 +1,10 @@
 import type { UserConfig, ConfigEnv } from 'vite';
 import { loadEnv } from 'vite';
 import { resolve } from 'path';
-import { wrapperEnv } from './build/utils';
+import { NodeGlobalsPolyfillPlugin } from '@esbuild-plugins/node-globals-polyfill';
+import { NodeModulesPolyfillPlugin } from '@esbuild-plugins/node-modules-polyfill';
+import rollupNodePolyfillPlugin from 'rollup-plugin-polyfill-node';
+import { wrapperEnv, nodePolyfillAlias } from './build/utils';
 import { generateModifyVars } from './build/generate/generateModifyVars';
 import { createVitePlugins } from './build/vitePlugins';
 
@@ -18,20 +21,12 @@ export default ({ command, mode }: ConfigEnv): UserConfig => {
     base: VITE_PUBLIC_PATH,
     root: root(),
     resolve: {
-      alias: [
-        {
-          find: 'vue-i18n',
-          replacement: 'vue-i18n/dist/vue-i18n.cjs.js',
-        },
-        {
-          find: /\/@\//,
-          replacement: pathResolve('src') + '/',
-        },
-        {
-          find: /\/@wails\//,
-          replacement: pathResolve('wailsjs') + '/',
-        },
-      ],
+      alias: {
+        '/@/': pathResolve('src') + '/',
+        '/@wails/': pathResolve('wailsjs') + '/',
+        'vue-i18n': 'vue-i18n/dist/vue-i18n.cjs.js',
+        ...nodePolyfillAlias(),
+      },
     },
     server: {
       host: true,
@@ -45,7 +40,11 @@ export default ({ command, mode }: ConfigEnv): UserConfig => {
       cssTarget: 'chrome80',
       outDir: 'dist',
       brotliSize: false,
-      chunkSizeWarningLimit: 2000,
+      chunkSizeWarningLimit: 5000,
+      // sourcemap: true,
+      rollupOptions: {
+        plugins: [rollupNodePolyfillPlugin()],
+      },
     },
     define: {
       // setting vue-i18-next
@@ -66,6 +65,17 @@ export default ({ command, mode }: ConfigEnv): UserConfig => {
 
     optimizeDeps: {
       include: ['ant-design-vue/es/locale/zh_CN', 'ant-design-vue/es/locale/en_US'],
+      esbuildOptions: {
+        // Node.js global to browser globalThis
+        define: {
+          global: 'globalThis',
+        },
+        // Enable esbuild polyfill plugins
+        plugins: [
+          NodeGlobalsPolyfillPlugin({ buffer: true, process: true }),
+          NodeModulesPolyfillPlugin(),
+        ],
+      },
     },
   };
 };

@@ -54,7 +54,7 @@
   import { useI18n } from '/@/hooks/web/useI18n';
   import { useDesign } from '/@/hooks/web/useDesign';
   import { useMessage } from '/@/hooks/web/useMessage';
-  import { isJSONAndPasswordMatch } from '/@/utils/polkadotUtil';
+  import { createKeyPair } from '/@/utils/polkadotUtil';
   import { useSettingStore } from '/@/store/modules/setting';
   import { Button, Modal, Upload, Form, FormItem, InputPassword } from 'ant-design-vue';
 
@@ -89,12 +89,12 @@
   const handleModalOK = async () => {
     await formRef.value?.validate();
 
-    const { jsonContent, password } = formData;
+    const { jsonContent, jsonString, password } = formData;
 
     if (!jsonContent || !jsonContent.address || !password) return;
 
     // Check password
-    const isMatch = isJSONAndPasswordMatch(jsonContent, password);
+    const isMatch = createKeyPair(jsonContent, password);
 
     if (isMatch) {
       // call api to save wallet info
