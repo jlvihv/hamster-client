@@ -2,12 +2,15 @@ package pallet
 
 import (
 	ctx "context"
+	"errors"
 	"fmt"
 	"github.com/centrifuge/go-substrate-rpc-client/v4/types"
+	"github.com/decred/base58"
 	log "github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 	"hamster-client/module/account"
 	"hamster-client/module/p2p"
+	"hamster-client/module/wallet"
 )
 
 type ChainListener struct {
@@ -123,12 +126,28 @@ func (c *ChainListener) watchEvent(ctx ctx.Context) {
 					for _, e := range evt.ResourceOrder_FreeResourceProcessed {
 						// order successfully created
 						var user account.Account
-						result := c.db.First(&user)
-						if result.Error == nil {
-							if int(e.OrderIndex) == user.OrderIndex {
-								fmt.Println(user.OrderIndex)
-								user.PeerId = e.PeerId
-								c.db.Save(&user)
+						var wallet wallet.Wallet
+						walletResult := c.db.First(&wallet).Error
+						if walletResult == nil {
+							publicKey, _ := AddressToPublicKey(wallet.Address)
+							key, err := types.CreateStorageKey(meta, "ResourceOrder", "ApplyUsers", publicKey)
+							if err != nil {
+								log.Error(err)
+							}
+							var orderIndex types.U64
+							ok, err := api.RPC.State.GetStorageLatest(key, &orderIndex)
+							if err != nil {
+								log.Error(err)
+							}
+							log.Info(ok)
+							result := c.db.First(&user)
+							if result.Error == nil {
+								if e.OrderIndex == orderIndex {
+									fmt.Println(user.OrderIndex)
+									user.OrderIndex = int(orderIndex)
+									user.PeerId = e.PeerId
+									c.db.Save(&user)
+								}
 							}
 						}
 					}
@@ -153,4 +172,12 @@ func (c *ChainListener) CancelListen() {
 		c.cancel()
 		c.cancel = nil
 	}
+}
+
+// AddressToPublicKey Convert address to public key
+func AddressToPublicKey(address string) ([]byte, error) {
+	if len(address) < 33 {
+		return []byte{}, errors.New("帐号格式不合法")
+	}
+	return base58.Decode(address)[1:33], nil
 }
