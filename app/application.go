@@ -52,8 +52,3 @@ func (a *Application) QueryApplicationById(id int) (application.ApplyVo, error) 
 func (a *Application) DeleteGraphAndParams(applicationId int) (bool, error) {
 	return a.graphService.DeleteGraphAndParams(applicationId)
 }
-
-// QueryGraphStatus query graph status
-func (a *Application) QueryGraphStatus(serviceName string) (int, error) {
-	return a.graphService.QueryGraphStatus(serviceName)
-}

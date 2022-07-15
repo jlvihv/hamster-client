@@ -10,6 +10,10 @@ export function GetDeployInfo(arg1) {
   return window['go']['app']['Deploy']['GetDeployInfo'](arg1);
 }
 
+export function QueryGraphStatus(arg1) {
+  return window['go']['app']['Deploy']['QueryGraphStatus'](arg1);
+}
+
 export function SaveDeployInfo(arg1, arg2) {
   return window['go']['app']['Deploy']['SaveDeployInfo'](arg1, arg2);
 }

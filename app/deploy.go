@@ -2,8 +2,6 @@ package app
 
 import (
 	"context"
-	"encoding/json"
-	"fmt"
 	"hamster-client/module/account"
 	"hamster-client/module/deploy"
 	"hamster-client/module/p2p"
@@ -30,37 +28,8 @@ func (d *Deploy) WailsInit(ctx context.Context) error {
 }
 
 // DeployTheGraph deploy the graph
-func (d *Deploy) DeployTheGraph(id int, params string) (bool, error) {
-	var param deploy.DeployParameter
-	if err := json.Unmarshal([]byte(params), &param); err == nil {
-		return false, err
-	}
-	var data deploy.DeployParams
-	data.Mnemonic = param.Data.Initialization.AccountMnemonic
-	data.IndexerAddress = param.Data.Deployment.IndexerAddress
-	data.NodeEthereumUrl = param.Data.Deployment.NodeEthereumUrl
-	data.EthereumUrl = param.Data.Deployment.EthereumUrl
-	data.EthereumNetwork = param.Data.Deployment.EthereumNetwork
-	data.Id = id
-	_, err := d.p2pServer.GetSetting()
-	if err != nil {
-		res := d.p2pServer.InitSetting()
-		if res != nil {
-			return false, err
-		}
-	}
-	fmt.Println("p2p start")
-	info, err := d.accountService.GetAccount()
-	if err != nil {
-		return false, err
-	}
-	fmt.Println(info.PeerId)
-	proErr := d.p2pServer.ProLink(info.PeerId)
-	if proErr != nil {
-		return false, proErr
-	}
-	fmt.Println("p2p end")
-	return d.deployService.DeployTheGraph(data)
+func (d *Deploy) DeployTheGraph(id int, data string) (bool, error) {
+	return d.deployService.DeployTheGraph(id, data)
 }
 
 func (d *Deploy) GetDeployInfo(id int) (deploy.DeployParameter, error) {
@@ -69,4 +38,8 @@ func (d *Deploy) GetDeployInfo(id int) (deploy.DeployParameter, error) {
 
 func (d *Deploy) SaveDeployInfo(id int, json string) (bool, error) {
 	return d.deployService.SaveDeployInfo(id, json)
+}
+
+func (d *Deploy) QueryGraphStatus(serviceName ...string) (int, error) {
+	return d.deployService.QueryGraphStatus(serviceName...)
 }

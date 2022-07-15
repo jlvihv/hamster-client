@@ -8,20 +8,29 @@ import (
 	"github.com/decred/base58"
 	log "github.com/sirupsen/logrus"
 	"gorm.io/gorm"
+	"hamster-client/config"
 	"hamster-client/module/account"
+	"hamster-client/module/application"
+	"hamster-client/module/deploy"
+	"hamster-client/module/keystorage"
 	"hamster-client/module/p2p"
 	"hamster-client/module/wallet"
+	"strconv"
 )
 
 type ChainListener struct {
-	db     *gorm.DB
-	cancel func()
-	ctx2   ctx.Context
+	db                *gorm.DB
+	cancel            func()
+	ctx2              ctx.Context
+	deployService     deploy.Service
+	keyStorageService keystorage.Service
 }
 
-func NewChainListener(db *gorm.DB) *ChainListener {
+func NewChainListener(db *gorm.DB, deployService deploy.Service, keyStorageService *keystorage.Service) *ChainListener {
 	return &ChainListener{
-		db: db,
+		db:                db,
+		deployService:     deployService,
+		keyStorageService: *keyStorageService,
 	}
 }
 
@@ -147,6 +156,13 @@ func (c *ChainListener) watchEvent(ctx ctx.Context) {
 									user.OrderIndex = int(orderIndex)
 									user.PeerId = e.PeerId
 									c.db.Save(&user)
+									// Query whether there is an application waiting for resources
+									var data application.Application
+									result := c.db.Where("status = ? ", config.WAIT_RESOURCE).First(&data).Error
+									if result == nil {
+										jsonData := c.keyStorageService.Get("graph_" + strconv.Itoa(int(data.ID)))
+										c.deployService.DeployTheGraph(int(data.ID), jsonData)
+									}
 								}
 							}
 						}
