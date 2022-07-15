@@ -32,8 +32,8 @@
         :placeholder="t('applications.deploy.indexerAddressPlaceholder')"
       />
     </FormItem>
-    <FormItem class="text-right">
-      <Button class="ml-4" type="primary" @click="handleSubmit">
+    <FormItem class="text-center">
+      <Button class="w-32 mt-6 ml-4" type="primary" @click="handleSubmit">
         {{ t('common.nextText') }}
       </Button>
     </FormItem>
