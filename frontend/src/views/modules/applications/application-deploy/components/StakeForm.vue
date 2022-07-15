@@ -1,5 +1,5 @@
 <template>
-  <Form layout="vertical" :model="formData">
+  <Form layout="vertical" :model="formData" :rules="formRules" ref="formRef">
     <FormItem :label="t('applications.deploy.selectNetWork')" name="networkUrl">
       <Select
         :allowClear="true"
@@ -61,8 +61,8 @@
         {{ t('applications.deploy.pledgeAmountBtn') }}
       </Button>
     </FormItem>
-    <FormItem class="text-right">
-      <Button class="ml-4" type="primary" @click="handleSubmit">
+    <FormItem class="text-center">
+      <Button class="w-32 mt-6 ml-4" type="primary" @click="handleSubmit">
         {{ t('common.nextText') }}
       </Button>
     </FormItem>
@@ -78,6 +78,7 @@
 <script lang="ts" setup>
   import { ref, toRaw, toRefs, computed } from 'vue';
   import { useI18n } from '/@/hooks/web/useI18n';
+  import { createRule } from '/@/utils/formUtil';
   import {
     createWeb3Api,
     web3Configs,
@@ -109,6 +110,13 @@
     agentAddress: string;
     pledgeAmount?: number;
   } = deployInfo.value.staking;
+
+  const formRules = computed(() => ({
+    networkUrl: [createRule(t('applications.deploy.selectNetwork'))],
+    address: [createRule(t('applications.deploy.selectNetworkAbove'))],
+    agentAddress: [createRule(t('applications.deploy.generateStakingProxyContract'))],
+    pledgeAmount: [createRule(t('applications.deploy.approveStakingProxyContract'))],
+  }));
 
   // networkOptions,
   // address is up on endpoint field

@@ -23,9 +23,9 @@
         :placeholder="t('applications.deploy.importAccountPlaceholder')"
       />
     </FormItem>
-    <FormItem class="text-right">
-      <Button @click="goBack">{{ t('common.cancelText') }}</Button>
-      <Button class="ml-4" type="primary" @click="handleSubmit">
+    <FormItem class="text-center">
+      <Button @click="goBack" class="w-20 mt-6 ml-4">{{ t('common.cancelText') }}</Button>
+      <Button class="w-20 mt-6 ml-4" type="primary" @click="handleSubmit">
         {{ t('common.nextText') }}
       </Button>
     </FormItem>
