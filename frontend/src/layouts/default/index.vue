@@ -6,7 +6,7 @@
         <Header />
       </LayoutHeader>
       <LayoutContent><Content /></LayoutContent>
-      <LayoutFooter><Footer /></LayoutFooter>
+      <LayoutFooter :class="`${prefixCls}-main-footer`"><Footer /></LayoutFooter>
     </Layout>
   </Layout>
 </template>
@@ -34,6 +34,10 @@
       &-header {
         background-color: @white;
         padding: 0 1rem;
+      }
+
+      &-footer {
+        background-color: #f7f3ee;
       }
     }
   }
