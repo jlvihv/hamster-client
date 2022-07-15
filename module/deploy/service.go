@@ -32,33 +32,6 @@ func NewServiceImpl(ctx context.Context, httpUtil *utils.HttpUtil, db *gorm.DB, 
 	return ServiceImpl{ctx, httpUtil, db, graphService, *keyStorageService, accountService, p2pServer}
 }
 
-//func (s *ServiceImpl) DeployTheGraph(data DeployParams) (bool, error) {
-//	runtime.LogInfo(s.ctx, "start Deploy the graph")
-//	res, err := s.httpUtil.NewRequest().SetBody(data).Post(config.Httpprovider)
-//	if err != nil {
-//		runtime.LogError(s.ctx, "DeployTheGraph http error:"+err.Error())
-//		return false, err
-//	}
-//	if !res.IsSuccess() {
-//		runtime.LogError(s.ctx, "DeployTheGraph Response error: "+res.Status())
-//	}
-//	// save graph config params
-//	var applyData application.Application
-//	result := s.db.Where("id = ? ", data.Id).First(&applyData)
-//	if result.Error != nil {
-//		return false, result.Error
-//	}
-//	var graphData graph.GraphParameter
-//	graphData.Application = applyData
-//	graphData.EthereumNetwork = data.EthereumNetwork
-//	graphData.NodeEthereumUrl = data.NodeEthereumUrl
-//	graphData.ApplicationId = uint(data.Id)
-//	graphData.EthereumUrl = data.EthereumUrl
-//	graphData.Mnemonic = data.Mnemonic
-//	graphData.IndexerAddress = data.IndexerAddress
-//	return s.graphService.SaveGraphParameter(graphData)
-//}
-
 func (s *ServiceImpl) DeployTheGraph(id int, jsonData string) (bool, error) {
 	//Judge whether the account has peerId
 	info, err := s.accountService.GetAccount()
