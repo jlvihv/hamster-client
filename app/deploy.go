@@ -62,8 +62,8 @@ func (d *Deploy) WailsInit(ctx context.Context) error {
 //}
 
 // DeployTheGraph deploy the graph
-func (d *Deploy) DeployTheGraph(id int) (bool, error) {
-	return d.deployService.DeployTheGraph(id)
+func (d *Deploy) DeployTheGraph(id int, data string) (bool, error) {
+	return d.deployService.DeployTheGraph(id, data)
 }
 
 func (d *Deploy) GetDeployInfo(id int) (deploy.DeployParameter, error) {

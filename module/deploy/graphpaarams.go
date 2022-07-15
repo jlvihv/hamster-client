@@ -41,7 +41,7 @@ type Deployment struct {
 }
 
 type Service interface {
-	DeployTheGraph(id int) (bool, error)
+	DeployTheGraph(id int, data string) (bool, error)
 	GetDeployInfo(id int) (DeployParameter, error)
 	SaveDeployInfo(id int, json string) (bool, error)
 	QueryGraphStatus(serviceName ...string) (int, error)

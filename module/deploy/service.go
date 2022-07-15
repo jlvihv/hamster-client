@@ -59,12 +59,13 @@ func NewServiceImpl(ctx context.Context, httpUtil *utils.HttpUtil, db *gorm.DB, 
 //	return s.graphService.SaveGraphParameter(graphData)
 //}
 
-func (s *ServiceImpl) DeployTheGraph(id int) (bool, error) {
+func (s *ServiceImpl) DeployTheGraph(id int, jsonData string) (bool, error) {
 	//Judge whether the account has peerId
 	info, err := s.accountService.GetAccount()
 	if err != nil {
 		return false, err
 	}
+	s.keyStorageService.Set("graph_"+strconv.Itoa(id), jsonData)
 	if info.PeerId == "" {
 		//Modify the status of the application to wait for resources
 		result := s.db.Model(application.Application{}).Where("id = ?", id).Update("status", config.WAIT_RESOURCE).Error
@@ -88,13 +89,8 @@ func (s *ServiceImpl) DeployTheGraph(id int) (bool, error) {
 		return false, proErr
 	}
 	fmt.Println("p2p end")
-	// get deploy parameter
-	data := s.keyStorageService.Get("graph_" + strconv.Itoa(id))
-	if s.keyStorageService.Err() != nil {
-		return false, s.keyStorageService.Err()
-	}
 	var param DeployParameter
-	if err := json.Unmarshal([]byte(data), &param); err != nil {
+	if err := json.Unmarshal([]byte(jsonData), &param); err != nil {
 		return false, err
 	}
 	var sendData DeployParams

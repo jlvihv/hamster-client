@@ -109,7 +109,7 @@ func (a *App) initService() {
 	a.DeployService = &deployServiceImpl
 	applicationServiceImpl := application.NewServiceImpl(a.ctx, a.gormDB)
 	a.ApplicationService = &applicationServiceImpl
-	chainListener := pallet.NewChainListener(a.gormDB, a.DeployService)
+	chainListener := pallet.NewChainListener(a.gormDB, a.DeployService, a.KeyStorageService)
 	a.ChainListener = chainListener
 }
 
