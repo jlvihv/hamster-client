@@ -2,11 +2,7 @@ package graph
 
 import (
 	"context"
-	"errors"
-	"fmt"
-	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"gorm.io/gorm"
-	"hamster-client/config"
 	"hamster-client/module/application"
 	"hamster-client/utils"
 )
@@ -82,21 +78,4 @@ func (g *ServiceImpl) DeleteGraphAndParams(applicationId int) (bool, error) {
 		return false, err
 	}
 	return true, nil
-}
-
-func (g *ServiceImpl) QueryGraphStatus(serviceName string) (int, error) {
-	var status int
-	res, err := g.httpUtil.NewRequest().
-		SetQueryParam("serviceName", serviceName).
-		SetResult(&status).
-		Get(config.HttpGraphStatus)
-	if err != nil {
-		runtime.LogError(g.ctx, "DeployTheGraph http error:"+err.Error())
-		return 3, err
-	}
-	if !res.IsSuccess() {
-		runtime.LogError(g.ctx, "DeployTheGraph Response error: "+res.Status())
-		return 3, errors.New(fmt.Sprintf("Query status request failed. The request status is:%s", res.Status()))
-	}
-	return status, nil
 }

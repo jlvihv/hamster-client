@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"gorm.io/gorm"
+	"hamster-client/config"
 )
 
 type ServiceImpl struct {
@@ -74,7 +75,7 @@ func (a *ServiceImpl) ApplicationList(page, pageSize int, name string, status in
 	if name != "" {
 		tx = tx.Where("name like ? ", "%"+name+"%")
 	}
-	if status != 2 {
+	if status != config.ALL {
 		tx = tx.Where("status = ?", status)
 	}
 	result := tx.Offset((page - 1) * pageSize).Limit(pageSize).Find(&list).Count(&total)

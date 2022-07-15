@@ -9,7 +9,7 @@ type Application struct {
 	ID        uint           `json:"id" gorm:"primarykey"`
 	Name      string         `json:"name"`     //apply name
 	Describe  string         `json:"describe"` //apply describe
-	Status    int            `json:"status"`   //apply status 0: not deploy 1:deployed 2:ALL
+	Status    int            `json:"status"`   //apply status 0: not deploy 1:deployed 2:ALL 3:wait resource 4:In deployment 5:deploy failed
 	CreatedAt time.Time      `json:"createdAt"`
 	UpdatedAt time.Time      `json:"updatedAt"`
 	DeletedAt gorm.DeletedAt `json:"deletedAt" gorm:"index"`
