@@ -171,9 +171,8 @@ func TestServiceImpl_Set(t *testing.T) {
 		{
 			name: "set 5",
 			fields: fields{
-				tableName: "keys",
-				db:        db,
-				Error:     nil,
+				db:    db,
+				Error: nil,
 			},
 			args: args{
 				key:   "😀",
@@ -235,19 +234,8 @@ func TestServiceImpl_Get1(t *testing.T) {
 		{
 			name: "get data",
 			fields: fields{
-				tableName: "",
-				db:        db,
-				Error:     nil,
-			},
-			args: args{"😀"},
-			want: "update",
-		},
-		{
-			name: "get data",
-			fields: fields{
-				tableName: "keys",
-				db:        db,
-				Error:     nil,
+				db:    db,
+				Error: nil,
 			},
 			args: args{"😀"},
 			want: "table name",
@@ -292,5 +280,30 @@ func TestServiceImpl_Delete(t *testing.T) {
 			}
 			self.Delete(tt.args.key)
 		})
+	}
+}
+
+func TestServiceImpl_GetSet(t *testing.T) {
+	db := getDB()
+	kDB := &ServiceImpl{db: db}
+
+	kDB.Delete("5555")
+	if kDB.Err() != nil {
+		t.Error(kDB.Err())
+	}
+
+	result := kDB.Get("5555")
+	if result != "" || kDB.Err() == nil {
+		t.Errorf("Get() = %v, want %v", result, "")
+	}
+
+	kDB.Set("5555", "5555")
+	if kDB.Err() != nil {
+		t.Errorf("Set() = %v, want %v", kDB.Err(), nil)
+	}
+
+	result = kDB.Get("5555")
+	if result != "5555" || kDB.Err() != nil {
+		t.Errorf("Get() = %v, want %v", result, "5555")
 	}
 }
