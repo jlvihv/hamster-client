@@ -37,7 +37,10 @@ func (w *ServiceImpl) SaveWallet(address string, json string) (bool, error) {
 	//save or update account
 	u.Address = address
 	u.AddressJson = json
-	w.db.Save(&u)
+	var wallet Wallet
+	wallet.Address = u.Address
+	wallet.AddressJson = u.AddressJson
+	w.db.Save(&wallet)
 	return true, nil
 }
 

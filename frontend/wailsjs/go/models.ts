@@ -124,20 +124,6 @@ export namespace deploy {
 }
 
 export namespace application {
-  export class AddApplicationParam {
-    name: string;
-    describe: string;
-
-    static createFrom(source: any = {}) {
-      return new AddApplicationParam(source);
-    }
-
-    constructor(source: any = {}) {
-      if ('string' === typeof source) source = JSON.parse(source);
-      this.name = source['name'];
-      this.describe = source['describe'];
-    }
-  }
   export class Application {
     id: number;
     name: string;
@@ -269,6 +255,20 @@ export namespace application {
     constructor(source: any = {}) {
       if ('string' === typeof source) source = JSON.parse(source);
       this.id = source['id'];
+      this.name = source['name'];
+      this.describe = source['describe'];
+    }
+  }
+  export class AddApplicationParam {
+    name: string;
+    describe: string;
+
+    static createFrom(source: any = {}) {
+      return new AddApplicationParam(source);
+    }
+
+    constructor(source: any = {}) {
+      if ('string' === typeof source) source = JSON.parse(source);
       this.name = source['name'];
       this.describe = source['describe'];
     }
