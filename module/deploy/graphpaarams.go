@@ -16,7 +16,7 @@ type DeployParameter struct {
 
 type ParameterInfo struct {
 	Initialization Initialization `json:"initialization"`
-	Stacking       Stacking       `json:"stacking"`
+	Staking        Staking        `json:"staking"`
 	Deployment     Deployment     `json:"deployment"`
 }
 
@@ -26,7 +26,7 @@ type Initialization struct {
 	AccountMnemonic string `json:"accountMnemonic"`
 }
 
-type Stacking struct {
+type Staking struct {
 	NetworkUrl   string `json:"networkUrl"`
 	Address      string `json:"address"`
 	AgentAddress string `json:"agentAddress"`
