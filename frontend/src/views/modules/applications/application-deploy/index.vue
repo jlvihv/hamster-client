@@ -34,7 +34,7 @@
       v-model:visible="passwordModalVisible"
       :title="t('applications.deploy.passwordModalTitle')"
       :okText="t('common.okText')"
-      :okButtonProps="{ disabled: !password }"
+      :okButtonProps="{ disabled: !password, loading: passwordModalLoading }"
       @ok="handleDeploy"
     >
       <Form layout="vertical">
@@ -91,7 +91,7 @@
   };
 
   // deployInfo
-  const deployInfo = reactive<{
+  const deployInfo = ref<{
     initialization: Recordable;
     staking: Recordable;
     deployment: Recordable;
@@ -104,7 +104,7 @@
   // Get saved deployInfo from API
   onMounted(async () => {
     const { data } = await GetDeployInfo(applicationId);
-    if (data) Object.assign(deployInfo, data);
+    if (data) deployInfo.value = data;
 
     // Run settingStore actions
     settingStore.getWalletInfoAction();
@@ -113,6 +113,7 @@
 
   // Input password when confirm deploying
   const passwordModalVisible = ref(false);
+  const passwordModalLoading = ref(false);
   const password = ref('');
 
   const handleDeploy = async () => {
@@ -129,6 +130,9 @@
       return;
     }
 
+    // Show loading
+    passwordModalLoading.value = true;
+
     const polkadotApi = await createPolkadotApi(wsUrl);
     const keyPair = createKeyPair(JSON.parse(json), password.value);
 
@@ -137,10 +141,12 @@
         title: t('common.errorTip'),
         content: t('applications.deploy.passwordError'),
       });
+
+      passwordModalLoading.value = false;
       return;
     }
 
-    const { leaseTerm, publicKey } = deployInfo.initialization;
+    const { leaseTerm, publicKey } = deployInfo.value.initialization;
     const unsubscribe = await applyResourceOrder(
       polkadotApi,
       keyPair,
@@ -149,12 +155,17 @@
         txSuccessCb: async (result) => {
           console.log(result);
 
+          passwordModalLoading.value = false;
+
           // Call deploy API
-          await DeployTheGraph(applicationId, JSON.stringfy({}));
+          await DeployTheGraph(applicationId, JSON.stringify({}));
           router.push('/applications/' + applicationId);
         },
         txFailedCb: (error) => {
           console.log(error);
+
+          passwordModalLoading.value = true;
+
           createErrorModal({
             title: t('common.errorTip'),
             content: t('applications.deploy.deployFailed'),

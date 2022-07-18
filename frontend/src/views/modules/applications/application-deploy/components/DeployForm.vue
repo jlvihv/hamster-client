@@ -41,7 +41,7 @@
 </template>
 
 <script lang="ts" setup>
-  import { computed, ref, toRefs, toRaw } from 'vue';
+  import { computed, ref, watch, reactive, toRaw } from 'vue';
   import { useI18n } from '/@/hooks/web/useI18n';
   import { SaveDeployInfo } from '/@wails/go/app/Deploy';
   import { createRule } from '/@/utils/formUtil';
@@ -52,19 +52,23 @@
     applicationId: Number,
     deployInfo: Object as PropType<Recordable>,
   });
-  const { applicationId, deployInfo } = toRefs(props);
 
   const emits = defineEmits(['update:deployInfo', 'submited']);
 
   const { t } = useI18n();
 
   const formRef = ref();
-  const formData: {
+  const formData = reactive<{
     nodeEthereumUrl?: string;
     ethereumUrl?: string;
     ethereumNetwork?: string;
     indexerAddress?: string;
-  } = deployInfo.value.deployment;
+  }>({});
+
+  // assign deployment
+  watch(props.deployInfo, (deployInfo) => {
+    Object.assign(formData, deployInfo.deployment);
+  });
 
   const formRules = computed(() => ({
     nodeEthereumUrl: [createRule(t('applications.deploy.nodeEthereumUrlPlaceholder'))],
@@ -76,9 +80,11 @@
   const handleSubmit = async () => {
     await formRef.value?.validate();
 
-    await SaveDeployInfo(applicationId.value, JSON.stringify(toRaw(deployInfo.value)));
+    const newDeployInfo = toRaw({ ...props.deployInfo, deployment: formData });
 
-    emits('update:deployInfo', { ...deployInfo.value });
+    await SaveDeployInfo(props.applicationId, JSON.stringify(newDeployInfo));
+
+    emits('update:deployInfo', newDeployInfo);
     emits('submited', formData);
   };
 </script>
