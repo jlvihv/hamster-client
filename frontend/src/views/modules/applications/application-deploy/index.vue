@@ -134,6 +134,7 @@
 
     if (!keyPair) {
       createErrorModal({
+        title: t('common.errorTip'),
         content: t('applications.deploy.passwordError'),
       });
       return;
@@ -155,6 +156,7 @@
         txFailedCb: (error) => {
           console.log(error);
           createErrorModal({
+            title: t('common.errorTip'),
             content: t('applications.deploy.deployFailed'),
           });
         },

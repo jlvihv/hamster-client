@@ -36,6 +36,7 @@
   import { ref, toRaw, toRefs, computed } from 'vue';
   import { useRouter } from 'vue-router';
   import { useI18n } from '/@/hooks/web/useI18n';
+  import { useMessage } from '/@/hooks/web/useMessage';
   import { SaveDeployInfo } from '/@wails/go/app/Deploy';
   import { createRule } from '/@/utils/formUtil';
   import { Form, FormItem, Button, Input, Textarea } from 'ant-design-vue';
@@ -50,6 +51,7 @@
   const emits = defineEmits(['update:deployInfo', 'submited']);
 
   const { t } = useI18n();
+  const { createErrorModal } = useMessage();
   const router = useRouter();
 
   const goBack = () => router.push('/applications/' + applicationId.value);
@@ -74,6 +76,7 @@
       await SaveDeployInfo(applicationId.value, JSON.stringify(toRaw(deployInfo.value)));
     } catch (error: any) {
       createErrorModal({
+        title: t('common.errorTip'),
         content: t('applications.deploy.saveFailed'),
       });
 
