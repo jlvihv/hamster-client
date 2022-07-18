@@ -228,6 +228,8 @@
     await formRef.value?.validate();
 
     await SaveDeployInfo(applicationId.value, JSON.stringify(toRaw(deployInfo.value)));
+
+    emits('update:deployInfo', { ...deployInfo.value });
     emits('submited', formData);
   };
 </script>

@@ -84,6 +84,7 @@
       return;
     }
 
+    emits('update:deployInfo', { ...deployInfo.value });
     emits('submited', formData);
   };
 </script>
