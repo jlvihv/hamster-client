@@ -21,9 +21,6 @@ func NewServiceImpl(ctx context.Context, db *gorm.DB) Service {
 
 func (self *ServiceImpl) Get(key string) string {
 	self.autoMigrate()
-	if self == nil || self.Error != nil {
-		return ""
-	}
 	var result KeyStorage
 	err := self.db.Table(self.tableName).Where("key = ?", key).First(&result).Error
 	if err != nil {
@@ -35,9 +32,6 @@ func (self *ServiceImpl) Get(key string) string {
 
 func (self *ServiceImpl) Set(key, value string) {
 	self.autoMigrate()
-	if self == nil || self.Error != nil {
-		return
-	}
 	k := KeyStorage{
 		Key:   key,
 		Value: value,
@@ -64,9 +58,6 @@ func (self *ServiceImpl) Set(key, value string) {
 
 func (self *ServiceImpl) Delete(key string) {
 	self.autoMigrate()
-	if self == nil || self.Error != nil {
-		return
-	}
 	err := self.db.Table(self.tableName).Where("key = ?", key).Delete(&KeyStorage{}).Error
 	if err != nil {
 		self.Error = err
@@ -75,9 +66,6 @@ func (self *ServiceImpl) Delete(key string) {
 }
 
 func (self *ServiceImpl) Err() error {
-	if self == nil {
-		return nil
-	}
 	return self.Error
 }
 
