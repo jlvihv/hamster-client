@@ -67,12 +67,6 @@
       </Button>
     </FormItem>
   </Form>
-  <Modal v-model:visible="visibleStack" title="Tips" :okText="t('common.confirmText')">
-    <div class="text-center">{{ t('applications.deploy.pledgeAmountTips') }}</div>
-  </Modal>
-  <Modal v-model:visible="visibleAddress" title="Tips" :okText="t('common.confirmText')">
-    <div class="text-center">{{ t('applications.deploy.addressStakTips') }}</div>
-  </Modal>
 </template>
 
 <script lang="ts" setup>
@@ -233,7 +227,7 @@
   const handleSubmit = async () => {
     await formRef.value?.validate();
 
-    await SaveDeployInfo(applicationId.value, toRaw(deployInfo.value));
+    await SaveDeployInfo(applicationId.value, JSON.stringify(toRaw(deployInfo.value)));
     emits('submited', formData);
   };
 </script>

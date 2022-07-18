@@ -70,7 +70,17 @@
   const handleSubmit = async () => {
     await formRef.value?.validate();
 
-    await SaveDeployInfo(applicationId.value, toRaw(deployInfo.value));
+    try {
+      await SaveDeployInfo(applicationId.value, JSON.stringify(toRaw(deployInfo.value)));
+    } catch (error: any) {
+      createErrorModal({
+        content: t('applications.deploy.saveFailed'),
+      });
+
+      console.log(error);
+      return;
+    }
+
     emits('submited', formData);
   };
 </script>

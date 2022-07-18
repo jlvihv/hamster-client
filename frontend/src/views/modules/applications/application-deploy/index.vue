@@ -149,7 +149,7 @@
           console.log(result);
 
           // Call deploy API
-          await DeployTheGraph(applicationId, {});
+          await DeployTheGraph(applicationId, JSON.stringfy({}));
           router.push('/applications/' + applicationId);
         },
         txFailedCb: (error) => {

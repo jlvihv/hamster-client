@@ -5,13 +5,16 @@ const deployInfoCollection = {};
 
 export default {
   GetDeployInfo(applicationId: number) {
-    return resultSuccess({ id: applicationId, data: deployInfoCollection[applicationId] });
+    const jsonString = deployInfoCollection[applicationId];
+    const json = jsonString && JSON.parse(jsonString);
+
+    return resultSuccess({ id: applicationId, data: json });
   },
-  SaveDeployInfo(applicationId: number, data: any) {
+  SaveDeployInfo(applicationId: number, data: string) {
     deployInfoCollection[applicationId] = data;
     return resultSuccess(true);
   },
-  DeployTheGraph(applicationId: number, data: any) {
+  DeployTheGraph(applicationId: number, data: string) {
     console.log('DeployTheGraph', applicationId, data);
     return resultSuccess(true);
   },
