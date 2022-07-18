@@ -33,7 +33,7 @@
         title="Tips"
         :okText="t('common.confirmText')"
         @ok="approveStakingProxyContract"
-        :okButtonProps="{ disabled: !pledgeAmountInModal }"
+        :okButtonProps="{ disabled: !pledgeAmountInModal, loading: pledgeAmountModalLoading }"
       >
         <Form layout="vertical">
           <FormItem :label="t('applications.deploy.pledgeAmount')" name="pledgeAmount">
@@ -70,7 +70,7 @@
 </template>
 
 <script lang="ts" setup>
-  import { ref, toRaw, toRefs, computed } from 'vue';
+  import { ref, toRaw, watch, reactive, computed } from 'vue';
   import { useI18n } from '/@/hooks/web/useI18n';
   import { createRule } from '/@/utils/formUtil';
   import {
@@ -90,7 +90,6 @@
     applicationId: Number,
     deployInfo: Object as PropType<Recordable>,
   });
-  const { applicationId, deployInfo } = toRefs(props);
 
   const emits = defineEmits(['update:deployInfo', 'submited']);
 
@@ -98,12 +97,17 @@
   const { createConfirm } = useMessage();
 
   const formRef = ref();
-  const formData: {
+  const formData = reactive<{
     networkUrl?: string;
     address?: string;
     agentAddress: string;
     pledgeAmount?: number;
-  } = deployInfo.value.staking;
+  }>({});
+
+  // assign staking
+  watch(props.deployInfo, (deployInfo) => {
+    Object.assign(formData, deployInfo.staking);
+  });
 
   const formRules = computed(() => ({
     networkUrl: [createRule(t('applications.deploy.selectNetwork'))],
@@ -126,10 +130,10 @@
 
   // web3 api
   const web3Api = computed(() => {
-    const { initialization, staking } = deployInfo.value;
+    const { initialization } = props.deployInfo;
 
-    if (initialization.accountMnemonic && staking.networkUrl) {
-      return createWeb3Api(staking.networkUrl, initialization.accountMnemonic);
+    if (initialization.accountMnemonic && formData.networkUrl) {
+      return createWeb3Api(formData.networkUrl, initialization.accountMnemonic);
     }
 
     return undefined;
@@ -175,6 +179,7 @@
 
   // Approve Staking Proxy Contract
   const pledgeAmountModalVisible = ref(false);
+  const pledgeAmountModalLoading = ref(false);
   const pledgeAmountInModal = ref<number | undefined>();
   const approveStakingProxyContract = async () => {
     const api = web3Api.value;
@@ -184,6 +189,9 @@
       const contract = buildContract(api, web3Abi.ecr20Abi, erc20ContractAddress);
       const pledgeAmount = pledgeAmountInModal.value || 1;
 
+      // Show loading
+      pledgeAmountModalLoading.value = true;
+
       await runContractMethod({
         api,
         contract,
@@ -192,6 +200,8 @@
       });
 
       pledgeAmountModalVisible.value = false;
+      pledgeAmountModalLoading.value = false;
+
       formData.pledgeAmount = pledgeAmount;
     }
   };
@@ -227,9 +237,13 @@
   const handleSubmit = async () => {
     await formRef.value?.validate();
 
-    await SaveDeployInfo(applicationId.value, JSON.stringify(toRaw(deployInfo.value)));
+    const newDeployInfo = toRaw({ ...props.deployInfo, staking: formData });
 
-    emits('update:deployInfo', { ...deployInfo.value });
+    console.log('newDeployInfo', newDeployInfo);
+
+    await SaveDeployInfo(props.applicationId, JSON.stringify(newDeployInfo));
+
+    emits('update:deployInfo', newDeployInfo);
     emits('submited', formData);
   };
 </script>

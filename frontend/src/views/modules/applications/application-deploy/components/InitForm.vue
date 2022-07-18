@@ -33,7 +33,7 @@
 </template>
 
 <script lang="ts" setup>
-  import { ref, toRaw, toRefs, computed } from 'vue';
+  import { ref, toRaw, watch, reactive, computed } from 'vue';
   import { useRouter } from 'vue-router';
   import { useI18n } from '/@/hooks/web/useI18n';
   import { useMessage } from '/@/hooks/web/useMessage';
@@ -46,7 +46,6 @@
     applicationId: Number,
     deployInfo: Object as PropType<Recordable>,
   });
-  const { applicationId, deployInfo } = toRefs(props);
 
   const emits = defineEmits(['update:deployInfo', 'submited']);
 
@@ -54,14 +53,19 @@
   const { createErrorModal } = useMessage();
   const router = useRouter();
 
-  const goBack = () => router.push('/applications/' + applicationId.value);
+  const goBack = () => router.push('/applications/' + props.applicationId);
 
   const formRef = ref();
-  const formData: {
+  const formData = reactive<{
     leaseTerm?: string;
     publicKey?: string;
     accountMnemonic?: string;
-  } = deployInfo.value.initialization;
+  }>({});
+
+  // assign initialization
+  watch(props.deployInfo, (deployInfo) => {
+    Object.assign(formData, deployInfo.initialization);
+  });
 
   const formRules = computed(() => ({
     leaseTerm: [createRule(t('applications.deploy.leaseTermPlaceholder'))],
@@ -72,8 +76,10 @@
   const handleSubmit = async () => {
     await formRef.value?.validate();
 
+    const newDeployInfo = toRaw({ ...props.deployInfo, initialization: formData });
+
     try {
-      await SaveDeployInfo(applicationId.value, JSON.stringify(toRaw(deployInfo.value)));
+      await SaveDeployInfo(props.applicationId, JSON.stringify(newDeployInfo));
     } catch (error: any) {
       createErrorModal({
         title: t('common.errorTip'),
@@ -84,7 +90,7 @@
       return;
     }
 
-    emits('update:deployInfo', { ...deployInfo.value });
+    emits('update:deployInfo', newDeployInfo);
     emits('submited', formData);
   };
 </script>
