@@ -134,6 +134,7 @@
 
     if (!keyPair) {
       createErrorModal({
+        title: t('common.errorTip'),
         content: t('applications.deploy.passwordError'),
       });
       return;
@@ -149,12 +150,13 @@
           console.log(result);
 
           // Call deploy API
-          await DeployTheGraph(applicationId, {});
+          await DeployTheGraph(applicationId, JSON.stringfy({}));
           router.push('/applications/' + applicationId);
         },
         txFailedCb: (error) => {
           console.log(error);
           createErrorModal({
+            title: t('common.errorTip'),
             content: t('applications.deploy.deployFailed'),
           });
         },

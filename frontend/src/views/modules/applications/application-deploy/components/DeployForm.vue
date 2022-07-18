@@ -76,9 +76,7 @@
   const handleSubmit = async () => {
     await formRef.value?.validate();
 
-    console.log(formData);
-
-    await SaveDeployInfo(applicationId.value, toRaw(deployInfo.value));
+    await SaveDeployInfo(applicationId.value, JSON.stringify(toRaw(deployInfo.value)));
     emits('submited', formData);
   };
 </script>

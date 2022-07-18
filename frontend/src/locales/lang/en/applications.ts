@@ -57,6 +57,7 @@ export default {
     password: 'Polkadot account password',
     passwordError: 'Password Error!',
     deployFailed: 'Deploy Failed.',
+    saveFailed: 'Data Save Failed',
     selectNetwork: 'Please select a network',
     selectNetworkAbove: 'Please select a network above',
     generateStakingProxyContract: 'Please generate a staking proxy contract above',
