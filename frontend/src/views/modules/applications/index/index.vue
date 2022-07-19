@@ -6,7 +6,7 @@
           <FormItem :label="t('applications.index.nameText')" name="name">
             <Input :allowClear="true" class="input-width" v-model:value="searchForm.name" />
           </FormItem>
-          <FormItem :label="t('applications.index.statusText')" name="status">
+          <FormItem :label="DictCodeEnum.ApplicationDeployStatus.getLabel()" name="status">
             <Select
               class="input-width"
               v-model:value="searchForm.status"
@@ -14,9 +14,9 @@
             />
           </FormItem>
           <FormItem>
-            <Button type="primary" @click="searchAction.onSearch">{{
-              t('common.searchText')
-            }}</Button>
+            <Button type="primary" @click="searchAction.onSearch">
+              {{ t('common.searchText') }}
+            </Button>
             <Button class="ml-4" @click="searchAction.onReset">{{ t('common.resetText') }}</Button>
           </FormItem>
         </Form>
@@ -25,9 +25,10 @@
     <div class="mt-4">
       <Card class="application-table-card">
         <div class="mx-4">
-          <Button type="primary" ghost @click="addApplication"
-            ><PlusOutlined class="!inline-flex" />Add</Button
-          >
+          <Button type="primary" ghost @click="addApplication">
+            <PlusOutlined class="!inline-flex" />
+            Add
+          </Button>
         </div>
         <Table
           :loading="loading"
@@ -43,21 +44,23 @@
                 class="mr-3"
                 :to="`/applications/${record.id}`"
                 :title="t('common.lookText')"
-                ><EyeOutlined
-              /></router-link>
+              >
+                <EyeOutlined />
+              </router-link>
               <a
                 class="mr-3 text-[#1890FF]"
                 :title="t('common.editText')"
                 @click="editApplication(record)"
-                ><FormOutlined
-              /></a>
+              >
+                <FormOutlined />
+              </a>
               <Popconfirm
                 :title="t('applications.index.delAppInfo')"
                 @confirm="deleteApp(index, record.id)"
               >
-                <a class="mr-3 text-red-600 hover:text-red-600" :title="t('common.delText')"
-                  ><DeleteOutlined
-                /></a>
+                <a class="mr-3 text-red-600 hover:text-red-600" :title="t('common.delText')">
+                  <DeleteOutlined />
+                </a>
               </Popconfirm>
             </template>
           </template>
@@ -86,10 +89,10 @@
 
 <script lang="ts" setup>
   import { reactive, computed, ref, onMounted } from 'vue';
-  import { useOptionsContent } from '.././useApp';
   import { PageWrapper } from '/@/components/Page';
   import { useI18n } from '/@/hooks/web/useI18n';
   import { useMessage } from '/@/hooks/web/useMessage';
+  import { DictCodeEnum } from '/@/enums/dictCodeEnum';
   import { formatToDateTime } from '/@/utils/dateUtil';
   import {
     ApplicationList,
@@ -113,9 +116,10 @@
 
   const { t } = useI18n();
   const { notification, createErrorModal } = useMessage();
-  const { statusOptions } = useOptionsContent();
+  const statusOptions = DictCodeEnum.ApplicationDeployStatus.getOptions();
+
   const searchForm = reactive({
-    status: 2, //Application status
+    status: DictCodeEnum.ApplicationDeployStatus_All.value, // Default All
     name: '', //Application name
   });
 
@@ -166,13 +170,12 @@
       customRender: ({ text: date }) => formatToDateTime(date, (f) => f.datetimeWithoutSec),
     },
     {
-      title: t('applications.index.statusText'),
+      title: DictCodeEnum.ApplicationDeployStatus.getLabel(),
       dataIndex: 'status',
       align: 'center',
       ellipsis: 'fixed',
       key: 'status',
-      customRender: ({ text }) =>
-        statusOptions.value.find((option) => option.value === text)?.label,
+      customRender: ({ text }) => DictCodeEnum.ApplicationDeployStatus.getOptionLabel(text),
     },
     {
       title: t('applications.index.operText'),

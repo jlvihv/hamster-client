@@ -239,8 +239,6 @@
 
     const newDeployInfo = toRaw({ ...props.deployInfo, staking: formData });
 
-    console.log('newDeployInfo', newDeployInfo);
-
     await SaveDeployInfo(props.applicationId, JSON.stringify(newDeployInfo));
 
     emits('update:deployInfo', newDeployInfo);

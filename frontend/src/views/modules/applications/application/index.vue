@@ -11,8 +11,8 @@
         <DescriptionsItem :label="t('applications.index.addTimeText')">
           {{ formatToDateTime(appInfo.createdAt) }}
         </DescriptionsItem>
-        <DescriptionsItem :label="t('applications.index.statusText')">
-          {{ statusOptions.find((option) => option.value === appInfo.status)?.label }}
+        <DescriptionsItem :label="DictCodeEnum.ApplicationDeployStatus.getLabel()">
+          {{ DictCodeEnum.ApplicationDeployStatus.getOptionLabel(appInfo.status) }}
         </DescriptionsItem>
         <DescriptionsItem :label="t('applications.index.desText')">
           {{ appInfo.describe }}
@@ -29,7 +29,7 @@
 <script lang="ts" setup>
   import { onMounted, reactive, computed } from 'vue';
   import { useRoute, useRouter } from 'vue-router';
-  import { useOptionsContent } from '.././useApp';
+  import { DictCodeEnum } from '/@/enums/dictCodeEnum';
   import { formatToDateTime } from '/@/utils/dateUtil';
   import { PageWrapper } from '/@/components/Page';
   import { useMessage } from '/@/hooks/web/useMessage';
@@ -41,7 +41,6 @@
 
   const { t } = useI18n();
   const { createErrorModal } = useMessage();
-  const { statusOptions } = useOptionsContent();
   const router = useRouter();
   const { params } = useRoute();
   const applicationId = Number(params.id);
