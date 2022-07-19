@@ -133,12 +133,12 @@ func (s *ServiceImpl) queryDeployStatus() {
 	for {
 		res, _ := s.QueryGraphStatus(containerIds...)
 		if res == 1 {
-			result := s.db.Model(application.Application{}).Where("status = ?", config.WAIT_RESOURCE).Update("status", config.DEPLOYED).Error
+			result := s.db.Model(application.Application{}).Where("status = ?", config.IN_DEPLOYMENT).Update("status", config.DEPLOYED).Error
 			if result == nil {
 				return
 			}
 		} else {
-			s.db.Model(application.Application{}).Where("status = ?", config.WAIT_RESOURCE).Update("status", config.DEPLOY_FAILED)
+			s.db.Model(application.Application{}).Where("status = ?", config.IN_DEPLOYMENT).Update("status", config.DEPLOY_FAILED)
 			return
 		}
 	}
