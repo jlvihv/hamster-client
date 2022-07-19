@@ -59,6 +59,15 @@ const applications: AppRouteModule = {
         hideMenu: true,
       },
     },
+    {
+      path: ':id/cli',
+      name: 'ApplicationCli',
+      component: () => import('/@/views/modules/applications/application-cli/index.vue'),
+      meta: {
+        title: t('routes.applications.applicationCli'),
+        hideMenu: true,
+      },
+    },
   ],
 };
 
