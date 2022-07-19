@@ -119,7 +119,7 @@
   const statusOptions = DictCodeEnum.ApplicationDeployStatus.getOptions();
 
   const searchForm = reactive({
-    status: 2, //Application status
+    status: DictCodeEnum.ApplicationDeployStatus_All.value, // Default All
     name: '', //Application name
   });
 
