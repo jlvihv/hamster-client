@@ -2,8 +2,13 @@
   <PageWrapper>
     <Card class="!mb-4">
       <Descriptions :title="t('applications.see.appInfo')" bordered>
-        <template #extra v-if="!isAppDeployed">
-          <router-link :to="`/applications/${applicationId}/deploy`">Deploy</router-link>
+        <template #extra>
+          <router-link v-if="isAppDeployed" :to="`/applications/${applicationId}/cli`"
+            >Cli</router-link
+          >
+          <router-link v-if="!isAppDeployed" :to="`/applications/${applicationId}/deploy`"
+            >Deploy</router-link
+          >
         </template>
         <DescriptionsItem :label="t('applications.index.nameText')">
           {{ appInfo.name }}

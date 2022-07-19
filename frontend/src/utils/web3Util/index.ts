@@ -24,6 +24,13 @@ export const web3Configs = [
     erc20ContractAddress: '0xEd2Fed4571597f5b954D4BC212b28422B720b49c',
     configContractAddress: '0x24EA2E2cbc8A0D772dCDFCA304f1b6Fc34fACeCF',
   },
+  {
+    endpoint: 'https://rinkeby.infura.io/v3/',
+    stakeContractAddress: '0x2d44C0e097F6cD0f514edAC633d82E01280B4A5c',
+    factoryContractAddress: '0xeFF0ed9Fc8276Fcf4eda2e012dD065A3DC18591D',
+    erc20ContractAddress: '0x54Fe55d5d255b8460fB3Bc52D5D676F9AE5697CD',
+    configContractAddress: '0xA0fe59d6e7b68A9bE162673e62dDb2A06f8153cC',
+  },
 ];
 
 export function createWeb3Api(
