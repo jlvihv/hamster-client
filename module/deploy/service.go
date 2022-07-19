@@ -38,7 +38,6 @@ func (s *ServiceImpl) DeployTheGraph(id int, jsonData string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	s.keyStorageService.Set("graph_"+strconv.Itoa(id), jsonData)
 	if info.PeerId == "" {
 		//Modify the status of the application to wait for resources
 		result := s.db.Model(application.Application{}).Where("id = ?", id).Update("status", config.WAIT_RESOURCE).Error
@@ -63,7 +62,8 @@ func (s *ServiceImpl) DeployTheGraph(id int, jsonData string) (bool, error) {
 	}
 	fmt.Println("p2p end")
 	var param DeployParameter
-	if err := json.Unmarshal([]byte(jsonData), &param); err != nil {
+	jsonParam := s.keyStorageService.Get("graph_" + strconv.Itoa(id))
+	if err := json.Unmarshal([]byte(jsonParam), &param); err != nil {
 		return false, err
 	}
 	var sendData DeployParams
@@ -133,12 +133,12 @@ func (s *ServiceImpl) queryDeployStatus() {
 	for {
 		res, _ := s.QueryGraphStatus(containerIds...)
 		if res == 1 {
-			result := s.db.Model(application.Application{}).Where("status = ?", config.WAIT_RESOURCE).Update("status", config.DEPLOYED).Error
+			result := s.db.Model(application.Application{}).Where("status = ?", config.IN_DEPLOYMENT).Update("status", config.DEPLOYED).Error
 			if result == nil {
 				return
 			}
 		} else {
-			s.db.Model(application.Application{}).Where("status = ?", config.WAIT_RESOURCE).Update("status", config.DEPLOY_FAILED)
+			s.db.Model(application.Application{}).Where("status = ?", config.IN_DEPLOYMENT).Update("status", config.DEPLOY_FAILED)
 			return
 		}
 	}
