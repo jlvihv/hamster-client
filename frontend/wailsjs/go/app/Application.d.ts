@@ -3,16 +3,6 @@
 import { application } from '../models';
 import { context } from '../models';
 
-export function DeleteGraphAndParams(arg1: number): Promise<boolean | Error>;
-
-export function QueryApplicationById(arg1: number): Promise<application.ApplyVo | Error>;
-
-export function UpdateApplication(
-  arg1: application.UpdateApplicationParam,
-): Promise<boolean | Error>;
-
-export function WailsInit(arg1: context.Context): Promise<Error>;
-
 export function AddApplication(arg1: application.AddApplicationParam): Promise<boolean | Error>;
 
 export function ApplicationList(
@@ -23,3 +13,13 @@ export function ApplicationList(
 ): Promise<application.PageApplicationVo | Error>;
 
 export function DeleteApplication(arg1: number): Promise<boolean | Error>;
+
+export function DeleteGraphAndParams(arg1: number): Promise<boolean | Error>;
+
+export function QueryApplicationById(arg1: number): Promise<application.ApplyVo | Error>;
+
+export function UpdateApplication(
+  arg1: application.UpdateApplicationParam,
+): Promise<boolean | Error>;
+
+export function WailsInit(arg1: context.Context): Promise<Error>;

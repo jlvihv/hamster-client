@@ -114,20 +114,20 @@ func (s *ServiceImpl) SaveDeployInfo(id int, json string) (bool, error) {
 }
 
 func (g *ServiceImpl) QueryGraphStatus(serviceName ...string) (int, error) {
-	var status int
+	var data Result
 	res, err := g.httpUtil.NewRequest().
 		SetQueryParamsFromValues(url.Values{"serviceName": serviceName}).
-		SetResult(&status).
+		SetResult(&data).
 		Get(config.HttpGraphStatus)
 	if err != nil {
 		runtime.LogError(g.ctx, "DeployTheGraph http error:"+err.Error())
-		return 0, err
+		return 3, err
 	}
 	if !res.IsSuccess() {
 		runtime.LogError(g.ctx, "DeployTheGraph Response error: "+res.Status())
-		return 0, errors.New(fmt.Sprintf("Query status request failed. The request status is:%s", res.Status()))
+		return 3, errors.New(fmt.Sprintf("Query status request failed. The request status is:%s", res.Status()))
 	}
-	return status, nil
+	return data.Result, nil
 }
 
 // query deploy graph status
@@ -137,11 +137,14 @@ func (s *ServiceImpl) queryDeployStatus() {
 	for {
 		time.Sleep(time.Duration(10) * time.Second)
 		res, _ := s.QueryGraphStatus(containerIds...)
+		fmt.Println("docker status :", res)
 		if res == 1 {
 			result := s.db.Model(application.Application{}).Where("status = ?", config.IN_DEPLOYMENT).Update("status", config.DEPLOYED).Error
 			if result == nil {
 				return
 			}
+		} else if res == 3 {
+			continue
 		} else {
 			if numbers >= 3 {
 				s.db.Model(application.Application{}).Where("status = ?", config.IN_DEPLOYMENT).Update("status", config.DEPLOY_FAILED)
