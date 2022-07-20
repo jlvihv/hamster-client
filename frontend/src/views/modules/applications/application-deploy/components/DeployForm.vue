@@ -66,9 +66,13 @@
   }>({});
 
   // assign deployment
-  watch(props.deployInfo, (deployInfo) => {
-    Object.assign(formData, deployInfo.deployment);
-  });
+  watch(
+    () => props.deployInfo,
+    (deployInfo) => {
+      Object.assign(formData, deployInfo.deployment);
+    },
+    { immediate: true },
+  );
 
   const formRules = computed(() => ({
     nodeEthereumUrl: [createRule(t('applications.deploy.nodeEthereumUrlPlaceholder'))],
