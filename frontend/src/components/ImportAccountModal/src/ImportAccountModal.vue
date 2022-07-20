@@ -101,7 +101,7 @@
       await settingStore.saveWalletAction(jsonContent.address, jsonString);
       modalVisible.value = false;
     } else {
-      createErrorModal({ title: t('common.errorTip'), content: t('passwordError') });
+      createErrorModal({ title: tt('common.errorTip'), content: t('passwordError') });
     }
   };
 
@@ -122,7 +122,7 @@
         }
 
         if (!json || !json.address || !json.encoded || !json.encoding || !json.meta) {
-          createErrorModal({ title: t('common.errorTip'), content: t('correctFormatJson') });
+          createErrorModal({ title: tt('common.errorTip'), content: t('correctFormatJson') });
 
           fileList.pop();
           handleFileRemove();

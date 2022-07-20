@@ -84,37 +84,67 @@ export function createKeyPair(json: any, password: string) {
 // Cancel resource order
 export async function cancelResourceOrder(api, keyringPair) {
   const orderNumber = await api.query.resourceOrder.applyUsers(keyringPair.address);
+  return new Promise((resolve, reject) => {
+    if (orderNumber.toJSON() > 0) {
+      const unsubscribe = api.tx.resourceOrder
+        .releaseApplyFreeResource(orderNumber.toJSON())
+        .signAndSend(keyringPair, (result) => {
+          if (result.status.isInBlock) {
+            console.log(`Transaction included at blockHash ${result.status.asInBlock}`);
+            resolve(result);
+          } else if (result.status.isFinalized) {
+            console.log(`Transaction finalized at blockHash ${result.status.asFinalized}`);
+            result.events
+              .filter(({ event }) => api.events.system.ExtrinsicFailed.is(event))
+              .forEach(({ event }) => {
+                const [error] = event.data;
+                const decoded = api.registry.findMetaError(result.dispatchError.asModule);
+                const { docs, method, section } = decoded;
+                console.log(`${section}.${method}: ${docs.join(' ')}`);
+                reject(error);
+              });
+          }
 
-  console.log('orderNumber', orderNumber);
-
-  if (orderNumber.toJSON() > 0) {
-    const unsubscribe = api.tx.resourceOrder
-      .releaseApplyFreeResource(orderNumber.toJSON())
-      .signAndSend(
-        keyringPair,
-        handleTxResults({
-          txSuccessCb: (result) => {
-            console.log(result);
-          },
-          unsubscribe: () => unsubscribe(),
-        }),
-      );
-  }
+          if (result.isCompleted) {
+            unsubscribe();
+          }
+        });
+    } else {
+      resolve(undefined);
+    }
+  });
 }
 
 // Apply resource order
-export async function applyResourceOrder(
+export function applyResourceOrder(
   api,
   keyringPair,
   options: { cpu?: number; memory?: number; leaseTerm: number; publicKey: string; type?: number },
-  callback?: typeof handleTxResults,
 ) {
-  const { cpu = 4, memory = 8, leaseTerm, publicKey, type = 1 } = options;
+  return new Promise((resolve, reject) => {
+    const { cpu = 4, memory = 8, leaseTerm, publicKey, type = 1 } = options;
+    const unsubscribe = api.tx.resourceOrder
+      .applyFreeResource(cpu, memory, leaseTerm, publicKey, type)
+      .signAndSend(keyringPair, (result) => {
+        if (result.status.isInBlock) {
+          console.log(`Transaction included at blockHash ${result.status.asInBlock}`);
+          resolve(result);
+        } else if (result.status.isFinalized) {
+          console.log(`Transaction finalized at blockHash ${result.status.asFinalized}`);
+          result.events
+            .filter(({ event }) => api.events.system.ExtrinsicFailed.is(event))
+            .forEach(({ event }) => {
+              const [error] = event.data;
+              const decoded = api.registry.findMetaError(result.dispatchError.asModule);
+              const { docs, method, section } = decoded;
+              console.log(`${section}.${method}: ${docs.join(' ')}`);
+              reject(error);
+            });
+        }
 
-  // Cancel first
-  await cancelResourceOrder(api, keyringPair);
-
-  return api.tx.resourceOrder
-    .applyFreeResource(cpu, memory, leaseTerm, publicKey, type)
-    .signAndSend(keyringPair, callback);
+        if (result.isCompleted) {
+          unsubscribe();
+        }
+      });
+  });
 }

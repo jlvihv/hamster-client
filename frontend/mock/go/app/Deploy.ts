@@ -8,7 +8,7 @@ export default {
     const jsonString = deployInfoCollection[applicationId];
     const json = jsonString && JSON.parse(jsonString);
 
-    return resultSuccess({ id: applicationId, data: json });
+    return resultSuccess(json);
   },
   SaveDeployInfo(applicationId: number, data: string) {
     deployInfoCollection[applicationId] = data;

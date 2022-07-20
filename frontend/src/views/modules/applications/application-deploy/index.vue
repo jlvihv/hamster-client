@@ -61,8 +61,8 @@
   import {
     createPolkadotApi,
     createKeyPair,
+    cancelResourceOrder,
     applyResourceOrder,
-    handleTxResults,
   } from '/@/utils/polkadotUtil';
   import { Steps, Step, Modal, Form, FormItem, InputPassword } from 'ant-design-vue';
 
@@ -103,7 +103,7 @@
 
   // Get saved deployInfo from API
   onMounted(async () => {
-    const { data } = await GetDeployInfo(applicationId);
+    const data = await GetDeployInfo(applicationId);
     if (data) deployInfo.value = data;
 
     // Run settingStore actions
@@ -146,34 +146,26 @@
       return;
     }
 
-    const { leaseTerm, publicKey } = deployInfo.value.initialization;
-    const unsubscribe = await applyResourceOrder(
-      polkadotApi,
-      keyPair,
-      { leaseTerm, publicKey },
-      handleTxResults({
-        txSuccessCb: async (result) => {
-          console.log(result);
+    try {
+      await cancelResourceOrder(polkadotApi, keyPair);
+      const { leaseTerm, publicKey } = deployInfo.value.initialization;
+      const result = await applyResourceOrder(polkadotApi, keyPair, { leaseTerm, publicKey });
 
-          passwordModalLoading.value = false;
+      console.log(result);
 
-          // Call deploy API
-          await DeployTheGraph(applicationId, JSON.stringify({}));
-          router.push('/applications/' + applicationId);
-        },
-        txFailedCb: (error) => {
-          console.log(error);
+      // Call deploy API
+      await DeployTheGraph(applicationId, JSON.stringify({}));
+      router.push('/applications/' + applicationId);
+    } catch (error: any) {
+      console.log('Error', error);
 
-          passwordModalLoading.value = true;
-
-          createErrorModal({
-            title: t('common.errorTip'),
-            content: t('applications.deploy.deployFailed'),
-          });
-        },
-        unsubscribe: () => unsubscribe(),
-      }),
-    );
+      createErrorModal({
+        title: t('common.errorTip'),
+        content: t('applications.deploy.deployFailed'),
+      });
+    } finally {
+      passwordModalLoading.value = false;
+    }
   };
 </script>
 

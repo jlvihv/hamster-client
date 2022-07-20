@@ -79,7 +79,7 @@
 
   // Get saved deployInfo from API
   const getDeployInfo = async () => {
-    const { data } = await GetDeployInfo(applicationId);
+    const data = await GetDeployInfo(applicationId);
     data && Object.assign(deployInfo, data);
   };
 
