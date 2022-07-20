@@ -196,7 +196,7 @@
         api,
         contract,
         method: 'approve',
-        methodArgs: [formData.agentAddress, pledgeAmount],
+        methodArgs: [formData.agentAddress, api.utils.toWei(pledgeAmount.toString())],
       });
 
       pledgeAmountModalVisible.value = false;
@@ -225,7 +225,7 @@
             api,
             contract,
             method: 'staking',
-            methodArgs: [formData.pledgeAmount],
+            methodArgs: [api.utils.toWei(formData.pledgeAmount.toString())],
           });
 
           console.log('stakeAmount data', data);
