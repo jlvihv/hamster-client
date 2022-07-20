@@ -41,6 +41,13 @@ type Deployment struct {
 	IndexerAddress  string `json:"indexerAddress"`  //indexer address
 }
 
+type Result struct {
+	Code    int    `json:"code"`
+	Type    string `json:"type"`
+	Message string `json:"message"`
+	Result  int    `json:"result"`
+}
+
 type Service interface {
 	DeployTheGraph(id int, data string) (bool, error)
 	GetDeployInfo(id int) (DeployParameter, error)
