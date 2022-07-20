@@ -67,12 +67,12 @@ func (s *ServiceImpl) DeployTheGraph(id int, jsonData string) (bool, error) {
 		return false, err
 	}
 	var sendData DeployParams
-	sendData.Mnemonic = param.Data.Initialization.AccountMnemonic
-	sendData.Id = param.Id
-	sendData.EthereumUrl = param.Data.Deployment.EthereumUrl
-	sendData.IndexerAddress = param.Data.Deployment.IndexerAddress
-	sendData.NodeEthereumUrl = param.Data.Deployment.NodeEthereumUrl
-	sendData.EthereumNetwork = param.Data.Deployment.EthereumNetwork
+	sendData.Mnemonic = param.Initialization.AccountMnemonic
+	sendData.Id = id
+	sendData.EthereumUrl = param.Deployment.EthereumUrl
+	sendData.IndexerAddress = param.Deployment.IndexerAddress
+	sendData.NodeEthereumUrl = param.Deployment.NodeEthereumUrl
+	sendData.EthereumNetwork = param.Deployment.EthereumNetwork
 	runtime.LogInfo(s.ctx, "start Deploy the graph")
 	res, err := s.httpUtil.NewRequest().SetBody(sendData).Post(config.Httpprovider)
 	if err != nil {
@@ -95,7 +95,7 @@ func (s *ServiceImpl) DeployTheGraph(id int, jsonData string) (bool, error) {
 func (s *ServiceImpl) GetDeployInfo(id int) (DeployParameter, error) {
 	data := s.keyStorageService.Get("graph_" + strconv.Itoa(id))
 	var param DeployParameter
-	if err := json.Unmarshal([]byte(data), &param); err == nil {
+	if err := json.Unmarshal([]byte(data), &param); err != nil {
 		return param, err
 	}
 	return param, nil

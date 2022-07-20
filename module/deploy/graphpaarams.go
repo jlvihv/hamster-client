@@ -10,8 +10,9 @@ type DeployParams struct {
 }
 
 type DeployParameter struct {
-	Id   int           `json:"id"`   //application id
-	Data ParameterInfo `json:"data"` //parameter info
+	Initialization Initialization `json:"initialization"`
+	Staking        Staking        `json:"staking"`
+	Deployment     Deployment     `json:"deployment"`
 }
 
 type ParameterInfo struct {
@@ -22,7 +23,7 @@ type ParameterInfo struct {
 
 type Initialization struct {
 	LeaseTerm       int    `json:"leaseTerm"`
-	UserPublicKey   string `json:"userPublicKey"`
+	PublicKey       string `json:"publicKey"`
 	AccountMnemonic string `json:"accountMnemonic"`
 }
 
