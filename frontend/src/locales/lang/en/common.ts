@@ -11,6 +11,16 @@ export default {
   confirmText: 'Confirm',
   nextText: 'Next',
   deployText: 'Deploy',
+  serialText: 'Serial number',
+  operateText: 'Operation',
+  disabledText: 'Disable',
+  enabledText: 'Enable',
+  editText: 'Editor',
+  lookText: 'View',
+  finishText: 'Finish',
+  backText: 'Back',
+  allText: 'All',
+  downloadText: 'Download',
 
   redo: 'Refresh',
   back: 'Back',
@@ -18,4 +28,7 @@ export default {
   operateSucText: 'Operation successful',
   operateFailText: 'Operation failed',
   errorTip: 'Error Tip',
+
+  inputText: 'Please enter',
+  chooseText: 'Please choose',
 };

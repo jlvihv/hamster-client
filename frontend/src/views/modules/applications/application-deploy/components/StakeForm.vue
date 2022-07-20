@@ -108,7 +108,6 @@
   watch(
     () => props.deployInfo,
     (deployInfo) => {
-      console.log('Got new deployInfo', deployInfo);
       Object.assign(formData, deployInfo.staking);
     },
     { immediate: true },
@@ -125,11 +124,15 @@
   // address is up on endpoint field
   const networkOptions = web3Configs.map(({ endpoint }) => ({ label: endpoint, value: endpoint }));
   const handleEndpointChange = (newEndpoint) => {
+    // Reset fromData
+    Object.keys(formData).forEach((key) => {
+      formData[key] = undefined;
+    });
+
     if (newEndpoint) {
       const config = web3Configs.find((x) => x.endpoint === newEndpoint);
+      formData.networkUrl = newEndpoint;
       formData.address = config?.stakeContractAddress;
-    } else {
-      formData.address = undefined;
     }
   };
 
