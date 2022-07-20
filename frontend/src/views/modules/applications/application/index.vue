@@ -32,7 +32,7 @@
 </template>
 
 <script lang="ts" setup>
-  import { onMounted, reactive, computed } from 'vue';
+  import { onMounted, ref, reactive, computed } from 'vue';
   import { useRoute, useRouter } from 'vue-router';
   import { DictCodeEnum } from '/@/enums/dictCodeEnum';
   import { formatToDateTime } from '/@/utils/dateUtil';
@@ -56,11 +56,15 @@
     status: 0,
     describe: '',
   });
-  const deployInfo = reactive<{
+  const deployInfo = ref<{
     initialization: Recordable;
     staking: Recordable;
     deployment: Recordable;
-  }>({ initialization: {}, staking: {}, deployment: {} });
+  }>({
+    initialization: {},
+    staking: {},
+    deployment: {},
+  });
 
   // 0: Not deployed, 1: Deployed
   const isAppDeployed = computed(() => appInfo.status === 1);
@@ -80,7 +84,7 @@
   // Get saved deployInfo from API
   const getDeployInfo = async () => {
     const data = await GetDeployInfo(applicationId);
-    data && Object.assign(deployInfo, data);
+    if (data) deployInfo.value = data;
   };
 
   onMounted(async () => {

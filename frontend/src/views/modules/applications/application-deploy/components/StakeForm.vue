@@ -105,9 +105,14 @@
   }>({});
 
   // assign staking
-  watch(props.deployInfo, (deployInfo) => {
-    Object.assign(formData, deployInfo.staking);
-  });
+  watch(
+    () => props.deployInfo,
+    (deployInfo) => {
+      console.log('Got new deployInfo', deployInfo);
+      Object.assign(formData, deployInfo.staking);
+    },
+    { immediate: true },
+  );
 
   const formRules = computed(() => ({
     networkUrl: [createRule(t('applications.deploy.selectNetwork'))],

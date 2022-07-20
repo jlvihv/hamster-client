@@ -63,9 +63,13 @@
   }>({});
 
   // assign initialization
-  watch(props.deployInfo, (deployInfo) => {
-    Object.assign(formData, deployInfo.initialization);
-  });
+  watch(
+    () => props.deployInfo,
+    (deployInfo) => {
+      Object.assign(formData, deployInfo.initialization);
+    },
+    { immediate: true },
+  );
 
   const formRules = computed(() => ({
     leaseTerm: [createRule(t('applications.deploy.leaseTermPlaceholder'))],
