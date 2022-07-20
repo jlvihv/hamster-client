@@ -14,8 +14,16 @@ export function IsP2PSetting() {
   return window['go']['app']['P2p']['IsP2PSetting']();
 }
 
+export function JudgeP2pReconnection() {
+  return window['go']['app']['P2p']['JudgeP2pReconnection']();
+}
+
 export function Link(arg1, arg2) {
   return window['go']['app']['P2p']['Link'](arg1, arg2);
+}
+
+export function ReconnectionProLink() {
+  return window['go']['app']['P2p']['ReconnectionProLink']();
 }
 
 export function WailsInit(arg1) {

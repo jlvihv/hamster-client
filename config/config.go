@@ -26,3 +26,6 @@ const (
 	IN_DEPLOYMENT            // in deployment  4
 	DEPLOY_FAILED            //deploy failed 5
 )
+
+//HTTP request docker status Failure Return
+const RequestStatusFailed = 5

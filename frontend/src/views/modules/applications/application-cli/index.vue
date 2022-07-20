@@ -15,18 +15,32 @@
   import { useRoute, useRouter } from 'vue-router';
   import { useI18n } from '/@/hooks/web/useI18n';
   import { Button } from 'ant-design-vue';
+  import { JudgeP2pReconnection, ReconnectionProLink } from '/@wails/go/app/P2p';
+  import { useMessage } from '/@/hooks/web/useMessage';
   const { proxy } = getCurrentInstance();
   const { t } = useI18n();
   const router = useRouter();
   const { params } = useRoute();
   const applicationId = Number(params.id);
+  const { createErrorModal } = useMessage();
   const goBack = () => {
     router.push('/applications/' + applicationId);
   };
   onMounted(() => {
     initTerm();
   });
-  const initTerm = () => {
+  const initTerm = async () => {
+    const isReconnection = await JudgeP2pReconnection();
+    if (isReconnection) {
+      const res = await ReconnectionProLink();
+      if (!res) {
+        createErrorModal({
+          title: t('common.errorTip'),
+          content: t('applications.cli.p2pReconnectionError'),
+        });
+        return;
+      }
+    }
     const term = new Terminal({});
     let socket = new WebSocket(`ws://localhost:10771/api/v1/thegraph/ws?serviceName=index-cli`);
     const attachAddon = new AttachAddon(socket);

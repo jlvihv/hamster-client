@@ -7,7 +7,7 @@ import (
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"gorm.io/gorm"
 	"hamster-client/config"
-	//"hamster-client/module/account"
+	"hamster-client/module/account"
 	"os/exec"
 )
 
@@ -182,4 +182,54 @@ func (s *ServiceImpl) ProLink(peerId string) error {
 		return err
 	}
 	return nil
+}
+
+func (s *ServiceImpl) GetProviderLinks() *[]LinkInfo {
+	runtime.LogWarning(s.ctx, "GetLinks start")
+	protocol := "/x/provider"
+	var links []LinkInfo
+	client, err := s.getP2pClient()
+	if err != nil {
+		return &links
+	}
+	outPut := client.List()
+	for _, value := range outPut.Listeners {
+		linkInfo := LinkInfo{Protocol: value.Protocol, ListenAddress: value.ListenAddress, TargetAddress: value.TargetAddress}
+		err := client.CheckForwardHealth(protocol, value.TargetAddress)
+		linkInfo.Status = err == nil
+		runtime.LogInfo(s.ctx, fmt.Sprintf("GetLinks %s\n", linkInfo.Status))
+		if linkInfo.Protocol == protocol {
+			links = append(links, linkInfo)
+		}
+	}
+	return &links
+}
+
+func (s *ServiceImpl) JudgeP2pReconnection() bool {
+	links := s.GetProviderLinks()
+	if len(*links) > 0 {
+		for _, value := range *links {
+			if !value.Status {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+func (s *ServiceImpl) ReconnectionProLink() (bool, error) {
+	var account account.Account
+	result := s.db.First(&account)
+	if result.Error != nil {
+		runtime.LogError(s.ctx, "GetAccount error")
+		return false, result.Error
+	}
+	if account.PeerId != "" {
+		err := s.ProLink(account.PeerId)
+		if err != nil {
+			return false, err
+		}
+		return true, nil
+	}
+	return false, nil
 }

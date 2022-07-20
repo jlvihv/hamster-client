@@ -68,4 +68,7 @@ export default {
     account: 'Account',
     income: 'Income',
   },
+  cli: {
+    p2pReconnectionError: 'P2P reconnection failed',
+  },
 };

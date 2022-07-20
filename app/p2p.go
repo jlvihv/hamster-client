@@ -63,3 +63,11 @@ func (s *P2p) GetLinkStatus() *[]p2p.LinkInfo {
 func (s *P2p) WailsShutdown() {
 	_ = s.p2pServer.Destroy()
 }
+
+func (s *P2p) JudgeP2pReconnection() bool {
+	return s.p2pServer.JudgeP2pReconnection()
+}
+
+func (s *P2p) ReconnectionProLink() (bool, error) {
+	return s.p2pServer.ReconnectionProLink()
+}
