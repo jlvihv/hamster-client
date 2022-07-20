@@ -16,6 +16,7 @@ import (
 	"hamster-client/utils"
 	"net/url"
 	"strconv"
+	"time"
 )
 
 type ServiceImpl struct {
@@ -54,6 +55,8 @@ func (s *ServiceImpl) DeployTheGraph(id int, jsonData string) (bool, error) {
 			return false, err
 		}
 	}
+	//close p2p link
+	s.closeP2p()
 	fmt.Println("p2p start")
 	fmt.Println(info.PeerId)
 	proErr := s.p2pServer.ProLink(info.PeerId)
@@ -130,7 +133,9 @@ func (g *ServiceImpl) QueryGraphStatus(serviceName ...string) (int, error) {
 // query deploy graph status
 func (s *ServiceImpl) queryDeployStatus() {
 	containerIds := []string{"graph-node", "postgres", "index-service", "index-agent", "index-cli"}
+	numbers := 0
 	for {
+		time.Sleep(time.Duration(10) * time.Second)
 		res, _ := s.QueryGraphStatus(containerIds...)
 		if res == 1 {
 			result := s.db.Model(application.Application{}).Where("status = ?", config.IN_DEPLOYMENT).Update("status", config.DEPLOYED).Error
@@ -138,8 +143,21 @@ func (s *ServiceImpl) queryDeployStatus() {
 				return
 			}
 		} else {
-			s.db.Model(application.Application{}).Where("status = ?", config.IN_DEPLOYMENT).Update("status", config.DEPLOY_FAILED)
-			return
+			if numbers >= 3 {
+				s.db.Model(application.Application{}).Where("status = ?", config.IN_DEPLOYMENT).Update("status", config.DEPLOY_FAILED)
+				return
+			}
+		}
+		numbers = numbers + 1
+	}
+}
+
+func (s *ServiceImpl) closeP2p() {
+	data := s.p2pServer.GetLinks()
+	res := *data
+	if len(res) > 0 {
+		for _, value := range res {
+			s.p2pServer.Close(value.TargetAddress)
 		}
 	}
 }

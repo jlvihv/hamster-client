@@ -63,6 +63,7 @@ func (a *ServiceImpl) QueryApplicationById(id int) (ApplyVo, error) {
 	resultData.Describe = data.Describe
 	resultData.CreatedAt = data.CreatedAt
 	resultData.UpdatedAt = data.UpdatedAt
+	resultData.Status = data.Status
 	return resultData, nil
 }
 
