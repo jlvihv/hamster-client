@@ -8,6 +8,9 @@
         <label> {{ displayIncome }}</label>
         <Button class="ml-4" type="primary" @click="withdraw">withdraw</Button>
       </DescriptionsItem>
+      <DescriptionsItem label="Balance">
+        {{ displayBalance }}
+      </DescriptionsItem>
     </Descriptions>
   </Card>
 </template>
@@ -17,7 +20,13 @@
   import { Card, Button, Descriptions, DescriptionsItem } from 'ant-design-vue';
   import { useMessage } from '/@/hooks/web/useMessage';
   import { computed, ref, watch } from 'vue';
-  import { buildContract, createWeb3Api, runContractMethod, web3Abi } from '/@/utils/web3Util';
+  import {
+    buildContract,
+    createWeb3Api,
+    getProviderAddress,
+    runContractMethod,
+    web3Abi,
+  } from '/@/utils/web3Util';
 
   // defines
   const props = defineProps({
@@ -28,6 +37,7 @@
   const { createConfirm } = useMessage();
 
   const income = ref(0);
+  const balance = ref(0);
 
   // web3 api
   const web3Api = computed(() => {
@@ -56,6 +66,21 @@
     const address = props.deployInfo.staking.agentAddress;
 
     if (api && api.__config) {
+      const erc20 = buildContract(api, web3Abi.ecr20Abi, api.__config.erc20ContractAddress);
+
+      const ethAddress = getProviderAddress(api);
+      const balance_data = await runContractMethod({
+        api,
+        contract: erc20,
+        method: 'balanceOf',
+        methodArgs: [ethAddress],
+        type: 'call',
+      });
+
+      console.log('balance_data:', balance_data);
+
+      balance.value = balance_data;
+
       const contract = buildContract(api, web3Abi.stakeDistributionProxyAbi, address);
 
       const data = await runContractMethod({
@@ -103,6 +128,11 @@
     const api = web3Api.value;
     console.log('income to wei:', income.value.toString());
     return api?.utils.fromWei(income.value.toString());
+  });
+
+  const displayBalance = computed(() => {
+    const api = web3Api.value;
+    return api?.utils.fromWei(balance.value.toString());
   });
 
   watch(
