@@ -213,8 +213,9 @@ func (s *ServiceImpl) JudgeP2pReconnection() bool {
 				return true
 			}
 		}
+		return false
 	}
-	return false
+	return true
 }
 
 func (s *ServiceImpl) ReconnectionProLink() (bool, error) {

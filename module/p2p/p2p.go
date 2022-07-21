@@ -196,6 +196,8 @@ func (c *P2pClient) List() *P2PLsOutput {
 	}
 	c.P2P.ListenersP2P.Unlock()
 
+	fmt.Println("p2p link list: ", output)
+
 	return output
 }
 
@@ -216,6 +218,12 @@ func (c *P2pClient) Listen(protoOpt string, port int) error {
 
 // Forward connect p2p network to remote nodes / map to local port
 func (c *P2pClient) Forward(protoOpt string, port int, peerId string) error {
+
+	fmt.Println("======================")
+	fmt.Println("forward : protoOpt: ", protoOpt)
+	fmt.Println("forward : port: ", port)
+	fmt.Println("forward : peerId: ", peerId)
+	fmt.Println("======================")
 
 	if err := c.CheckForwardHealth(protoOpt, peerId); err != nil {
 		var nodes []string
