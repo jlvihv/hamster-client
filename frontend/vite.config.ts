@@ -3,8 +3,7 @@ import { loadEnv } from 'vite';
 import { resolve } from 'path';
 import { NodeGlobalsPolyfillPlugin } from '@esbuild-plugins/node-globals-polyfill';
 import { NodeModulesPolyfillPlugin } from '@esbuild-plugins/node-modules-polyfill';
-import rollupNodePolyfillPlugin from 'rollup-plugin-polyfill-node';
-import { wrapperEnv, nodePolyfillAlias } from './build/utils';
+import { wrapperEnv, packedFileAlias } from './build/utils';
 import { generateModifyVars } from './build/generate/generateModifyVars';
 import { createVitePlugins } from './build/vitePlugins';
 
@@ -25,7 +24,7 @@ export default ({ command, mode }: ConfigEnv): UserConfig => {
         '/@/': pathResolve('src') + '/',
         '/@wails/': pathResolve('wailsjs') + '/',
         'vue-i18n': 'vue-i18n/dist/vue-i18n.cjs.js',
-        ...nodePolyfillAlias(),
+        ...packedFileAlias(isBuild),
       },
     },
     server: {
@@ -42,9 +41,6 @@ export default ({ command, mode }: ConfigEnv): UserConfig => {
       brotliSize: false,
       chunkSizeWarningLimit: 5000,
       // sourcemap: true,
-      rollupOptions: {
-        plugins: [rollupNodePolyfillPlugin()],
-      },
     },
     define: {
       // setting vue-i18-next

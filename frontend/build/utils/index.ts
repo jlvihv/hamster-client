@@ -1,3 +1,6 @@
+import glob from 'glob';
+import path from 'path';
+
 // Read all environment variable configuration files to process.env
 export function wrapperEnv(envConf: Recordable): ViteEnv {
   const ret: any = {};
@@ -21,41 +24,19 @@ export function wrapperEnv(envConf: Recordable): ViteEnv {
   return ret;
 }
 
-export function nodePolyfillAlias() {
-  const polyfills = {
-    url: 'url',
-    stream: 'stream',
-    assert: 'assert',
-    querystring: 'qs',
-    // buffer: 'buffer-es6',
-    // util: 'util',
-    // sys: 'util',
-    // events: 'events',
-    // path: 'path',
-    // punycode: 'punycode',
-    // string_decoder: 'string-decoder',
-    // http: 'http',
-    // https: 'http',
-    // os: 'os',
-    // constants: 'constants',
-    // _stream_duplex: 'readable-stream/duplex',
-    // _stream_passthrough: 'readable-stream/passthrough',
-    // _stream_readable: 'readable-stream/readable',
-    // _stream_writable: 'readable-stream/writable',
-    // _stream_transform: 'readable-stream/transform',
-    // timers: 'timers',
-    // console: 'console',
-    // vm: 'vm',
-    // zlib: 'zlib',
-    // tty: 'tty',
-    // domain: 'domain',
-  };
+export function packedFileAlias(isBuild: boolean) {
+  const alias = {};
 
-  const aliases: Recordable = {};
+  if (isBuild) {
+    const packsFolder = path.resolve(__dirname, '../../src/packs');
+    const distFolder = path.resolve(__dirname, '../webpack/dist');
 
-  Object.entries(polyfills).forEach(([name, lib]) => {
-    aliases[name] = `rollup-plugin-node-polyfills/polyfills/${lib}`;
-  });
+    glob.sync(`${packsFolder}/**/*.{js,ts}`).map((file) => {
+      const filePath = path.parse(file);
+      const libName = filePath.name.replace('--', '/');
+      alias[libName] = path.resolve(distFolder, `${filePath.name}.js`);
+    });
+  }
 
-  return aliases;
+  return alias;
 }
