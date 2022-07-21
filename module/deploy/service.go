@@ -121,11 +121,11 @@ func (g *ServiceImpl) QueryGraphStatus(serviceName ...string) (int, error) {
 		Get(config.HttpGraphStatus)
 	if err != nil {
 		runtime.LogError(g.ctx, "DeployTheGraph http error:"+err.Error())
-		return 3, err
+		return config.RequestStatusFailed, err
 	}
 	if !res.IsSuccess() {
 		runtime.LogError(g.ctx, "DeployTheGraph Response error: "+res.Status())
-		return 3, errors.New(fmt.Sprintf("Query status request failed. The request status is:%s", res.Status()))
+		return config.RequestStatusFailed, errors.New(fmt.Sprintf("Query status request failed. The request status is:%s", res.Status()))
 	}
 	return data.Result, nil
 }
@@ -143,7 +143,7 @@ func (s *ServiceImpl) queryDeployStatus() {
 			if result == nil {
 				return
 			}
-		} else if res == 3 {
+		} else if res == config.RequestStatusFailed {
 			continue
 		} else {
 			if numbers >= 3 {
@@ -156,11 +156,13 @@ func (s *ServiceImpl) queryDeployStatus() {
 }
 
 func (s *ServiceImpl) closeP2p() {
-	data := s.p2pServer.GetLinks()
+	data := s.p2pServer.GetProviderLinks()
 	res := *data
 	if len(res) > 0 {
 		for _, value := range res {
-			s.p2pServer.Close(value.TargetAddress)
+			if !value.Status {
+				s.p2pServer.Close(value.TargetAddress)
+			}
 		}
 	}
 }
