@@ -5,7 +5,7 @@
         {{ deployInfo.staking.agentAddress }}
       </DescriptionsItem>
       <DescriptionsItem :label="t('applications.reward.income')">
-        <label> {{ income }}</label>
+        <label> {{ displayIncome }}</label>
         <Button class="ml-4" type="primary" @click="withdraw">withdraw</Button>
       </DescriptionsItem>
     </Descriptions>
@@ -16,7 +16,7 @@
   import { useI18n } from '/@/hooks/web/useI18n';
   import { Card, Button, Descriptions, DescriptionsItem } from 'ant-design-vue';
   import { useMessage } from '/@/hooks/web/useMessage';
-  import { computed, ref } from 'vue';
+  import { computed, ref, watch } from 'vue';
   import { buildContract, createWeb3Api, runContractMethod, web3Abi } from '/@/utils/web3Util';
 
   // defines
@@ -31,11 +31,15 @@
 
   // web3 api
   const web3Api = computed(() => {
+    console.log(props.deployInfo);
     const { initialization, staking } = props.deployInfo;
     //'clarify height path primary quantum already turtle plate rely hollow frequent exile'
     const accountMnemonic = initialization.accountMnemonic;
     // 'https://rinkeby.infura.io/v3/bab2a1a435b04c07a488d847cf6788f7'
     const networkUrl = staking.networkUrl;
+
+    console.log('accountMnemonic:', accountMnemonic);
+    console.log('networkUrl: ', networkUrl);
 
     if (accountMnemonic && networkUrl) {
       return createWeb3Api(networkUrl, accountMnemonic);
@@ -86,15 +90,29 @@
           });
 
           console.log('get income :', data);
+          getIncome().then(() => {
+            console.log('refresh income');
+          });
         }
       },
       iconType: 'warning',
     });
   };
 
-  getIncome().then(() => {
-    console.log('get income end');
+  const displayIncome = computed(() => {
+    const api = web3Api.value;
+    console.log('income to wei:', income.value.toString());
+    return api?.utils.fromWei(income.value.toString());
   });
+
+  watch(
+    () => props.deployInfo.staking.agentAddress,
+    (_) => {
+      getIncome().then(() => {
+        console.log('get income end');
+      });
+    },
+  );
 </script>
 
 <style lang="less" scoped>

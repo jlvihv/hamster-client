@@ -24,7 +24,7 @@
         </DescriptionsItem>
       </Descriptions>
     </Card>
-    <Reward :deploy-info="deployInfo" v-if="isAppDeployed" />
+    <Reward :deployInfo="deployInfo" v-if="isAppDeployed" />
     <DeployInfo :deployInfo="deployInfo" v-if="isAppDeployed" />
     <div class="mt-4 text-right">
       <Button type="primary" @click="onClose">{{ t('common.closeText') }}</Button>
