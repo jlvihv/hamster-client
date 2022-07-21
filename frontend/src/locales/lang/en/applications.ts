@@ -20,6 +20,7 @@ export default {
     appInit: 'Application initialization',
     pledgeInfo: 'Pledge information',
     deployInfo: 'Deployment information',
+    rewardInfo: 'Reward information',
   },
   deploy: {
     appDeploy: 'Application Deployment',
@@ -62,5 +63,9 @@ export default {
     selectNetworkAbove: 'Please select a network above',
     generateStakingProxyContract: 'Please generate a staking proxy contract above',
     approveStakingProxyContract: 'Please approve staking proxy contract above',
+  },
+  reward: {
+    account: 'Account',
+    income: 'Income',
   },
 };

@@ -24,6 +24,7 @@
         </DescriptionsItem>
       </Descriptions>
     </Card>
+    <Reward :deploy-info="deployInfo" v-if="isAppDeployed" />
     <DeployInfo :deployInfo="deployInfo" v-if="isAppDeployed" />
     <div class="mt-4 text-right">
       <Button type="primary" @click="onClose">{{ t('common.closeText') }}</Button>
@@ -43,6 +44,7 @@
   import { GetDeployInfo } from '/@wails/go/app/Deploy';
   import { useI18n } from '/@/hooks/web/useI18n';
   import { Card, Descriptions, DescriptionsItem, Button } from 'ant-design-vue';
+  import Reward from '/@/views/modules/applications/application/components/Reward.vue';
 
   const { t } = useI18n();
   const { createErrorModal } = useMessage();

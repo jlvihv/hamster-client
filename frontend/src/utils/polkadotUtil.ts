@@ -123,6 +123,7 @@ export function applyResourceOrder(
 ) {
   return new Promise((resolve, reject) => {
     const { cpu = 4, memory = 8, leaseTerm, publicKey, type = 1 } = options;
+
     const unsubscribe = api.tx.resourceOrder
       .applyFreeResource(cpu, memory, leaseTerm, publicKey, type)
       .signAndSend(keyringPair, (result) => {
@@ -145,6 +146,9 @@ export function applyResourceOrder(
         if (result.isCompleted) {
           unsubscribe();
         }
+      })
+      .catch((e) => {
+        reject(e);
       });
   });
 }
