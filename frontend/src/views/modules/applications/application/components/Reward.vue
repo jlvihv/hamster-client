@@ -3,6 +3,7 @@
     <Descriptions :column="1" :title="t('applications.see.rewardInfo')" bordered>
       <DescriptionsItem :label="t('applications.reward.account')">
         {{ deployInfo.staking.agentAddress }}
+        <Button class="mr-1" type="primary" :loading="refresh" @click="getIncome">refresh</Button>
       </DescriptionsItem>
       <DescriptionsItem :label="t('applications.reward.income')">
         <label> {{ displayIncome }}</label>
@@ -38,6 +39,7 @@
 
   const income = ref(0);
   const balance = ref(0);
+  const refresh = ref(false);
 
   // web3 api
   const web3Api = computed(() => {
@@ -61,6 +63,7 @@
   const getIncome = async () => {
     console.log('get income start');
 
+    refresh.value = true;
     const api = web3Api.value;
 
     const address = props.deployInfo.staking.agentAddress;
@@ -80,6 +83,8 @@
       console.log('balance_data:', balance_data);
 
       balance.value = balance_data;
+
+      refresh.value = false;
 
       const contract = buildContract(api, web3Abi.stakeDistributionProxyAbi, address);
 
