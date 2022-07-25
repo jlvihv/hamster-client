@@ -22,7 +22,7 @@ func (a *ServiceImpl) AddApplication(application *AddApplicationParam) (bool, er
 	var applyData Application
 	err := a.db.Where("name=?", application.Name).First(&applyData).Error
 	if err == gorm.ErrRecordNotFound {
-		applyData.Describe = application.Describe
+		applyData.Plugin = application.Plugin
 		applyData.Name = application.Name
 		a.db.Create(&applyData)
 		return true, nil
@@ -31,9 +31,9 @@ func (a *ServiceImpl) AddApplication(application *AddApplicationParam) (bool, er
 }
 
 // UpdateApplication update application field
-func (a *ServiceImpl) UpdateApplication(id int, name string, des string) (bool, error) {
+func (a *ServiceImpl) UpdateApplication(id int, name string, plugin string) (bool, error) {
 	var applyData Application
-	result := a.db.Model(applyData).Where("id = ?", id).Updates(Application{Name: name, Describe: des})
+	result := a.db.Model(applyData).Where("id = ?", id).Updates(Application{Name: name, Plugin: plugin})
 	if result.Error != nil {
 		return false, result.Error
 	}
@@ -60,7 +60,7 @@ func (a *ServiceImpl) QueryApplicationById(id int) (ApplyVo, error) {
 	}
 	resultData.ID = data.ID
 	resultData.Name = data.Name
-	resultData.Describe = data.Describe
+	resultData.Plugin = data.Plugin
 	resultData.CreatedAt = data.CreatedAt
 	resultData.UpdatedAt = data.UpdatedAt
 	resultData.Status = data.Status

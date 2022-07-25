@@ -79,8 +79,14 @@
         <FormItem :label="t('applications.index.nameText')" name="name">
           <Input :allowClear="true" class="input-width" v-model:value="formData.name" />
         </FormItem>
-        <FormItem :label="t('applications.index.desText')" name="describe">
-          <Textarea :allowClear="true" v-model:value="formData.describe" />
+        <FormItem :label="t('applications.index.plugText')" name="plugin">
+          <Select
+            :allowClear="true"
+            class="input-width"
+            v-model:value="formData.plugin"
+            :options="pluginOptions"
+            :placeholder="t('applications.index.selectPluginInfo')"
+          />
         </FormItem>
       </Form>
     </Modal>
@@ -100,6 +106,7 @@
     UpdateApplication,
     DeleteApplication,
   } from '/@wails/go/app/Application';
+  import { pluginConfigs } from '/@/utils/graphDeployUtil';
   import { PlusOutlined, FormOutlined, DeleteOutlined, EyeOutlined } from '@ant-design/icons-vue';
   import {
     Card,
@@ -108,7 +115,6 @@
     FormItem,
     Input,
     Select,
-    Textarea,
     Table,
     Modal,
     Popconfirm,
@@ -117,6 +123,8 @@
   const { t } = useI18n();
   const { notification, createErrorModal } = useMessage();
   const statusOptions = DictCodeEnum.ApplicationDeployStatus.getOptions();
+
+  const pluginOptions = pluginConfigs.map(({ plugin }) => ({ label: plugin, value: plugin }));
 
   const searchForm = reactive({
     status: DictCodeEnum.ApplicationDeployStatus_All.value, // Default All
@@ -127,13 +135,11 @@
   const operateType = ref('add');
   // Form data
   const formRef = ref();
-  const formData = reactive<{ id?: number; name: string; describe: string }>({
-    name: '', //Application name
-    describe: '', //Application description
-  });
+  const formData = reactive<{ id?: number; name: string; plugin: string }>({});
   // Form rules
   const formRules = computed(() => ({
     name: [{ message: t('applications.index.nameText'), trigger: 'change', required: true }],
+    plugin: [{ message: t('applications.index.plugText'), trigger: 'change', required: true }],
   }));
 
   const loading = ref(false);
@@ -155,11 +161,11 @@
       key: 'name',
     },
     {
-      title: t('applications.index.desText'),
-      dataIndex: 'describe',
+      title: t('applications.index.plugText'),
+      dataIndex: 'plugin',
       align: 'center',
       ellipsis: 'fixed',
-      key: 'describe',
+      key: 'plugin',
     },
     {
       title: t('applications.index.addTimeText'),
@@ -286,8 +292,8 @@
     visible.value = true;
   }
   async function editApplication(data) {
-    const { id, name, describe } = data;
-    Object.assign(formData, { id, name, describe });
+    const { id, name, plugin } = data;
+    Object.assign(formData, { id, name, plugin });
 
     operateType.value = 'edit';
     visible.value = true;
