@@ -2,25 +2,33 @@
   <Card>
     <Descriptions :column="1" :title="t('applications.see.rewardInfo')" bordered>
       <DescriptionsItem :label="t('applications.reward.account')">
-        {{ deployInfo.staking.agentAddress }}
-        <Button class="mr-1" type="primary" :loading="refresh" @click="getIncome">refresh</Button>
+        <LoadingOutlined v-if="isRefreshing" />
+        <template v-else>
+          {{ deployInfo.staking.agentAddress }}
+          <Button class="ml-3" type="primary" @click="getIncome">
+            {{ t('applications.reward.refresh') }}
+          </Button>
+        </template>
       </DescriptionsItem>
       <DescriptionsItem :label="t('applications.reward.income')">
-        <label> {{ displayIncome }}</label>
-        <Button class="ml-4" type="primary" @click="withdraw">withdraw</Button>
+        <label> {{ income }}</label>
+        <Button class="ml-3" type="primary" @click="withdraw">
+          {{ t('applications.reward.withdraw') }}
+        </Button>
       </DescriptionsItem>
-      <DescriptionsItem label="Balance">
-        {{ displayBalance }}
+      <DescriptionsItem :label="t('applications.reward.balance')">
+        {{ balance }}
       </DescriptionsItem>
     </Descriptions>
   </Card>
 </template>
 
 <script lang="ts" setup>
+  import { computed, ref, watchEffect } from 'vue';
   import { useI18n } from '/@/hooks/web/useI18n';
   import { Card, Button, Descriptions, DescriptionsItem } from 'ant-design-vue';
   import { useMessage } from '/@/hooks/web/useMessage';
-  import { computed, ref, watch } from 'vue';
+  import { LoadingOutlined } from '@ant-design/icons-vue';
   import {
     buildContract,
     createWeb3Api,
@@ -39,19 +47,13 @@
 
   const income = ref(0);
   const balance = ref(0);
-  const refresh = ref(false);
+  const isRefreshing = ref(false);
 
   // web3 api
   const web3Api = computed(() => {
-    console.log(props.deployInfo);
     const { initialization, staking } = props.deployInfo;
-    //'clarify height path primary quantum already turtle plate rely hollow frequent exile'
     const accountMnemonic = initialization.accountMnemonic;
-    // 'https://rinkeby.infura.io/v3/bab2a1a435b04c07a488d847cf6788f7'
     const networkUrl = staking.networkUrl;
-
-    console.log('accountMnemonic:', accountMnemonic);
-    console.log('networkUrl: ', networkUrl);
 
     if (accountMnemonic && networkUrl) {
       return createWeb3Api(networkUrl, accountMnemonic);
@@ -63,7 +65,7 @@
   const getIncome = async () => {
     console.log('get income start');
 
-    refresh.value = true;
+    isRefreshing.value = true;
     const api = web3Api.value;
 
     const address = props.deployInfo.staking.agentAddress;
@@ -82,9 +84,9 @@
 
       console.log('balance_data:', balance_data);
 
-      balance.value = balance_data;
+      balance.value = api.utils.fromWei(balance_data.toString());
 
-      refresh.value = false;
+      isRefreshing.value = false;
 
       const contract = buildContract(api, web3Abi.stakeDistributionProxyAbi, address);
 
@@ -97,11 +99,13 @@
       });
 
       console.log('get income : ', data);
-      income.value = data;
+      income.value = api.utils.fromWei(data.toString());
     }
+
+    console.log('get income end');
   };
 
-  const withdraw = async () => {
+  const withdraw = () => {
     createConfirm({
       title: 'Confirm',
       content: 'Are you sure to withdraw ?',
@@ -129,25 +133,11 @@
     });
   };
 
-  const displayIncome = computed(() => {
-    const api = web3Api.value;
-    console.log('income to wei:', income.value.toString());
-    return api?.utils.fromWei(income.value.toString());
+  watchEffect(() => {
+    if (props.deployInfo.staking.agentAddress) {
+      setTimeout(getIncome, 100);
+    }
   });
-
-  const displayBalance = computed(() => {
-    const api = web3Api.value;
-    return api?.utils.fromWei(balance.value.toString());
-  });
-
-  watch(
-    () => props.deployInfo.staking.agentAddress,
-    (_) => {
-      getIncome().then(() => {
-        console.log('get income end');
-      });
-    },
-  );
 </script>
 
 <style lang="less" scoped>

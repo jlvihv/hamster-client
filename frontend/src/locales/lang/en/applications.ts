@@ -31,8 +31,10 @@ export default {
     leaseTermPlaceholder: 'Please enter lease term (hours)',
     publicKey: 'User SSH Public Key',
     publicKeyPlaceholder: 'Please enter your SSH public key',
+    publicKeyNotValid: 'SSH public key is not valid',
     importAccount: 'Account Mnemonic',
     importAccountPlaceholder: 'Please enter account mnemonic',
+    importAccountNotValid: 'Account mnemonic is not valid',
     selectNetWork: 'Select Network',
     selectNetWorkInfo: 'Please select a network',
     addressNetWork: 'Network Address',
@@ -67,6 +69,9 @@ export default {
   reward: {
     account: 'Account',
     income: 'Income',
+    refresh: 'Refresh',
+    withdraw: 'Withdraw',
+    balance: 'Balance',
   },
   cli: {
     p2pReconnectionError: 'P2P reconnection failed',

@@ -39,6 +39,7 @@
   import { useMessage } from '/@/hooks/web/useMessage';
   import { SaveDeployInfo } from '/@wails/go/app/Deploy';
   import { createRule } from '/@/utils/formUtil';
+  import { sshPubKeyRegex } from '/@/utils/constant';
   import { Form, FormItem, Button, Input, Textarea } from 'ant-design-vue';
 
   // defines
@@ -73,8 +74,27 @@
 
   const formRules = computed(() => ({
     leaseTerm: [createRule(t('applications.deploy.leaseTermPlaceholder'))],
-    publicKey: [createRule(t('applications.deploy.publicKeyPlaceholder'))],
-    accountMnemonic: [createRule(t('applications.deploy.importAccountPlaceholder'))],
+    publicKey: [
+      createRule(t('applications.deploy.publicKeyPlaceholder')),
+      createRule(t('applications.deploy.publicKeyNotValid'), {
+        validator: (rule, publicKey) => {
+          if (!sshPubKeyRegex.test(publicKey)) {
+            throw new Error(rule.message);
+          }
+        },
+      }),
+    ],
+    accountMnemonic: [
+      createRule(t('applications.deploy.importAccountPlaceholder')),
+      createRule(t('applications.deploy.importAccountNotValid'), {
+        validator: (rule, accountMnemonic) => {
+          var words = accountMnemonic.trim().split(' ');
+          if (words.length != 12 && words.length != 24) {
+            throw new Error(rule.message);
+          }
+        },
+      }),
+    ],
   }));
 
   const handleSubmit = async () => {
