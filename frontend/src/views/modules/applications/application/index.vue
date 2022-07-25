@@ -1,6 +1,6 @@
 <template>
   <PageWrapper>
-    <Card class="!mb-4">
+    <Card class="!mb-4" :loading="!appInfo.id">
       <Descriptions :title="t('applications.see.appInfo')" bordered>
         <template #extra>
           <router-link v-if="isAppDeployed" :to="`/applications/${applicationId}/cli`"
