@@ -25,7 +25,7 @@ type GraphParameterVo struct {
 	Mnemonic        string    `json:"mnemonic"`        // mnemonic
 	ApplicationId   uint      `json:"applicationId"`   //application id
 	Name            string    `json:"name"`            //apply name
-	Describe        string    `json:"describe"`        //apply describe
+	Plugin          string    `json:"plugin"`          //apply plugin
 	Status          int       `json:"status"`          //apply status 0: not deploy 1:deployed 2:ALL
 	CreatedAt       time.Time `json:"createdAt"`
 	UpdatedAt       time.Time `json:"updatedAt"`

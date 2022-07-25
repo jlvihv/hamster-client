@@ -47,7 +47,7 @@ func (g *ServiceImpl) QueryParamByApplyId(applicationId int) (GraphParameterVo, 
 	result.UpdatedAt = data.UpdatedAt
 	result.CreatedAt = data.CreatedAt
 	result.Name = data.Application.Name
-	result.Describe = data.Application.Describe
+	result.Plugin = data.Application.Plugin
 	result.ApplicationId = data.Application.ID
 	result.Mnemonic = data.Mnemonic
 	result.Status = data.Application.Status

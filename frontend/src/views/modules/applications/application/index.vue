@@ -19,8 +19,8 @@
         <DescriptionsItem :label="DictCodeEnum.ApplicationDeployStatus.getLabel()">
           {{ DictCodeEnum.ApplicationDeployStatus.getOptionLabel(appInfo.status) }}
         </DescriptionsItem>
-        <DescriptionsItem :label="t('applications.index.desText')">
-          {{ appInfo.describe }}
+        <DescriptionsItem :label="t('applications.index.plugText')">
+          {{ appInfo.plugin }}
         </DescriptionsItem>
       </Descriptions>
     </Card>
@@ -57,7 +57,7 @@
     name: '',
     createdAt: '',
     status: 0,
-    describe: '',
+    plugin: '',
   });
   const deployInfo = ref<{
     initialization: Recordable;

@@ -4,7 +4,7 @@ export default {
     nameText: 'Name',
     statusText: 'Status',
     noText: 'No',
-    desText: 'Description',
+    plugText: 'Plugin',
     addTimeText: 'Add Time',
     operText: 'Operation',
     disabledAppInfo: 'Sure to disable this application data?',
@@ -14,6 +14,7 @@ export default {
     undeployed: 'Undeployed',
     deployed: 'Deployed',
     all: 'All',
+    selectPluginInfo: 'Select the deployment plugin',
   },
   see: {
     appInfo: 'Application information',
@@ -25,7 +26,7 @@ export default {
   deploy: {
     appDeploy: 'Application Deployment',
     stepTitle1: 'Thegraph Initialization',
-    stepTitle2: 'Thegraph Staking',
+    stepTitle2: 'Thegraph Staking And Depolyment',
     stepTitle3: 'Thegraph Depolyment',
     leaseTerm: 'Lease Term',
     leaseTermPlaceholder: 'Please enter lease term (hours)',

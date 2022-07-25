@@ -54,7 +54,6 @@
   import { useMessage } from '/@/hooks/web/useMessage';
   import InitForm from './components/InitForm.vue';
   import StakeForm from './components/StakeForm.vue';
-  import DeployForm from './components/DeployForm.vue';
   import DeployInfo from '../application/components/DeployInfo.vue';
   import { GetDeployInfo, DeployTheGraph } from '/@wails/go/app/Deploy';
   import { useSettingStore } from '/@/store/modules/setting';
@@ -80,7 +79,7 @@
   });
 
   // steps
-  const steps = [InitForm, StakeForm, DeployForm];
+  const steps = [InitForm, StakeForm];
   const currentStep = ref(0);
   const handleNext = () => {
     if (currentStep.value === steps.length - 1) {

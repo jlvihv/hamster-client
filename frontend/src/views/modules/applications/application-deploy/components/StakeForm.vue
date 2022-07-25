@@ -81,6 +81,7 @@
     buildContract,
     runContractMethod,
   } from '/@/utils/web3Util';
+  import { deployData } from '/@/utils/graphDeployUtil';
   import { SaveDeployInfo } from '/@wails/go/app/Deploy';
   import { useMessage } from '/@/hooks/web/useMessage';
   import { Form, FormItem, Button, Input, InputNumber, Select, Modal } from 'ant-design-vue';
@@ -249,8 +250,8 @@
   const handleSubmit = async () => {
     await formRef.value?.validate();
 
-    const newDeployInfo = toRaw({ ...props.deployInfo, staking: formData });
-
+    deployData.indexerAddress = formData.agentAddress;
+    const newDeployInfo = toRaw({ ...props.deployInfo, staking: formData, deployment: deployData });
     await SaveDeployInfo(props.applicationId, JSON.stringify(newDeployInfo));
 
     emits('update:deployInfo', newDeployInfo);
