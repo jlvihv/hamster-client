@@ -69,10 +69,16 @@ export default {
   },
   reward: {
     account: 'Account',
+    stake: 'Stake Total',
     income: 'Income',
     refresh: 'Refresh',
     withdraw: 'Withdraw',
     balance: 'Balance',
+    unStake: 'UnStake',
+    unStakeModalTitle: 'UnStake',
+    unStaking: 'UnStaking Amount',
+    unStakeAmount: 'UnStake Amount',
+    unStakePlaceholder: 'Please enter the unstake amount',
   },
   cli: {
     p2pReconnectionError: 'P2P reconnection failed',
