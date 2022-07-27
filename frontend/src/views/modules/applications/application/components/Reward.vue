@@ -10,9 +10,12 @@
           </Button>
         </template>
       </DescriptionsItem>
-      <DescriptionsItem :label="t('applications.reward.stake')">
+      <DescriptionsItem :label="t('applications.reward.stakeTotal')">
         <label> {{ stakeTotal }}</label>
-        <Button class="ml-3" type="primary" @click="showUnStakeModal" v-if="stakeTotal != '0'">
+        <Button class="ml-3" type="primary" @click="showModal('stake')" v-if="stakeTotal != '0'">
+          {{ t('applications.reward.stake') }}
+        </Button>
+        <Button class="ml-3" type="primary" @click="showModal('unStake')" v-if="stakeTotal != '0'">
           {{ t('applications.reward.unStake') }}
         </Button>
       </DescriptionsItem>
@@ -35,14 +38,29 @@
   </Card>
   <Modal
     v-model:visible="unStakeModalVisible"
-    :title="t('applications.reward.unStakeModalTitle')"
+    :title="
+      operateType === 'stake'
+        ? t('applications.reward.stakeModalTitle')
+        : t('applications.reward.unStakeModalTitle')
+    "
     :footer="null"
   >
     <Form layout="vertical" :model="formData" :rules="formRules" ref="formRef">
-      <FormItem :label="t('applications.reward.unStakeAmount')" name="unStakeParam">
+      <FormItem
+        :label="
+          operateType === 'stake'
+            ? t('applications.reward.stakeAmount')
+            : t('applications.reward.unStakeAmount')
+        "
+        name="unStakeParam"
+      >
         <InputNumber
           v-model:value="formData.unStakeParam"
-          :placeholder="t('applications.reward.unStakePlaceholder')"
+          :placeholder="
+            operateType === 'stake'
+              ? t('applications.reward.stakePlaceholder')
+              : t('applications.reward.unStakePlaceholder')
+          "
           :min="1"
         />
       </FormItem>
@@ -50,7 +68,7 @@
         <Button
           class="w-32 mt-6 ml-4"
           type="primary"
-          @click="unStake"
+          @click="handleOk"
           :loading="unStakeModalLoading"
         >
           {{ t('common.confirmText') }}
@@ -91,7 +109,7 @@
   const { t } = useI18n();
 
   const { createConfirm, createErrorModal } = useMessage();
-
+  const operateType = ref('stake');
   const income = ref('0');
   const balance = ref(0);
   const isRefreshing = ref(false);
@@ -109,9 +127,18 @@
   }));
   const validateAmount = (rule, value) => {
     if (!value || value == 0) {
-      return Promise.reject(new Error(t('applications.reward.unStakePlaceholder')));
-    } else if (Number(stakeTotal.value) - value > 0 && Number(stakeTotal.value) - value < 100000) {
-      return Promise.reject(new Error(t('applications.reward.minimumIndexerStake')));
+      return Promise.reject(
+        new Error(
+          operateType.value === 'stake'
+            ? t('applications.reward.stakePlaceholder')
+            : t('applications.reward.unStakePlaceholder'),
+        ),
+      );
+    }
+    if (operateType.value != 'stake') {
+      if (Number(stakeTotal.value) - value > 0 && Number(stakeTotal.value) - value < 100000) {
+        return Promise.reject(new Error(t('applications.reward.minimumIndexerStake')));
+      }
     }
     return Promise.resolve();
   };
@@ -239,9 +266,45 @@
       iconType: 'warning',
     });
   };
-  const showUnStakeModal = () => {
+  const showModal = (data) => {
+    operateType.value = data;
     formData.unStakeParam = undefined;
     unStakeModalVisible.value = true;
+  };
+  const handleOk = () => {
+    if (operateType.value === 'stake') {
+      stake();
+    } else {
+      unStake();
+    }
+  };
+  const stake = async () => {
+    await formRef.value?.validate();
+    unStakeModalLoading.value = true;
+    const api = web3Api.value;
+    const address = props.deployInfo.staking.agentAddress;
+    if (api && api.__config) {
+      const contract = buildContract(api, web3Abi.stakeDistributionProxyAbi, address);
+      try {
+        await runContractMethod({
+          api,
+          contract,
+          method: 'rePledge',
+          methodArgs: [api.utils.toWei(formData.unStakeParam.toString())],
+          type: 'send',
+        });
+        unStakeModalLoading.value = false;
+        unStakeModalVisible.value = false;
+        formData.unStakeParam = undefined;
+        await getStakeTotal();
+      } catch (e: any) {
+        unStakeModalLoading.value = false;
+        createErrorModal({
+          title: t('common.errorTip'),
+          content: e.message,
+        });
+      }
+    }
   };
   const unStake = async () => {
     await formRef.value?.validate();
