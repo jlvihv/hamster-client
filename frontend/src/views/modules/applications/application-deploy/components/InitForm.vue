@@ -79,8 +79,9 @@
       createRule(t('applications.deploy.publicKeyNotValid'), {
         validator: (rule, publicKey) => {
           if (!sshPubKeyRegex.test(publicKey)) {
-            throw new Error(rule.message);
+            return Promise.reject(new Error(rule.message));
           }
+          return Promise.resolve();
         },
       }),
     ],
@@ -90,8 +91,9 @@
         validator: (rule, accountMnemonic) => {
           var words = accountMnemonic.trim().split(' ');
           if (words.length != 12 && words.length != 24) {
-            throw new Error(rule.message);
+            return Promise.reject(new Error(rule.message));
           }
+          return Promise.resolve();
         },
       }),
     ],
