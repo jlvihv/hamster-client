@@ -79,6 +79,7 @@ export default {
     unStaking: 'UnStaking Amount',
     unStakeAmount: 'UnStake Amount',
     unStakePlaceholder: 'Please enter the unstake amount',
+    minimumIndexerStake: 'Minimum pledge 100000',
   },
   cli: {
     p2pReconnectionError: 'P2P reconnection failed',
