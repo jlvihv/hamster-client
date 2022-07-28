@@ -61,6 +61,7 @@ func (s *ServiceImpl) DeployTheGraph(id int, jsonData string) (bool, error) {
 	fmt.Println(info.PeerId)
 	proErr := s.p2pServer.ProLink(info.PeerId)
 	if proErr != nil {
+		runtime.LogError(s.ctx, "provider link error:"+proErr.Error())
 		return false, proErr
 	}
 	fmt.Println("p2p end")
@@ -160,9 +161,7 @@ func (s *ServiceImpl) closeP2p() {
 	res := *data
 	if len(res) > 0 {
 		for _, value := range res {
-			if !value.Status {
-				s.p2pServer.Close(value.TargetAddress)
-			}
+			s.p2pServer.Close(value.TargetAddress)
 		}
 	}
 }
