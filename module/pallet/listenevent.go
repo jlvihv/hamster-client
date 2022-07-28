@@ -136,8 +136,8 @@ func (c *ChainListener) watchEvent(ctx ctx.Context) {
 						// order successfully created
 						var user account.Account
 						var wallet wallet.Wallet
-						walletResult := c.db.First(&wallet).Error
-						if walletResult == nil {
+						walletResult := c.db.First(&wallet)
+						if walletResult.Error == nil {
 							publicKey, _ := AddressToPublicKey(wallet.Address)
 							key, err := types.CreateStorageKey(meta, "ResourceOrder", "ApplyUsers", publicKey)
 							if err != nil {
