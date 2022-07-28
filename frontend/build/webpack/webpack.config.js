@@ -9,7 +9,7 @@ const webpackEntries = () => {
   const entries = {};
   const packsFolder = relatedResolve('../../src/packs');
 
-  glob.sync(`${packsFolder}/**/*.{js,ts}`).map((file) => {
+  glob.sync('/**/*.{js,ts}', { root: packsFolder }).map((file) => {
     const filePath = path.parse(file);
     entries[filePath.name] = relatedResolve(file);
   });
