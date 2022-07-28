@@ -133,37 +133,39 @@
     passwordModalLoading.value = true;
 
     const polkadotApi = await createPolkadotApi(wsUrl);
-    const keyPair = createKeyPair(JSON.parse(json), password.value);
+    if (polkadotApi.isConnected) {
+      const keyPair = createKeyPair(JSON.parse(json), password.value);
 
-    if (!keyPair) {
-      createErrorModal({
-        title: t('common.errorTip'),
-        content: t('applications.deploy.passwordError'),
-      });
+      if (!keyPair) {
+        createErrorModal({
+          title: t('common.errorTip'),
+          content: t('applications.deploy.passwordError'),
+        });
 
-      passwordModalLoading.value = false;
-      return;
-    }
+        passwordModalLoading.value = false;
+        return;
+      }
 
-    try {
-      await cancelResourceOrder(polkadotApi, keyPair);
-      const { leaseTerm, publicKey } = deployInfo.value.initialization;
-      const result = await applyResourceOrder(polkadotApi, keyPair, { leaseTerm, publicKey });
+      try {
+        await cancelResourceOrder(polkadotApi, keyPair);
+        const { leaseTerm, publicKey } = deployInfo.value.initialization;
+        const result = await applyResourceOrder(polkadotApi, keyPair, { leaseTerm, publicKey });
 
-      console.log(result);
+        console.log(result);
 
-      // Call deploy API
-      await DeployTheGraph(applicationId, JSON.stringify({}));
-      router.push('/applications/' + applicationId);
-    } catch (error: any) {
-      console.log('Error', error);
+        // Call deploy API
+        await DeployTheGraph(applicationId, JSON.stringify({}));
+        router.push('/applications/' + applicationId);
+      } catch (error: any) {
+        console.log('Error', error);
 
-      createErrorModal({
-        title: t('common.errorTip'),
-        content: t('applications.deploy.deployFailed'),
-      });
-    } finally {
-      passwordModalLoading.value = false;
+        createErrorModal({
+          title: t('common.errorTip'),
+          content: t('applications.deploy.deployFailed'),
+        });
+      } finally {
+        passwordModalLoading.value = false;
+      }
     }
   };
 </script>
