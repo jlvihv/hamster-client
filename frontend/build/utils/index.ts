@@ -31,7 +31,7 @@ export function packedFileAlias(isBuild: boolean) {
     const packsFolder = path.resolve(__dirname, '../../src/packs');
     const distFolder = path.resolve(__dirname, '../webpack/dist');
 
-    glob.sync(`${packsFolder}/**/*.{js,ts}`).map((file) => {
+    glob.sync('/**/*.{js,ts}', { root: packsFolder }).map((file) => {
       const filePath = path.parse(file);
       const libName = filePath.name.replace('--', '/');
       alias[libName] = path.resolve(distFolder, `${filePath.name}.js`);
