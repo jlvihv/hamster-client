@@ -8,13 +8,13 @@
         :placeholder="t('applications.deploy.leaseTermPlaceholder')"
       />
     </FormItem>
-    <FormItem :label="t('applications.deploy.publicKey')" name="publicKey">
-      <Textarea
-        class="input-width"
-        v-model:value="formData.publicKey"
-        :placeholder="t('applications.deploy.publicKeyPlaceholder')"
-      />
-    </FormItem>
+    <!--    <FormItem :label="t('applications.deploy.publicKey')" name="publicKey">-->
+    <!--      <Textarea-->
+    <!--        class="input-width"-->
+    <!--        v-model:value="formData.publicKey"-->
+    <!--        :placeholder="t('applications.deploy.publicKeyPlaceholder')"-->
+    <!--      />-->
+    <!--    </FormItem>-->
     <FormItem :label="t('applications.deploy.importAccount')" name="accountMnemonic">
       <Input
         :allowClear="true"
@@ -39,8 +39,8 @@
   import { useMessage } from '/@/hooks/web/useMessage';
   import { SaveDeployInfo } from '/@wails/go/app/Deploy';
   import { createRule } from '/@/utils/formUtil';
-  import { sshPubKeyRegex } from '/@/utils/constant';
-  import { Form, FormItem, Button, Input, Textarea } from 'ant-design-vue';
+  // import { sshPubKeyRegex } from '/@/utils/constant';
+  import { Form, FormItem, Button, Input } from 'ant-design-vue';
 
   // defines
   const props = defineProps({
@@ -74,17 +74,17 @@
 
   const formRules = computed(() => ({
     leaseTerm: [createRule(t('applications.deploy.leaseTermPlaceholder'))],
-    publicKey: [
-      createRule(t('applications.deploy.publicKeyPlaceholder')),
-      createRule(t('applications.deploy.publicKeyNotValid'), {
-        validator: (rule, publicKey) => {
-          if (!sshPubKeyRegex.test(publicKey)) {
-            return Promise.reject(new Error(rule.message));
-          }
-          return Promise.resolve();
-        },
-      }),
-    ],
+    // publicKey: [
+    //   createRule(t('applications.deploy.publicKeyPlaceholder')),
+    //   createRule(t('applications.deploy.publicKeyNotValid'), {
+    //     validator: (rule, publicKey) => {
+    //       if (!sshPubKeyRegex.test(publicKey)) {
+    //         return Promise.reject(new Error(rule.message));
+    //       }
+    //       return Promise.resolve();
+    //     },
+    //   }),
+    // ],
     accountMnemonic: [
       createRule(t('applications.deploy.importAccountPlaceholder')),
       createRule(t('applications.deploy.importAccountNotValid'), {
