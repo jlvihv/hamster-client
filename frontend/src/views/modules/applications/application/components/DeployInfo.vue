@@ -4,9 +4,9 @@
       <DescriptionsItem :label="t('applications.deploy.leaseTerm')">
         {{ deployInfo.initialization.leaseTerm }}
       </DescriptionsItem>
-      <DescriptionsItem :label="t('applications.deploy.publicKey')">
-        {{ deployInfo.initialization.publicKey }}
-      </DescriptionsItem>
+      <!--      <DescriptionsItem :label="t('applications.deploy.publicKey')">-->
+      <!--        {{ deployInfo.initialization.publicKey }}-->
+      <!--      </DescriptionsItem>-->
       <DescriptionsItem :label="t('applications.deploy.importAccount')">
         {{ deployInfo.initialization.accountMnemonic }}
       </DescriptionsItem>

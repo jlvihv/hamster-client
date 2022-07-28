@@ -12,7 +12,6 @@
       >
         <FormItem :label="t('settings.index.pleaseInputWsUrl')" name="wsUrl">
           <Input
-            :default-value="wsUrl"
             v-model:value="formData.wsUrl"
             :placeholder="t('settings.index.pleaseInputWsUrl')"
           />
@@ -24,7 +23,7 @@
         <FormItem
           :label="t('settings.index.accountBalance')"
           name="balance"
-          v-if="wsUrl && address"
+          v-if="config.wsUrl && address"
         >
           <LoadingOutlined v-if="balance.loading" />
           <span class="text-[#666666]" v-else>{{ balance.value }}</span>
@@ -48,27 +47,31 @@
   import { createPolkadotApi, formatBalance } from '/@/utils/polkadotUtil';
   import { LoadingOutlined } from '@ant-design/icons-vue';
   import { Button, Form, FormItem, Input, Card } from 'ant-design-vue';
+  import { GetSetting, SettingWsUrl } from '/@wails/go/app/Setting';
 
   const { t } = useI18n();
   const settingStore = useSettingStore();
 
   const address = computed(() => settingStore.walletInfo?.address);
-  const wsUrl = computed(() => settingStore.config?.wsUrl);
+  const config = reactive({
+    wsUrl: '',
+  });
   const balance = reactive({ loading: false, value: '' });
 
   // Fetching balance once wsUrl and address changed
   watchEffect(async (onInvalidate) => {
-    if (!address.value || !wsUrl.value) return;
-
+    if (!address.value || !config.wsUrl) return;
     balance.loading = true;
 
-    const api = await createPolkadotApi(wsUrl.value);
-    const { data: balanceData } = await api.query.system.account(address.value);
+    const api = await createPolkadotApi(config.wsUrl);
+    if (api.isConnected) {
+      const { data: balanceData } = await api.query.system.account(address.value);
 
-    balance.value = formatBalance(balanceData.free);
-    balance.loading = false;
+      balance.value = formatBalance(balanceData.free);
+      balance.loading = false;
 
-    onInvalidate(() => api?.disconnect());
+      onInvalidate(() => api?.disconnect());
+    }
   });
 
   const formRef = ref();
@@ -91,14 +94,20 @@
     if (!formData.wsUrl) return;
 
     try {
-      settingStore.saveWsUrlAction(formData.wsUrl);
+      await SettingWsUrl(formData.wsUrl);
+      settingStore.getConfigAction();
+      await getWsUrl();
     } catch (err) {
       console.log('error', err);
     }
   }
-
+  const getWsUrl = async () => {
+    const data = await GetSetting();
+    if (!(data instanceof Error)) Object.assign(config, data);
+    formData.wsUrl = config.wsUrl;
+  };
   onMounted(() => {
-    settingStore.getConfigAction();
+    getWsUrl();
   });
 </script>
 

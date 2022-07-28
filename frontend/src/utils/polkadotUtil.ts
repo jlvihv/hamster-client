@@ -6,8 +6,11 @@ import { Keyring } from '@polkadot/keyring';
 export type { SubmittableResult } from '@polkadot/api';
 
 export async function createPolkadotApi(wsUrl: string, callback?: (api: ApiPromise) => any) {
-  const api = await ApiPromise.create({ provider: new WsProvider(wsUrl) });
-
+  const api = new ApiPromise({ provider: new WsProvider(wsUrl) });
+  await api.isReadyOrError.catch((e) => {
+    console.log('connect error', e);
+    api.disconnect();
+  });
   // If callback provided,
   // auto disconnect when callback process finished
   if (callback) {
