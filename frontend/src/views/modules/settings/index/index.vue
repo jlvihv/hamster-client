@@ -64,12 +64,14 @@
     balance.loading = true;
 
     const api = await createPolkadotApi(config.wsUrl);
-    const { data: balanceData } = await api.query.system.account(address.value);
+    if (api.isConnected) {
+      const { data: balanceData } = await api.query.system.account(address.value);
 
-    balance.value = formatBalance(balanceData.free);
-    balance.loading = false;
+      balance.value = formatBalance(balanceData.free);
+      balance.loading = false;
 
-    onInvalidate(() => api?.disconnect());
+      onInvalidate(() => api?.disconnect());
+    }
   });
 
   const formRef = ref();
