@@ -179,64 +179,6 @@ export namespace deploy {
 }
 
 export namespace application {
-  export class ApplyVo {
-    id: number;
-    // Go type: time.Time
-    createdAt: any;
-    // Go type: time.Time
-    updatedAt: any;
-    name: string;
-    plugin: string;
-    status: number;
-
-    static createFrom(source: any = {}) {
-      return new ApplyVo(source);
-    }
-
-    constructor(source: any = {}) {
-      if ('string' === typeof source) source = JSON.parse(source);
-      this.id = source['id'];
-      this.createdAt = this.convertValues(source['createdAt'], null);
-      this.updatedAt = this.convertValues(source['updatedAt'], null);
-      this.name = source['name'];
-      this.plugin = source['plugin'];
-      this.status = source['status'];
-    }
-
-    convertValues(a: any, classs: any, asMap: boolean = false): any {
-      if (!a) {
-        return a;
-      }
-      if (a.slice) {
-        return (a as any[]).map((elem) => this.convertValues(elem, classs));
-      } else if ('object' === typeof a) {
-        if (asMap) {
-          for (const key of Object.keys(a)) {
-            a[key] = new classs(a[key]);
-          }
-          return a;
-        }
-        return new classs(a);
-      }
-      return a;
-    }
-  }
-  export class UpdateApplicationParam {
-    id: number;
-    name: string;
-    plugin: string;
-
-    static createFrom(source: any = {}) {
-      return new UpdateApplicationParam(source);
-    }
-
-    constructor(source: any = {}) {
-      if ('string' === typeof source) source = JSON.parse(source);
-      this.id = source['id'];
-      this.name = source['name'];
-      this.plugin = source['plugin'];
-    }
-  }
   export class AddApplicationParam {
     name: string;
     plugin: string;
@@ -326,6 +268,64 @@ export namespace application {
         return new classs(a);
       }
       return a;
+    }
+  }
+  export class ApplyVo {
+    id: number;
+    // Go type: time.Time
+    createdAt: any;
+    // Go type: time.Time
+    updatedAt: any;
+    name: string;
+    plugin: string;
+    status: number;
+
+    static createFrom(source: any = {}) {
+      return new ApplyVo(source);
+    }
+
+    constructor(source: any = {}) {
+      if ('string' === typeof source) source = JSON.parse(source);
+      this.id = source['id'];
+      this.createdAt = this.convertValues(source['createdAt'], null);
+      this.updatedAt = this.convertValues(source['updatedAt'], null);
+      this.name = source['name'];
+      this.plugin = source['plugin'];
+      this.status = source['status'];
+    }
+
+    convertValues(a: any, classs: any, asMap: boolean = false): any {
+      if (!a) {
+        return a;
+      }
+      if (a.slice) {
+        return (a as any[]).map((elem) => this.convertValues(elem, classs));
+      } else if ('object' === typeof a) {
+        if (asMap) {
+          for (const key of Object.keys(a)) {
+            a[key] = new classs(a[key]);
+          }
+          return a;
+        }
+        return new classs(a);
+      }
+      return a;
+    }
+  }
+  export class UpdateApplicationParam {
+    id: number;
+    name: string;
+    plugin: string;
+
+    static createFrom(source: any = {}) {
+      return new UpdateApplicationParam(source);
+    }
+
+    constructor(source: any = {}) {
+      if ('string' === typeof source) source = JSON.parse(source);
+      this.id = source['id'];
+      this.name = source['name'];
+      this.plugin = source['plugin'];
     }
   }
 }
