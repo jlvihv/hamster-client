@@ -212,6 +212,8 @@
         pledgeAmountModalVisible.value = false;
         formData.pledgeAmount = pledgeAmount;
       } catch (error: any) {
+        pledgeAmountModalVisible.value = false;
+        formData.pledgeAmount = pledgeAmount;
         console.log('Approve Staking Proxy Contract Error', error);
       } finally {
         pledgeAmountModalLoading.value = false;
@@ -234,14 +236,19 @@
             formData.agentAddress,
           );
 
-          const data = await runContractMethod({
-            api,
-            contract,
-            method: 'staking',
-            methodArgs: [api.utils.toWei(formData.pledgeAmount.toString())],
-          });
+          try {
+            const data = await runContractMethod({
+              api,
+              contract,
+              method: 'staking',
+              methodArgs: [api.utils.toWei(formData.pledgeAmount.toString())],
+            });
 
-          console.log('stakeAmount data', data);
+            console.log('stakeAmount data', data);
+          } catch (e) {
+            console.log(e);
+            return;
+          }
         }
       },
     });
