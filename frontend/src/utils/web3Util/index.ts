@@ -17,15 +17,16 @@ export const web3Abi = {
 };
 
 export const web3Configs = [
+  // {
+  //   endpoint: 'http://164.92.80.238:8545',
+  //   stakeContractAddress: '0x6189463cfcaD694E0b93e53E29C9070734c25D48',
+  //   factoryContractAddress: '0x75930F4bC45eacc658B6DC111Bbbc664f66449CC',
+  //   erc20ContractAddress: '0xEd2Fed4571597f5b954D4BC212b28422B720b49c',
+  //   configContractAddress: '0x24EA2E2cbc8A0D772dCDFCA304f1b6Fc34fACeCF',
+  // },
   {
-    endpoint: 'http://164.92.80.238:8545',
-    stakeContractAddress: '0x6189463cfcaD694E0b93e53E29C9070734c25D48',
-    factoryContractAddress: '0x75930F4bC45eacc658B6DC111Bbbc664f66449CC',
-    erc20ContractAddress: '0xEd2Fed4571597f5b954D4BC212b28422B720b49c',
-    configContractAddress: '0x24EA2E2cbc8A0D772dCDFCA304f1b6Fc34fACeCF',
-  },
-  {
-    endpoint: 'https://eth-rinkeby.alchemyapi.io/v2/-0wLutrSA3Px2vAOGBgKue-b5MPFYKRK',
+    // endpoint: 'https://eth-rinkeby.alchemyapi.io/v2/-0wLutrSA3Px2vAOGBgKue-b5MPFYKRK',
+    endpoint: 'https://eth-rinkeby.alchemyapi.io/v2/PbV0cthp513-kWPjSyhZE3S8gzyhwyoi',
     stakeContractAddress: '0x2d44C0e097F6cD0f514edAC633d82E01280B4A5c',
     factoryContractAddress: '0xeFF0ed9Fc8276Fcf4eda2e012dD065A3DC18591D',
     erc20ContractAddress: '0x54Fe55d5d255b8460fB3Bc52D5D676F9AE5697CD',

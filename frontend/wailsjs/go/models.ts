@@ -1,20 +1,4 @@
 export namespace application {
-  export class UpdateApplicationParam {
-    id: number;
-    name: string;
-    plugin: string;
-
-    static createFrom(source: any = {}) {
-      return new UpdateApplicationParam(source);
-    }
-
-    constructor(source: any = {}) {
-      if ('string' === typeof source) source = JSON.parse(source);
-      this.id = source['id'];
-      this.name = source['name'];
-      this.plugin = source['plugin'];
-    }
-  }
   export class AddApplicationParam {
     name: string;
     plugin: string;
@@ -146,6 +130,22 @@ export namespace application {
         return new classs(a);
       }
       return a;
+    }
+  }
+  export class UpdateApplicationParam {
+    id: number;
+    name: string;
+    plugin: string;
+
+    static createFrom(source: any = {}) {
+      return new UpdateApplicationParam(source);
+    }
+
+    constructor(source: any = {}) {
+      if ('string' === typeof source) source = JSON.parse(source);
+      this.id = source['id'];
+      this.name = source['name'];
+      this.plugin = source['plugin'];
     }
   }
 }
