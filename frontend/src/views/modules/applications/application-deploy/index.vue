@@ -102,12 +102,10 @@
 
   // Get saved deployInfo from API
   onMounted(async () => {
-    const data = await GetDeployInfo(applicationId);
-    if (data) deployInfo.value = data;
-
-    // Run settingStore actions
     settingStore.getWalletInfoAction();
     settingStore.getConfigAction();
+    const data = await GetDeployInfo(applicationId);
+    if (data) deployInfo.value = data;
   });
 
   // Input password when confirm deploying
