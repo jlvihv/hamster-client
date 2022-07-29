@@ -3,10 +3,6 @@
 import { context } from '../models';
 import { p2p } from '../models';
 
-export function Link(arg1: number, arg2: string): Promise<boolean | Error>;
-
-export function ReconnectionProLink(): Promise<boolean | Error>;
-
 export function WailsInit(arg1: context.Context): Promise<Error>;
 
 export function WailsShutdown(): void;
@@ -18,3 +14,7 @@ export function GetLinkStatus(): Promise<p2p.LinkInfo>;
 export function IsP2PSetting(): Promise<boolean>;
 
 export function JudgeP2pReconnection(): Promise<boolean>;
+
+export function Link(arg1: number, arg2: string): Promise<boolean | Error>;
+
+export function ReconnectionProLink(): Promise<boolean | Error>;
