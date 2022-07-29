@@ -2,13 +2,10 @@
   <Card>
     <Descriptions :column="1" :title="t('applications.see.rewardInfo')" bordered>
       <DescriptionsItem :label="t('applications.reward.account')">
-        <LoadingOutlined v-if="isRefreshing" />
-        <template v-else>
-          {{ deployInfo.staking.agentAddress }}
-          <Button class="ml-3" type="primary" @click="getIncome">
-            {{ t('applications.reward.refresh') }}
-          </Button>
-        </template>
+        <label>{{ account }}</label>
+        <Button class="ml-3" type="primary" @click="getIncome">
+          {{ t('applications.reward.refresh') }}
+        </Button>
       </DescriptionsItem>
       <DescriptionsItem :label="t('applications.reward.stakeTotal')">
         <label> {{ stakeTotal }}</label>
@@ -92,7 +89,6 @@
     InputNumber,
   } from 'ant-design-vue';
   import { useMessage } from '/@/hooks/web/useMessage';
-  import { LoadingOutlined } from '@ant-design/icons-vue';
   import {
     buildContract,
     createWeb3Api,
@@ -107,7 +103,7 @@
   });
 
   const { t } = useI18n();
-
+  const account = ref('');
   const { createConfirm, createErrorModal } = useMessage();
   const operateType = ref('stake');
   const income = ref('0');
@@ -154,7 +150,6 @@
 
     return undefined;
   });
-
   const getIncome = async () => {
     console.log('get income start');
 
@@ -363,6 +358,10 @@
   };
   watchEffect(() => {
     if (props.deployInfo.staking.agentAddress) {
+      const api = web3Api.value;
+      if (api) {
+        account.value = getProviderAddress(api);
+      }
       getStakeTotal();
       getUnStakeAmount();
       setTimeout(getIncome, 100);
