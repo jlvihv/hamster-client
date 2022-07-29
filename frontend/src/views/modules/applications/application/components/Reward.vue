@@ -247,15 +247,21 @@
         const address = props.deployInfo.staking.agentAddress;
         if (api && api.__config) {
           const contract = buildContract(api, web3Abi.stakeDistributionProxyAbi, address);
-
-          await runContractMethod({
-            api,
-            contract,
-            method: 'withdraw',
-            methodArgs: [],
-            type: 'send',
-          });
-          await getUnStakeAmount();
+          try {
+            await runContractMethod({
+              api,
+              contract,
+              method: 'withdraw',
+              methodArgs: [],
+              type: 'send',
+            });
+            await getUnStakeAmount();
+          } catch (e: any) {
+            createErrorModal({
+              title: t('common.errorTip'),
+              content: e.message,
+            });
+          }
         }
       },
       iconType: 'warning',
