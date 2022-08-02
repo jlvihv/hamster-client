@@ -2,7 +2,10 @@ package app
 
 import (
 	"context"
+	"gorm.io/gorm"
 	"hamster-client/module/account"
+	"hamster-client/module/deploy"
+	"hamster-client/module/keystorage"
 	"hamster-client/module/p2p"
 	"hamster-client/module/pallet"
 )
@@ -15,16 +18,22 @@ type Config struct {
 }
 
 type Setting struct {
-	ctx            context.Context
-	p2pService     p2p.Service
-	accountService account.Service
-	chainListener  pallet.ChainListener
+	ctx               context.Context
+	db                *gorm.DB
+	keyStorageService keystorage.Service
+	deployService     deploy.Service
+	p2pService        p2p.Service
+	accountService    account.Service
+	chainListener     pallet.ChainListener
 }
 
-func NewSettingApp(service p2p.Service, accountService account.Service) Setting {
+func NewSettingApp(service p2p.Service, accountService account.Service, db *gorm.DB, keyStorageService keystorage.Service, deployService deploy.Service) Setting {
 	return Setting{
-		p2pService:     service,
-		accountService: accountService,
+		p2pService:        service,
+		accountService:    accountService,
+		db:                db,
+		keyStorageService: keyStorageService,
+		deployService:     deployService,
 	}
 }
 
@@ -64,7 +73,7 @@ func (s *Setting) Setting(publicKey string, wsUrl string) (bool, error) {
 	// close go func
 	s.chainListener.CancelListen()
 	//start go func
-	s.chainListener.StartListen()
+	s.chainListener.StartListen(s.db, s.keyStorageService, s.deployService)
 	return true, nil
 }
 
@@ -88,7 +97,7 @@ func (s *Setting) SettingWsUrl(wsUrl string) (bool, error) {
 	// close go func
 	s.chainListener.CancelListen()
 	//start go func
-	s.chainListener.StartListen()
+	s.chainListener.StartListen(s.db, s.keyStorageService, s.deployService)
 	return true, nil
 }
 

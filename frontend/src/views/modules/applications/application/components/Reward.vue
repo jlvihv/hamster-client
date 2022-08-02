@@ -256,6 +256,7 @@
               type: 'send',
             });
             await getUnStakeAmount();
+            await getStakeTotal();
           } catch (e: any) {
             createErrorModal({
               title: t('common.errorTip'),

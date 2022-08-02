@@ -25,7 +25,7 @@ export const web3Configs = [
   //   configContractAddress: '0x24EA2E2cbc8A0D772dCDFCA304f1b6Fc34fACeCF',
   // },
   {
-    endpoint: 'https://rinkeby.infura.io/v3/af7a79eb36f64e609b5dda130cd62946',
+    endpoint: 'https://rinkeby.infura.io/v3/62d7b5f33ae443e784919f1c2afe24a3',
     stakeContractAddress: '0x2d44C0e097F6cD0f514edAC633d82E01280B4A5c',
     factoryContractAddress: '0xeFF0ed9Fc8276Fcf4eda2e012dD065A3DC18591D',
     erc20ContractAddress: '0x54Fe55d5d255b8460fB3Bc52D5D676F9AE5697CD',
