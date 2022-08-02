@@ -109,7 +109,7 @@ func (a *App) initService() {
 	a.DeployService = &deployServiceImpl
 	applicationServiceImpl := application.NewServiceImpl(a.ctx, a.gormDB)
 	a.ApplicationService = &applicationServiceImpl
-	chainListener := pallet.NewChainListener(a.gormDB, a.DeployService, a.KeyStorageService)
+	chainListener := pallet.NewChainListener()
 	a.ChainListener = chainListener
 }
 
@@ -117,7 +117,7 @@ func (a *App) initApp() {
 	a.AccountApp = app.NewAccountApp(a.AccountService)
 	a.P2pApp = app.NewP2pApp(a.P2pService)
 	a.ResourceApp = app.NewResourceApp(a.ResourceService, a.AccountService)
-	a.SettingApp = app.NewSettingApp(a.P2pService, a.AccountService)
+	a.SettingApp = app.NewSettingApp(a.P2pService, a.AccountService, a.gormDB, *a.KeyStorageService, a.DeployService)
 	a.WalletApp = app.NewWalletApp(a.WalletService)
 	a.DeployApp = app.NewDeployApp(a.DeployService, a.AccountService, a.P2pService)
 	a.ApplicationApp = app.NewApplicationApp(a.ApplicationService, a.GraphParamsService)
@@ -153,7 +153,7 @@ func (a *App) Startup(context context.Context) {
 	//initialize app
 	a.initApp()
 	a.ChainListener.CancelListen()
-	a.ChainListener.StartListen()
+	a.ChainListener.StartListen(a.gormDB, *a.KeyStorageService, a.DeployService)
 }
 
 // DomReady is called after the front-end dom has been loaded

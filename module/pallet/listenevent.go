@@ -19,19 +19,12 @@ import (
 )
 
 type ChainListener struct {
-	db                *gorm.DB
-	cancel            func()
-	ctx2              ctx.Context
-	deployService     deploy.Service
-	keyStorageService keystorage.Service
+	cancel func()
+	ctx2   ctx.Context
 }
 
-func NewChainListener(db *gorm.DB, deployService deploy.Service, keyStorageService *keystorage.Service) *ChainListener {
-	return &ChainListener{
-		db:                db,
-		deployService:     deployService,
-		keyStorageService: *keyStorageService,
-	}
+func NewChainListener() *ChainListener {
+	return &ChainListener{}
 }
 
 func (c *ChainListener) WatchEvent(db *gorm.DB, ctx ctx.Context) {
@@ -92,7 +85,7 @@ func (c *ChainListener) WatchEvent(db *gorm.DB, ctx ctx.Context) {
 	}
 }
 
-func (c *ChainListener) watchEvent(ctx ctx.Context) {
+func (c *ChainListener) watchEvent(ctx ctx.Context, db *gorm.DB, keyStorageService keystorage.Service, deployService deploy.Service) {
 	api := p2p.CreateApi()
 	if api != nil {
 		meta, err := api.RPC.State.GetMetadataLatest()
@@ -136,7 +129,7 @@ func (c *ChainListener) watchEvent(ctx ctx.Context) {
 						// order successfully created
 						var user account.Account
 						var wallet wallet.Wallet
-						walletResult := c.db.First(&wallet)
+						walletResult := db.First(&wallet)
 						if walletResult.Error == nil {
 							publicKey, _ := AddressToPublicKey(wallet.Address)
 							key, err := types.CreateStorageKey(meta, "ResourceOrder", "ApplyUsers", publicKey)
@@ -149,19 +142,19 @@ func (c *ChainListener) watchEvent(ctx ctx.Context) {
 								log.Error(err)
 							}
 							log.Info(ok)
-							result := c.db.First(&user)
+							result := db.First(&user)
 							if result.Error == nil {
 								if e.OrderIndex == orderIndex {
 									fmt.Println(user.OrderIndex)
 									user.OrderIndex = int(orderIndex)
 									user.PeerId = e.PeerId
-									c.db.Save(&user)
+									db.Save(&user)
 									// Query whether there is an application waiting for resources
 									var data application.Application
-									result := c.db.Where("status = ? ", config.WAIT_RESOURCE).First(&data).Error
+									result := db.Where("status = ? ", config.WAIT_RESOURCE).First(&data).Error
 									if result == nil {
-										jsonData := c.keyStorageService.Get("graph_" + strconv.Itoa(int(data.ID)))
-										c.deployService.DeployTheGraph(int(data.ID), jsonData)
+										jsonData := keyStorageService.Get("graph_" + strconv.Itoa(int(data.ID)))
+										deployService.DeployTheGraph(int(data.ID), jsonData)
 									}
 								}
 							}
@@ -174,12 +167,12 @@ func (c *ChainListener) watchEvent(ctx ctx.Context) {
 	}
 }
 
-func (c *ChainListener) StartListen() error {
+func (c *ChainListener) StartListen(db *gorm.DB, keyStorageService keystorage.Service, deployService deploy.Service) error {
 	if c.cancel != nil {
 		c.cancel()
 	}
 	c.ctx2, c.cancel = ctx.WithCancel(ctx.Background())
-	go c.watchEvent(c.ctx2)
+	go c.watchEvent(c.ctx2, db, keyStorageService, deployService)
 	return nil
 }
 
