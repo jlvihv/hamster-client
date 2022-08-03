@@ -24,5 +24,14 @@ export const RootRoute: AppRouteRecordRaw = {
   },
 };
 
+export const HomeRoute: AppRouteRecordRaw = {
+  path: '/home',
+  name: 'Home',
+  component: () => import('/@/views/home/index.vue'),
+  meta: {
+    title: 'Home',
+  },
+};
+
 // Basic routing without permission
-export const basicRoutes = [PAGE_NOT_FOUND_ROUTE, RootRoute, ...routeModuleList];
+export const basicRoutes = [PAGE_NOT_FOUND_ROUTE, RootRoute, HomeRoute, ...routeModuleList];

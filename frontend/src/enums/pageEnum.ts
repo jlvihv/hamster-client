@@ -1,3 +1,3 @@
 export enum PageEnum {
-  BASE_HOME = '/settings',
+  BASE_HOME = '/home',
 }
