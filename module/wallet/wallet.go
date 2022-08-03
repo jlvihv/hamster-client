@@ -6,15 +6,20 @@ import (
 
 type Wallet struct {
 	gorm.Model
-	Address     string `json:"address"`      //account address
-	AddressJson string `json:"address_json"` //json file information
+	Address     string `json:"address"`     //account address
+	AddressJson string `json:"addressJson"` //json file information
+}
+
+type WalletVo struct {
+	Address     string `json:"address"`     //account address
+	AddressJson string `json:"addressJson"` //json file information
 }
 
 type Service interface {
 	// GetWallet get wallet information
-	GetWallet() (Wallet, error)
+	GetWallet() (WalletVo, error)
 	// SaveWallet save wallet information
-	SaveWallet(address string, json string) (*Wallet, error)
+	SaveWallet(address string, json string) (bool, error)
 	// DeleteWallet delete wallet information
-	DeleteWallet()
+	DeleteWallet() (bool, error)
 }

@@ -13,6 +13,7 @@ import (
 
 func CreateApi() *gsrpc.SubstrateAPI {
 	var user account.Account
+
 	db := initDB()
 	result := db.First(&user)
 	if result.Error != nil {

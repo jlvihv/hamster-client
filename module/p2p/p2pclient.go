@@ -26,4 +26,8 @@ type Service interface {
 	GetLinks() *[]LinkInfo
 	InitSetting() error
 	GetSetting() (P2pConfig, error)
+	ProLink(peerId string) error
+	GetProviderLinks() *[]LinkInfo
+	JudgeP2pReconnection() bool
+	ReconnectionProLink() (bool, error)
 }

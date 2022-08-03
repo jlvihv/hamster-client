@@ -9,7 +9,12 @@ import (
 	"gorm.io/gorm"
 	"hamster-client/app"
 	"hamster-client/module/account"
+	"hamster-client/module/application"
+	"hamster-client/module/deploy"
+	"hamster-client/module/graph"
+	"hamster-client/module/keystorage"
 	"hamster-client/module/p2p"
+	"hamster-client/module/pallet"
 	"hamster-client/module/resource"
 	"hamster-client/module/wallet"
 	"hamster-client/utils"
@@ -22,16 +27,25 @@ type App struct {
 	httpUtil *utils.HttpUtil
 	ctx      context.Context
 
-	AccountService  account.Service
-	P2pService      p2p.Service
-	ResourceService resource.Service
-	WalletService   wallet.Service
+	AccountService     account.Service
+	P2pService         p2p.Service
+	ResourceService    resource.Service
+	WalletService      wallet.Service
+	DeployService      deploy.Service
+	ApplicationService application.Service
+	ChainListener      *pallet.ChainListener
+	GraphParamsService graph.Service
+	KeyStorageService  *keystorage.Service
 
-	AccountApp  app.Account
-	P2pApp      app.P2p
-	ResourceApp app.Resource
-	SettingApp  app.Setting
-	WalletApp   app.Wallet
+	AccountApp     app.Account
+	P2pApp         app.P2p
+	ResourceApp    app.Resource
+	SettingApp     app.Setting
+	WalletApp      app.Wallet
+	DeployApp      app.Deploy
+	ApplicationApp app.Application
+	GraphApp       app.Graph
+	KeyStorageApp  app.KeyStorage
 }
 
 func NewApp() *App {
@@ -45,7 +59,6 @@ func (a *App) init() {
 	a.initDB()
 	//tired of initializing http tools
 	a.initHttp()
-
 }
 
 func (a *App) initDB() {
@@ -59,6 +72,8 @@ func (a *App) initDB() {
 		&p2p.P2pConfig{},
 		&resource.Resource{},
 		&wallet.Wallet{},
+		//&application.Application{},
+		&graph.GraphParameter{},
 	)
 	var user account.Account
 	result := db.First(&user)
@@ -78,6 +93,8 @@ func (a *App) initHttp() {
 }
 
 func (a *App) initService() {
+	graphParamServiceImpl := graph.NewServiceImpl(a.ctx, a.gormDB, a.httpUtil)
+	a.GraphParamsService = &graphParamServiceImpl
 	accountServiceImpl := account.NewServiceImpl(a.ctx, a.gormDB, a.httpUtil)
 	a.AccountService = &accountServiceImpl
 	p2pServiceImpl := p2p.NewServiceImpl(a.ctx, a.gormDB)
@@ -86,14 +103,26 @@ func (a *App) initService() {
 	a.ResourceService = &resourceServiceImpl
 	walletServiceImpl := wallet.NewServiceImpl(a.ctx, a.gormDB)
 	a.WalletService = &walletServiceImpl
+	keyStorageServiceImpl := keystorage.NewServiceImpl(a.ctx, a.gormDB)
+	a.KeyStorageService = &keyStorageServiceImpl
+	deployServiceImpl := deploy.NewServiceImpl(a.ctx, a.httpUtil, a.gormDB, a.GraphParamsService, a.KeyStorageService, a.AccountService, a.P2pService)
+	a.DeployService = &deployServiceImpl
+	applicationServiceImpl := application.NewServiceImpl(a.ctx, a.gormDB)
+	a.ApplicationService = &applicationServiceImpl
+	chainListener := pallet.NewChainListener()
+	a.ChainListener = chainListener
 }
 
 func (a *App) initApp() {
 	a.AccountApp = app.NewAccountApp(a.AccountService)
 	a.P2pApp = app.NewP2pApp(a.P2pService)
 	a.ResourceApp = app.NewResourceApp(a.ResourceService, a.AccountService)
-	a.SettingApp = app.NewSettingApp(a.P2pService, a.AccountService)
+	a.SettingApp = app.NewSettingApp(a.P2pService, a.AccountService, a.gormDB, *a.KeyStorageService, a.DeployService)
 	a.WalletApp = app.NewWalletApp(a.WalletService)
+	a.DeployApp = app.NewDeployApp(a.DeployService, a.AccountService, a.P2pService)
+	a.ApplicationApp = app.NewApplicationApp(a.ApplicationService, a.GraphParamsService)
+	a.GraphApp = app.NewGraphApp(a.GraphParamsService)
+	a.KeyStorageApp = app.NewKeyStorageApp(a.KeyStorageService)
 }
 
 func initConfigPath() string {
@@ -123,6 +152,8 @@ func (a *App) Startup(context context.Context) {
 	a.initService()
 	//initialize app
 	a.initApp()
+	a.ChainListener.CancelListen()
+	a.ChainListener.StartListen(a.gormDB, *a.KeyStorageService, a.DeployService)
 }
 
 // DomReady is called after the front-end dom has been loaded

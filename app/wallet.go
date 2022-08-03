@@ -22,17 +22,17 @@ func (s *Wallet) WailsInit(ctx context.Context) error {
 }
 
 // GetWalletInfo get user information
-func (w *Wallet) GetWalletInfo() (wallet.Wallet, error) {
+func (w *Wallet) GetWalletInfo() (wallet.WalletVo, error) {
 	info, err := w.walletService.GetWallet()
 	return info, err
 }
 
 // SaveWallet save wallet information
-func (w *Wallet) SaveWallet(address string, json string) (*wallet.Wallet, error) {
+func (w *Wallet) SaveWallet(address string, json string) (bool, error) {
 	return w.walletService.SaveWallet(address, json)
 }
 
 // DeleteWallet delete wallet information
-func (w *Wallet) DeleteWallet() {
-	w.walletService.DeleteWallet()
+func (w *Wallet) DeleteWallet() (bool, error) {
+	return w.walletService.DeleteWallet()
 }

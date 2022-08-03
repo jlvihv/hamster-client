@@ -6,7 +6,9 @@ const (
 	// HttpGetCode get verification code
 	HttpGetCode = "https://ttchain.tntlinking.com/api/authorization/verification/code"
 	// HttpLogin login
-	HttpLogin = "https://ttchain.tntlinking.com/api/authorization/oauth/token"
+	HttpLogin       = "https://ttchain.tntlinking.com/api/authorization/oauth/token"
+	Httpprovider    = "http://localhost:10771/api/v1/thegraph/deploy"
+	HttpGraphStatus = "http://localhost:10771/api/v1/thegraph/status"
 
 	//Port p2p port configuration
 	Port = 4001
@@ -14,3 +16,16 @@ const (
 	// p2p swarm key
 	SwarmKey = "/key/swarm/psk/1.0.0/\n/base16/\n55158d9b6b7e5a8e41aa8b34dd057ff1880e38348613d27ae194ad7c5b9670d7"
 )
+
+// deploy status
+const (
+	NOT_DEPLOYED  int = iota //not deployed 0
+	DEPLOYED                 //deployed   1
+	ALL                      // all      2
+	WAIT_RESOURCE            //waiting for resource  3
+	IN_DEPLOYMENT            // in deployment  4
+	DEPLOY_FAILED            //deploy failed 5
+)
+
+//HTTP request docker status Failure Return
+const RequestStatusFailed = 5

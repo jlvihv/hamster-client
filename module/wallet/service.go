@@ -2,7 +2,6 @@ package wallet
 
 import (
 	"context"
-	"fmt"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"gorm.io/gorm"
 )
@@ -17,27 +16,39 @@ func NewServiceImpl(ctx context.Context, db *gorm.DB) ServiceImpl {
 }
 
 // GetWallet  get wallet information
-func (w *ServiceImpl) GetWallet() (Wallet, error) {
+func (w *ServiceImpl) GetWallet() (WalletVo, error) {
 	var wallet Wallet
-	fmt.Println(w.db)
+	var data WalletVo
 	result := w.db.First(&wallet)
 	if result.Error != nil {
 		runtime.LogError(w.ctx, "GetWallet error")
 	}
-	return wallet, result.Error
+	data.Address = wallet.Address
+	data.AddressJson = wallet.AddressJson
+	return data, nil
 }
 
 // SaveWallet save wallet information
-func (w *ServiceImpl) SaveWallet(address string, json string) (*Wallet, error) {
-	u, _ := w.GetWallet()
+func (w *ServiceImpl) SaveWallet(address string, json string) (bool, error) {
+	u, err := w.GetWallet()
+	if err != nil {
+		return false, err
+	}
 	//save or update account
 	u.Address = address
 	u.AddressJson = json
-	w.db.Save(&u)
-	return &u, nil
+	var wallet Wallet
+	wallet.Address = u.Address
+	wallet.AddressJson = u.AddressJson
+	w.db.Save(&wallet)
+	return true, nil
 }
 
 // DeleteWallet delete wallet information
-func (w *ServiceImpl) DeleteWallet() {
-	w.db.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&Wallet{})
+func (w *ServiceImpl) DeleteWallet() (bool, error) {
+	err := w.db.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&Wallet{}).Error
+	if err != nil {
+		return false, err
+	}
+	return true, nil
 }

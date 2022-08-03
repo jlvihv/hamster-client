@@ -196,14 +196,15 @@ func (c *P2pClient) List() *P2PLsOutput {
 	}
 	c.P2P.ListenersP2P.Unlock()
 
+	fmt.Println("p2p link list: ", output)
+
 	return output
 }
 
 // Listen map local ports to p2p networks
-func (c *P2pClient) Listen(port int) error {
+func (c *P2pClient) Listen(protoOpt string, port int) error {
 	log.Println("listening for connections")
 
-	protoOpt := "/x/ssh"
 	targetOpt := fmt.Sprintf("/ip4/127.0.0.1/tcp/%d", port)
 	proto := protocol.ID(protoOpt)
 
@@ -216,9 +217,15 @@ func (c *P2pClient) Listen(port int) error {
 }
 
 // Forward connect p2p network to remote nodes / map to local port
-func (c *P2pClient) Forward(port int, peerId string) error {
+func (c *P2pClient) Forward(protoOpt string, port int, peerId string) error {
 
-	if err := c.CheckForwardHealth(peerId); err != nil {
+	fmt.Println("======================")
+	fmt.Println("forward : protoOpt: ", protoOpt)
+	fmt.Println("forward : port: ", port)
+	fmt.Println("forward : peerId: ", peerId)
+	fmt.Println("======================")
+
+	if err := c.CheckForwardHealth(protoOpt, peerId); err != nil {
 		var nodes []string
 		api := CreateApi()
 		meta, _ := api.RPC.State.GetMetadataLatest()
@@ -235,7 +242,6 @@ func (c *P2pClient) Forward(port int, peerId string) error {
 		}
 	}
 
-	protoOpt := "/x/ssh"
 	listenOpt := fmt.Sprintf("/ip4/127.0.0.1/tcp/%d", port)
 	targetOpt := fmt.Sprintf("/p2p/%s", peerId)
 	listen, err := ma.NewMultiaddr(listenOpt)
@@ -246,9 +252,9 @@ func (c *P2pClient) Forward(port int, peerId string) error {
 	}
 
 	targets, err := parseIpfsAddr(targetOpt)
-	proto := protocol.ID(protoOpt)
+	protoId := protocol.ID(protoOpt)
 
-	err = forwardLocal(context.Background(), c.P2P, c.Host.Peerstore(), proto, listen, targets)
+	err = forwardLocal(context.Background(), c.P2P, c.Host.Peerstore(), protoId, listen, targets)
 	if err != nil {
 		log.Println(err)
 		return err
@@ -271,8 +277,7 @@ func (c *P2pClient) ConnectCircuit(circuitPeer, targetPeer string) error {
 }
 
 // CheckForwardHealth check if the remote node is connected
-func (c *P2pClient) CheckForwardHealth(target string) error {
-	protoOpt := "/x/ssh"
+func (c *P2pClient) CheckForwardHealth(protoOpt, target string) error {
 	targets, err := parseIpfsAddr(target)
 	proto := protocol.ID(protoOpt)
 	if err != nil {
