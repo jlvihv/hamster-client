@@ -9,7 +9,7 @@
       </DescriptionsItem>
       <DescriptionsItem :label="t('applications.reward.stakeTotal')">
         <label> {{ stakeTotal }}</label>
-        <Button class="ml-3" type="primary" @click="showModal('stake')" v-if="stakeTotal != '0'">
+        <Button class="ml-3" type="primary" @click="showModal('stake')">
           {{ t('applications.reward.stake') }}
         </Button>
         <Button class="ml-3" type="primary" @click="showModal('unStake')" v-if="stakeTotal != '0'">
