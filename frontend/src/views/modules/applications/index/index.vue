@@ -1,5 +1,8 @@
 <template>
   <PageWrapper>
+    <div>
+      <SvgIcon class="cursor-pointer" color="#858B92" size="20" name="people" />
+    </div>
     <div class="search-header">
       <Card :title="t('applications.index.appList')">
         <Form layout="inline" v-model:model="searchForm">
@@ -97,6 +100,7 @@
   import { reactive, computed, ref, onMounted } from 'vue';
   import { PageWrapper } from '/@/components/Page';
   import { useI18n } from '/@/hooks/web/useI18n';
+  import { SvgIcon } from '/@/components/Icon';
   import { useMessage } from '/@/hooks/web/useMessage';
   import { DictCodeEnum } from '/@/enums/dictCodeEnum';
   import { formatToDateTime } from '/@/utils/dateUtil';

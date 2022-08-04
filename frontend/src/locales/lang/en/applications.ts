@@ -88,4 +88,17 @@ export default {
   cli: {
     p2pReconnectionError: 'P2P reconnection failed',
   },
+  new: {
+    addTitle: 'Add Service',
+    name: 'Name',
+    namePlaceholder: 'Enter your service name',
+    leaseTerm: 'Lease Term',
+    leaseTermPlaceholder: 'Enter your lease days',
+    nodeType: 'Select Node Type',
+    nodeTypePlaceholder: 'Select the type of node service you need',
+    thegrapIndexer: 'Thegrap Indexer',
+    thegrapIndexerPlaceholder: 'Enter your thegraph indexer mnemonic',
+    stakingAmount: 'Staking Amount',
+    stakingAmountPlaceholder: 'Enter the amount of GRT stake',
+  },
 };

@@ -6,6 +6,7 @@
 
 <script lang="ts" setup>
   import Content from './content/index.vue';
+  import { useDesign } from '/@/hooks/web/useDesign';
   import { Layout, LayoutContent } from 'ant-design-vue';
 
   const { prefixCls } = useDesign('layout');
