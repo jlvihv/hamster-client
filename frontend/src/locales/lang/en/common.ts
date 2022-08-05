@@ -22,6 +22,7 @@ export default {
   allText: 'All',
   downloadText: 'Download',
   createText: 'Create',
+  doneText: 'Done',
 
   redo: 'Refresh',
   back: 'Back',
