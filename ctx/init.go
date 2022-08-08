@@ -16,6 +16,7 @@ import (
 	"hamster-client/module/p2p"
 	"hamster-client/module/pallet"
 	"hamster-client/module/resource"
+	"hamster-client/module/state"
 	"hamster-client/module/wallet"
 	"hamster-client/utils"
 	"os"
@@ -36,6 +37,7 @@ type App struct {
 	ChainListener      *pallet.ChainListener
 	GraphParamsService graph.Service
 	KeyStorageService  *keystorage.Service
+	StateService       state.Service
 
 	AccountApp     app.Account
 	P2pApp         app.P2p
@@ -46,6 +48,7 @@ type App struct {
 	ApplicationApp app.Application
 	GraphApp       app.Graph
 	KeyStorageApp  app.KeyStorage
+	StateApp       app.State
 }
 
 func NewApp() *App {
@@ -111,6 +114,8 @@ func (a *App) initService() {
 	a.ApplicationService = &applicationServiceImpl
 	chainListener := pallet.NewChainListener()
 	a.ChainListener = chainListener
+	stateImpl := state.NewServiceImpl()
+	a.StateService = stateImpl
 }
 
 func (a *App) initApp() {
@@ -123,6 +128,7 @@ func (a *App) initApp() {
 	a.ApplicationApp = app.NewApplicationApp(a.ApplicationService, a.GraphParamsService)
 	a.GraphApp = app.NewGraphApp(a.GraphParamsService)
 	a.KeyStorageApp = app.NewKeyStorageApp(a.KeyStorageService)
+	a.StateApp = app.NewStateApp(a.StateService)
 }
 
 func initConfigPath() string {
