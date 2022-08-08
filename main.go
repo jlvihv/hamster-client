@@ -47,6 +47,7 @@ func main() {
 			&app.ApplicationApp,
 			&app.GraphApp,
 			&app.KeyStorageApp,
+			&app.QueueApp,
 		},
 		// Windows platform specific options
 		Windows: &windows.Options{
