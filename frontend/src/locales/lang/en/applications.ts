@@ -131,5 +131,9 @@ export default {
     thegrapIndexerPlaceholder: 'Enter your thegraph indexer mnemonic',
     stakingAmount: 'Staking Amount',
     stakingAmountPlaceholder: 'Enter the amount of GRT stake',
+    plugin: 'Plugin',
+    pluginPlaceholder: 'Please select a plugin',
+    mnemonic: 'Account Mnemonic',
+    mnemonicPlaceholder: 'Please input the account mnemonic',
   },
 };
