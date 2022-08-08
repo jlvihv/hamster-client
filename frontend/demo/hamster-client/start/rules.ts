@@ -163,3 +163,40 @@ export const setIndexingRule = async (
 
   return indexingRuleFromGraphQL(result.data.setIndexingRule);
 };
+
+export const indexingRules = async (
+  client: IndexerManagementClient,
+  merged: boolean,
+): Promise<Partial<IndexingRuleAttributes>[]> => {
+  const result = await client
+    .query(
+      gql`
+        query indexingRules($merged: Boolean!) {
+          indexingRules(merged: $merged) {
+            identifier
+            identifierType
+            allocationAmount
+            allocationLifetime
+            autoRenewal
+            parallelAllocations
+            maxAllocationPercentage
+            minSignal
+            maxSignal
+            minStake
+            minAverageQueryFees
+            custom
+            decisionBasis
+            requireSupported
+          }
+        }
+      `,
+      { merged: !!merged },
+    )
+    .toPromise();
+
+  if (result.error) {
+    throw result.error;
+  }
+
+  return result.data.indexingRules.map(indexingRuleFromGraphQL);
+};
