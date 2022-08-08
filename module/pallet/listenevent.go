@@ -2,10 +2,8 @@ package pallet
 
 import (
 	ctx "context"
-	"errors"
 	"fmt"
 	"github.com/centrifuge/go-substrate-rpc-client/v4/types"
-	"github.com/decred/base58"
 	log "github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 	"hamster-client/config"
@@ -181,12 +179,4 @@ func (c *ChainListener) CancelListen() {
 		c.cancel()
 		c.cancel = nil
 	}
-}
-
-// AddressToPublicKey Convert address to public key
-func AddressToPublicKey(address string) ([]byte, error) {
-	if len(address) < 33 {
-		return []byte{}, errors.New("帐号格式不合法")
-	}
-	return base58.Decode(address)[1:33], nil
 }

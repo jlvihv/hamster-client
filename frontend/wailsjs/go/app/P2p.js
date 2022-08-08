@@ -19,7 +19,7 @@ export function WailsInit(arg1) {
 }
 
 export function WailsShutdown() {
-  window['go']['app']['P2p']['WailsShutdown']();
+  return window['go']['app']['P2p']['WailsShutdown']();
 }
 
 export function CloseLink(arg1) {

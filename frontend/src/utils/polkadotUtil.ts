@@ -1,12 +1,16 @@
 import { ApiPromise, WsProvider, SubmittableResult } from '@polkadot/api';
 import { formatBalance as formatBalanceUtil } from '@polkadot/util';
 import { Keyring } from '@polkadot/keyring';
+import types from './polkadotTypes';
 
 // export types
 export type { SubmittableResult } from '@polkadot/api';
 
 export async function createPolkadotApi(wsUrl: string, callback?: (api: ApiPromise) => any) {
-  const api = new ApiPromise({ provider: new WsProvider(wsUrl) });
+  const api = new ApiPromise({
+    provider: new WsProvider(wsUrl),
+    types: types,
+  });
   await api.isReadyOrError.catch((e) => {
     console.log('connect error', e);
     api.disconnect();
@@ -129,6 +133,44 @@ export function applyResourceOrder(
 
     const unsubscribe = api.tx.resourceOrder
       .applyFreeResource(cpu, memory, leaseTerm, publicKey, type)
+      .signAndSend(keyringPair, (result) => {
+        if (result.status.isInBlock) {
+          console.log(`Transaction included at blockHash ${result.status.asInBlock}`);
+          resolve(result);
+        } else if (result.status.isFinalized) {
+          console.log(`Transaction finalized at blockHash ${result.status.asFinalized}`);
+          result.events
+            .filter(({ event }) => api.events.system.ExtrinsicFailed.is(event))
+            .forEach(({ event }) => {
+              const [error] = event.data;
+              const decoded = api.registry.findMetaError(result.dispatchError.asModule);
+              const { docs, method, section } = decoded;
+              console.log(`${section}.${method}: ${docs.join(' ')}`);
+              reject(error);
+            });
+        }
+
+        if (result.isCompleted) {
+          unsubscribe();
+        }
+      })
+      .catch((e) => {
+        reject(e);
+      });
+  });
+}
+
+// Apply resource order
+export function createOrder(
+  api,
+  keyringPair,
+  options: { resourceIndex: number; leaseTerm: number; publicKey: string; type?: number },
+) {
+  return new Promise((resolve, reject) => {
+    const { resourceIndex, leaseTerm, publicKey } = options;
+
+    const unsubscribe = api.tx.resourceOrder
+      .createOrderInfo(resourceIndex, leaseTerm, publicKey)
       .signAndSend(keyringPair, (result) => {
         if (result.status.isInBlock) {
           console.log(`Transaction included at blockHash ${result.status.asInBlock}`);

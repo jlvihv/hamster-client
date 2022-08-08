@@ -47,24 +47,11 @@ func (s *ServiceImpl) DeployTheGraph(id int, jsonData string) (bool, error) {
 		}
 		return true, nil
 	}
+	err = s.setupP2p()
 	//Determine whether to initialize configuration
-	_, resultErr := s.p2pServer.GetSetting()
-	if resultErr != nil {
-		res := s.p2pServer.InitSetting()
-		if res != nil {
-			return false, err
-		}
+	if err != nil {
+		return false, err
 	}
-	//close p2p link
-	s.closeP2p()
-	fmt.Println("p2p start")
-	fmt.Println(info.PeerId)
-	proErr := s.p2pServer.ProLink(info.PeerId)
-	if proErr != nil {
-		runtime.LogError(s.ctx, "provider link error:"+proErr.Error())
-		return false, proErr
-	}
-	fmt.Println("p2p end")
 	var param DeployParameter
 	jsonParam := s.keyStorageService.Get("graph_" + strconv.Itoa(id))
 	if err := json.Unmarshal([]byte(jsonParam), &param); err != nil {
@@ -164,4 +151,50 @@ func (s *ServiceImpl) closeP2p() {
 			s.p2pServer.Close(value.TargetAddress)
 		}
 	}
+}
+
+func (s *ServiceImpl) setupP2p() error {
+
+	info, err := s.accountService.GetAccount()
+	if err != nil {
+		return err
+	}
+
+	peerId := info.PeerId
+
+	_, resultErr := s.p2pServer.GetSetting()
+	if resultErr != nil {
+		err := s.p2pServer.InitSetting()
+		if err != nil {
+			return err
+		}
+	}
+	//close p2p link
+	s.closeP2p()
+	fmt.Println("p2p start")
+	fmt.Println(peerId)
+	proErr := s.p2pServer.ProLink(peerId)
+	if proErr != nil {
+		runtime.LogError(s.ctx, "provider link error:"+proErr.Error())
+		return proErr
+	}
+	fmt.Println("p2p end")
+	return nil
+}
+
+func (s *ServiceImpl) sendResource() {
+
+}
+
+func (s *ServiceImpl) PullImage() error {
+	res, err := s.httpUtil.NewRequest().Post(config.HamsterProviderPull)
+	if err != nil {
+		runtime.LogError(s.ctx, "DeployTheGraph http error:"+err.Error())
+		return err
+	}
+	if !res.IsSuccess() {
+		runtime.LogError(s.ctx, "DeployTheGraph Response error: "+res.Status())
+		return errors.New(res.Status())
+	}
+	return nil
 }
