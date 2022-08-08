@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="19px" height="19px" viewBox="0 0 19 19" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>余额 2</title>
+    <g id="页面-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Account-address" transform="translate(-709.000000, -169.000000)">
+            <g id="弹框" transform="translate(691.000000, 42.000000)">
+                <g id="编组-2" transform="translate(16.000000, 43.000000)">
+                    <g id="余额" transform="translate(2.000000, 83.000000)">
+                        <g id="编组-8" transform="translate(0.000000, 0.500000)">
+                            <g id="余额" transform="translate(2.000000, 2.000000)">
+                                <circle id="椭圆形" stroke="#63A0FA" cx="7" cy="7.5" r="7"></circle>
+                                <rect id="矩形" fill="#63A0FA" x="3" y="6" width="8" height="1" rx="0.5"></rect>
+                                <rect id="矩形" fill="#63A0FA" transform="translate(7.000000, 8.768017) rotate(-270.000000) translate(-7.000000, -8.768017) " x="3.76801683" y="8.26801683" width="6.46396633" height="1" rx="0.5"></rect>
+                                <rect id="矩形" fill="#63A0FA" x="4" y="8" width="6" height="1" rx="0.5"></rect>
+                                <rect id="矩形" fill="#63A0FA" transform="translate(5.933013, 4.663573) rotate(-300.000000) translate(-5.933013, -4.663573) " x="3.9330127" y="4.16357277" width="4" height="1" rx="0.5"></rect>
+                                <rect id="矩形" fill="#63A0FA" transform="translate(8.066987, 4.663573) rotate(-240.000000) translate(-8.066987, -4.663573) " x="6.0669873" y="4.16357277" width="4" height="1" rx="0.5"></rect>
+                            </g>
+                        </g>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

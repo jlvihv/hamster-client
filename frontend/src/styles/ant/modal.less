@@ -4,10 +4,40 @@ html {
       @apply font-bold;
     }
 
+    .ant-modal-content {
+      border-radius: 8px;
+    }
+
     .ant-modal-footer {
       @apply pt-4 text-center;
 
       padding-bottom: 30px;
+    }
+  }
+
+  .ant-modal-confirm {
+    .ant-modal-confirm-btns {
+      @apply float-none text-center;
+
+      .ant-btn {
+        border-radius: 20px;
+        min-width: 90px;
+        border-color: #376aed;
+        color: #376aed;
+      }
+
+      .ant-btn-primary {
+        background: #376aed;
+        color: #fff;
+      }
+
+      .ant-btn + .ant-btn {
+        margin-left: 20px;
+      }
+    }
+
+    .ant-modal-confirm-title {
+      @apply text-center;
     }
   }
 }
