@@ -1,51 +1,60 @@
 <template>
-  <form
-    class="home-bg h-screen label-center text-center"
-    ref="formRef"
-    :model="formData"
-    :rules="formRules"
-  >
-    <transition-group name="next" appear mode="in-out">
-      <div v-if="stepVal === 0">
-        <div class="title-text">
-          {{ t('home.setNode') }}
-        </div>
-        <div class="my-[40px] !text-left">
-          <Select
-            class="rounded-[8px] bg-[#F8F7FA] w-[560px]"
-            :options="nodeOptions"
-            v-model:value="formData.wsUrl"
+  <div class="relative h-full">
+    <form
+      class="home-bg h-full label-center text-center"
+      ref="formRef"
+      :model="formData"
+      :rules="formRules"
+    >
+      <transition-group name="next" appear mode="in-out">
+        <div v-if="stepVal === 0">
+          <div class="title-text">
+            {{ t('home.setNode') }}
+          </div>
+          <div class="my-[40px] !text-left">
+            <Select
+              class="rounded-[8px] bg-[#F8F7FA] w-[560px]"
+              :options="nodeOptions"
+              v-model:value="formData.wsUrl"
+            />
+          </div>
+          <SvgIcon
+            @click="stepAction.setWsUrl"
+            class="text-primary cursor-pointer"
+            size="56"
+            name="next"
           />
         </div>
-        <SvgIcon
-          @click="stepAction.setWsUrl"
-          class="text-primary cursor-pointer"
-          size="56"
-          name="next"
-        />
-      </div>
-      <div v-else-if="stepVal === 1">
-        <WalletImporter @submit="stepAction.next" />
-      </div>
-      <div v-else-if="stepVal === 2">
-        <div class="label-center">
-          <img :src="doneImage" class="w-[200px]" />
+        <div v-else-if="stepVal === 1">
+          <div
+            class="absolute left-[20px] top-[20px] cursor-pointer"
+            v-if="hasBackButton"
+            @click="goBack"
+          >
+            <SvgIcon name="left" color="#858B92" size="20" />
+          </div>
+          <WalletImporter @submit="stepAction.next" />
         </div>
-        <div class="title-text my-[40px]">{{ t('home.complete') }}</div>
-        <SvgIcon
-          @click="stepAction.gotoApplicationsPage"
-          class="text-primary cursor-pointer"
-          size="56"
-          name="next"
-        />
-      </div>
-    </transition-group>
-  </form>
+        <div v-else-if="stepVal === 2">
+          <div class="label-center">
+            <img :src="doneImage" class="w-[200px]" />
+          </div>
+          <div class="title-text my-[40px]">{{ t('home.complete') }}</div>
+          <SvgIcon
+            @click="stepAction.gotoApplicationsPage"
+            class="text-primary cursor-pointer"
+            size="56"
+            name="next"
+          />
+        </div>
+      </transition-group>
+    </form>
+  </div>
 </template>
 
 <script lang="ts" setup>
   import { onMounted, computed, reactive, ref } from 'vue';
-  import { useRouter } from 'vue-router';
+  import { useRouter, useRoute } from 'vue-router';
   import { useSettingStore } from '/@/store/modules/setting';
   import { useI18n } from '/@/hooks/web/useI18n';
   import { SvgIcon } from '/@/components/Icon';
@@ -56,12 +65,14 @@
 
   const { t } = useI18n();
   const router = useRouter();
+  const route = useRoute();
   const settingStore = useSettingStore();
 
   const nodeOptions = reactive([
     { label: '183.66.65.207:49944', value: '183.66.65.207:49944moon' },
   ]);
-  const stepVal = ref(1);
+  const stepVal = ref(0);
+  const hasBackButton = ref(false);
 
   // Form
   const formRef = ref();
@@ -71,9 +82,14 @@
   }));
 
   onMounted(() => {
-    // Redirect to applidation index if wallet binded
-    if (settingStore.walletInfo) {
-      router.push('/applications/index');
+    if (route.query.step) {
+      stepVal.value = parseInt(route.query.step);
+      hasBackButton.value = true;
+    } else {
+      // Redirect to applidation index if wallet binded
+      if (settingStore.walletInfo) {
+        router.push('/applications/index');
+      }
     }
   });
 
@@ -88,6 +104,10 @@
     gotoApplicationsPage() {
       router.push('/applications/index');
     },
+  };
+
+  const goBack = () => {
+    router.go(-1);
   };
 </script>
 
