@@ -72,5 +72,7 @@ func (g *ServiceImpl) DeleteGraphDeployParameterAndApply(id int) (bool, error) {
 	if err != nil {
 		return false, err
 	}
+	//delete key storage
+	//stop docker
 	return true, nil
 }
