@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="22px" height="23px" viewBox="0 0 22 23" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>编组 5</title>
+    <g id="页面-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="thgraph" transform="translate(-88.000000, -281.000000)">
+            <g id="编组-7" transform="translate(24.000000, 71.000000)">
+                <g id="编组-2" transform="translate(64.000000, 210.000000)">
+                    <g id="编组-5" transform="translate(0.000000, 0.500000)">
+                        <g id="编组" transform="translate(1.000000, 1.000000)">
+                            <rect id="矩形" fill="#043CC1" x="4" y="9" width="8" height="1" rx="0.5"></rect>
+                            <rect id="矩形备份" fill="#043CC1" x="4" y="11" width="6" height="1" rx="0.5"></rect>
+                            <circle id="椭圆形" stroke="#043CC1" cx="10" cy="10" r="10"></circle>
+                            <path d="M13.6128542,5.73762839 C13.0862025,5.43357187 12.5316345,5.22639507 11.9715846,5.11079961 C9.87403609,4.67786117 7.69959361,5.52955136 6.62687712,7.38751422 C5.26774308,9.74155706 6.1918799,12.8195356 8.69099448,14.2623716 C10.424944,15.2634481 12.4615044,15.2143566 14,14.3041935" id="路径" stroke="#043CC1" stroke-linecap="round" stroke-linejoin="round"></path>
+                        </g>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

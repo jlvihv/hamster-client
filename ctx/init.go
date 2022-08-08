@@ -12,10 +12,12 @@ import (
 	"hamster-client/module/application"
 	"hamster-client/module/deploy"
 	"hamster-client/module/graph"
+	param "hamster-client/module/graph/v2"
 	"hamster-client/module/keystorage"
 	"hamster-client/module/p2p"
 	"hamster-client/module/pallet"
 	"hamster-client/module/resource"
+	"hamster-client/module/state"
 	"hamster-client/module/wallet"
 	"hamster-client/utils"
 	"os"
@@ -27,15 +29,17 @@ type App struct {
 	httpUtil *utils.HttpUtil
 	ctx      context.Context
 
-	AccountService     account.Service
-	P2pService         p2p.Service
-	ResourceService    resource.Service
-	WalletService      wallet.Service
-	DeployService      deploy.Service
-	ApplicationService application.Service
-	ChainListener      *pallet.ChainListener
-	GraphParamsService graph.Service
-	KeyStorageService  *keystorage.Service
+	AccountService          account.Service
+	P2pService              p2p.Service
+	ResourceService         resource.Service
+	WalletService           wallet.Service
+	DeployService           deploy.Service
+	ApplicationService      application.Service
+	ChainListener           *pallet.ChainListener
+	GraphParamsService      graph.Service
+	KeyStorageService       *keystorage.Service
+	GraphDeployParamService param.Service
+	StateService            state.Service
 
 	AccountApp     app.Account
 	P2pApp         app.P2p
@@ -46,6 +50,7 @@ type App struct {
 	ApplicationApp app.Application
 	GraphApp       app.Graph
 	KeyStorageApp  app.KeyStorage
+	StateApp       app.State
 }
 
 func NewApp() *App {
@@ -74,6 +79,7 @@ func (a *App) initDB() {
 		&wallet.Wallet{},
 		//&application.Application{},
 		&graph.GraphParameter{},
+		&param.GraphDeployParameter{},
 	)
 	var user account.Account
 	result := db.First(&user)
@@ -111,6 +117,10 @@ func (a *App) initService() {
 	a.ApplicationService = &applicationServiceImpl
 	chainListener := pallet.NewChainListener()
 	a.ChainListener = chainListener
+	graphDeployParamServiceImpl := param.NewServiceImpl(a.ctx, a.gormDB, keyStorageServiceImpl)
+	a.GraphDeployParamService = &graphDeployParamServiceImpl
+	stateImpl := state.NewServiceImpl()
+	a.StateService = stateImpl
 }
 
 func (a *App) initApp() {
@@ -120,9 +130,10 @@ func (a *App) initApp() {
 	a.SettingApp = app.NewSettingApp(a.P2pService, a.AccountService, a.gormDB, *a.KeyStorageService, a.DeployService)
 	a.WalletApp = app.NewWalletApp(a.WalletService)
 	a.DeployApp = app.NewDeployApp(a.DeployService, a.AccountService, a.P2pService)
-	a.ApplicationApp = app.NewApplicationApp(a.ApplicationService, a.GraphParamsService)
+	a.ApplicationApp = app.NewApplicationApp(a.ApplicationService, a.GraphDeployParamService)
 	a.GraphApp = app.NewGraphApp(a.GraphParamsService)
 	a.KeyStorageApp = app.NewKeyStorageApp(a.KeyStorageService)
+	a.StateApp = app.NewStateApp(a.StateService)
 }
 
 func initConfigPath() string {

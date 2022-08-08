@@ -16,21 +16,21 @@ func TestQueryResource(t *testing.T) {
 	meta, err := substrateApi.RPC.State.GetMetadataLatest()
 	//assert.NoError(t, err)
 
-	mapData, err := GetResourceList(meta, substrateApi)
+	mapData, err := GetResourceList(meta, substrateApi, nil)
 
 	assert.NoError(t, err)
 
 	for _, val := range mapData {
-		fmt.Println(val.Status.IsUnused)
 
 		if val.Status.IsUnused {
+			fmt.Println("发现未使用资源，占用。资源号：", val.Index)
 			c, err := types.NewCall(meta, "ResourceOrder.create_order_info", val.Index, types.NewU32(10), "")
 			if err != nil {
 				panic(err)
 				return
 			}
 			err = callAndWatch(substrateApi, c, meta, func(header *types.Header) error {
-				fmt.Println(header.Number)
+				fmt.Println("资源占用成功，资源号：", val.Index)
 				return nil
 			})
 			if err == nil {
@@ -40,7 +40,21 @@ func TestQueryResource(t *testing.T) {
 	}
 }
 
-func GetResourceList(meta *types.Metadata, api *gsrpc.SubstrateAPI) (map[types.U64]*ComputingResource, error) {
+func TestWaitResource(t *testing.T) {
+	substrateApi, err := gsrpc.NewSubstrateAPI("ws://183.66.65.207:49944")
+	assert.NoError(t, err)
+	meta, err := substrateApi.RPC.State.GetMetadataLatest()
+	assert.NoError(t, err)
+
+	mapData, err := GetResourceList(meta, substrateApi, func(resource *ComputingResource) bool {
+		return resource.Status.IsUnused
+	})
+
+	fmt.Println("可用资源数：", len(mapData))
+
+}
+
+func GetResourceList(meta *types.Metadata, api *gsrpc.SubstrateAPI, filter func(resource *ComputingResource) bool) (map[types.U64]*ComputingResource, error) {
 
 	key, err := types.CreateStorageKey(meta, "Provider", "ProviderOnlineList")
 
@@ -78,10 +92,15 @@ func GetResourceList(meta *types.Metadata, api *gsrpc.SubstrateAPI) (map[types.U
 
 		for _, providerIndex := range providerList {
 			r, err := GetResource(providerIndex, meta, api)
+
 			if err != nil {
 				return nil, err
 			}
-
+			if filter != nil {
+				if !filter(r) {
+					continue
+				}
+			}
 			mapData[r.Index] = r
 		}
 	}

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="60px" height="61px" viewBox="0 0 60 61" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>列表</title>
+    <defs>
+        <circle id="path-1" cx="30" cy="30" r="30"></circle>
+        <filter x="-11.7%" y="-8.3%" width="123.3%" height="123.3%" filterUnits="objectBoundingBox" id="filter-2">
+            <feOffset dx="0" dy="2" in="SourceAlpha" result="shadowOffsetOuter1"></feOffset>
+            <feGaussianBlur stdDeviation="2" in="shadowOffsetOuter1" result="shadowBlurOuter1"></feGaussianBlur>
+            <feColorMatrix values="0 0 0 0 0.816529657   0 0 0 0 0.819725707   0 0 0 0 0.829313859  0 0 0 1 0" type="matrix" in="shadowBlurOuter1"></feColorMatrix>
+        </filter>
+    </defs>
+    <g id="页面-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="thgraph" transform="translate(-815.000000, -572.000000)">
+            <g id="编组-7" transform="translate(24.000000, 71.000000)">
+                <g id="列表" transform="translate(666.000000, 365.000000)">
+                    <g id="编组-3" transform="translate(125.000000, 136.000000)">
+                        <g id="椭圆形">
+                            <use fill="black" fill-opacity="1" filter="url(#filter-2)" xlink:href="#path-1"></use>
+                            <use fill="#043CC1" fill-rule="evenodd" xlink:href="#path-1"></use>
+                        </g>
+                        <rect id="矩形" fill="#FFFFFF" x="14" y="29" width="32" height="2" rx="1"></rect>
+                        <rect id="矩形" fill="#FFFFFF" transform="translate(30.000000, 30.000000) rotate(-270.000000) translate(-30.000000, -30.000000) " x="14" y="29" width="32" height="2" rx="1"></rect>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

@@ -21,6 +21,8 @@ export default {
   backText: 'Back',
   allText: 'All',
   downloadText: 'Download',
+  createText: 'Create',
+  doneText: 'Done',
 
   redo: 'Refresh',
   back: 'Back',
