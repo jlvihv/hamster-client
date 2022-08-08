@@ -1,14 +1,39 @@
-export namespace application {
-  export class AddApplicationParam {
+export namespace v2 {
+  export class AddParam {
     name: string;
     plugin: string;
+    leaseTerm: number;
+    mnemonic: string;
+    stakingAmount: number;
 
     static createFrom(source: any = {}) {
-      return new AddApplicationParam(source);
+      return new AddParam(source);
     }
 
     constructor(source: any = {}) {
       if ('string' === typeof source) source = JSON.parse(source);
+      this.name = source['name'];
+      this.plugin = source['plugin'];
+      this.leaseTerm = source['leaseTerm'];
+      this.mnemonic = source['mnemonic'];
+      this.stakingAmount = source['stakingAmount'];
+    }
+  }
+}
+
+export namespace application {
+  export class UpdateApplicationParam {
+    id: number;
+    name: string;
+    plugin: string;
+
+    static createFrom(source: any = {}) {
+      return new UpdateApplicationParam(source);
+    }
+
+    constructor(source: any = {}) {
+      if ('string' === typeof source) source = JSON.parse(source);
+      this.id = source['id'];
       this.name = source['name'];
       this.plugin = source['plugin'];
     }
@@ -18,6 +43,8 @@ export namespace application {
     name: string;
     plugin: string;
     status: number;
+    p2pForwardPort: number;
+    grtIncome: number;
     // Go type: time.Time
     createdAt: any;
     // Go type: time.Time
@@ -35,6 +62,8 @@ export namespace application {
       this.name = source['name'];
       this.plugin = source['plugin'];
       this.status = source['status'];
+      this.p2pForwardPort = source['p2pForwardPort'];
+      this.grtIncome = source['grtIncome'];
       this.createdAt = this.convertValues(source['createdAt'], null);
       this.updatedAt = this.convertValues(source['updatedAt'], null);
       this.deletedAt = this.convertValues(source['deletedAt'], null);
@@ -130,22 +159,6 @@ export namespace application {
         return new classs(a);
       }
       return a;
-    }
-  }
-  export class UpdateApplicationParam {
-    id: number;
-    name: string;
-    plugin: string;
-
-    static createFrom(source: any = {}) {
-      return new UpdateApplicationParam(source);
-    }
-
-    constructor(source: any = {}) {
-      if ('string' === typeof source) source = JSON.parse(source);
-      this.id = source['id'];
-      this.name = source['name'];
-      this.plugin = source['plugin'];
     }
   }
 }
