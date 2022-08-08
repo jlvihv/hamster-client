@@ -12,10 +12,14 @@ func NewQueueApp(service queue.Service) Queue {
 	}
 }
 
-func (q *Queue) GetQueueInfo(key string) ([]queue.StatusInfo, error) {
+type QueueInfo struct {
+	Info []queue.StatusInfo `json:"info"`
+}
+
+func (q *Queue) GetQueueInfo(key string) (QueueInfo, error) {
 	info, err := q.service.GetStatusInfo(key)
 	if err != nil {
-		return []queue.StatusInfo{}, err
+		return QueueInfo{}, err
 	}
-	return info, nil
+	return QueueInfo{Info: info}, nil
 }

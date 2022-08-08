@@ -13,10 +13,10 @@ var queues sync.Map
 type StatusCode = int
 
 const (
-	None      StatusCode = iota // 0 无状态
-	Running                     // 1 运行中
-	Succeeded                   // 2 已成功
-	Failed                      // 3 已失败
+	None      StatusCode = iota // 0
+	Running                     // 1
+	Succeeded                   // 2
+	Failed                      // 3
 )
 
 type Job interface {
@@ -38,9 +38,9 @@ type queue struct {
 }
 
 type StatusInfo struct {
-	Name   string
-	Status StatusCode
-	Error  error
+	Name   string     `json:"name,omitempty"`
+	Status StatusCode `json:"status,omitempty"`
+	Error  error      `json:"error,omitempty"`
 }
 
 func NewQueue(jobs ...Job) (q Queue, key string) {
@@ -61,7 +61,6 @@ func GetQueue(key string) (q Queue, err error) {
 }
 
 func (q *queue) Start(done chan struct{}) {
-	// index 等于 0 说明之前没有运行过，所以需要初始化，否则认为是失败重试，不需要初始化
 	if q.index == 0 {
 		q.init()
 	}
@@ -95,7 +94,6 @@ func (q *queue) Start(done chan struct{}) {
 	done <- struct{}{}
 }
 
-// init 方法用来初始化结构体中的Status字段，这是一个sync.Map结构，用来保存任务的名称和当前状态
 func (q *queue) init() {
 	for _, j := range q.jobs {
 		name := j.Name()
