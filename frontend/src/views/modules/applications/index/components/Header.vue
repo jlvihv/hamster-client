@@ -39,22 +39,31 @@
           <SvgIcon size="16" color="#63A0FA" name="address" />
           {{ t('applications.index.address') }}
         </div>
-        <div class="text-[12px] mb-[20px] whitespace-normal break-all"
-          >5EKQCEm834AMHZ2CvdWeQUP5QrzBJzYa5PQrzBJzYa5PnhByhitgK9RS5o</div
-        >
+        <div class="text-[12px] mb-[20px] whitespace-normal break-all">
+          {{ settingStore.walletInfo?.address }}
+        </div>
         <div class="title-div">
           <SvgIcon size="16" color="#63A0FA" name="balance" />
           {{ t('applications.index.balance') }}
         </div>
-        <div class="text-[12px] mb-[20px]">300000.00 Unit</div>
+        <div class="text-[12px] mb-[20px]">
+          <template v-if="balance.loading">
+            <LoadingOutlined />
+          </template>
+          <template v-else>
+            {{ balance.value }}
+          </template>
+        </div>
         <div class="button-div">
-          <Button type="primary">{{ t('applications.index.changeWallet') }}</Button>
+          <router-link :to="{ path: '/home', query: { step: 1 } }">
+            <Button type="primary">{{ t('applications.index.changeWallet') }}</Button>
+          </router-link>
         </div>
       </div>
     </div>
     <div v-if="showSetting" @mouseleave="onMouseLeave($event)" class="pop-div">
       <div class="top-div right-[10px]"></div>
-      <div class="border-box">
+      <Form class="border-box" ref="formRef" :model="formData" :rules="formRules">
         <div class="title-div">
           <SvgIcon size="16" color="#63A0FA" name="ws" />
           {{ t('applications.index.wsUrl') }}
@@ -65,34 +74,78 @@
             :allowClear="true"
             :placeholder="t('applications.index.wsUrlPlaceholder')"
             :options="urlOptions"
+            v-model:value="formData.wsUrl"
           />
         </div>
         <div class="button-div">
-          <Button type="primary">{{ t('common.saveText') }}</Button>
+          <Button type="primary" @click="handleWsUrlSave">{{ t('common.saveText') }}</Button>
         </div>
-      </div>
+      </Form>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-  import { toRefs, reactive, ref } from 'vue';
+  import { reactive, ref, computed, watchEffect } from 'vue';
   import { SvgIcon } from '/@/components/Icon';
   import { useRouter } from 'vue-router';
   import { useI18n } from '/@/hooks/web/useI18n';
+  import { useSettingStore } from '/@/store/modules/setting';
+  import { LoadingOutlined } from '@ant-design/icons-vue';
+  import { createPolkadotApi, formatBalance } from '/@/utils/polkadotUtil';
+  import { createRule } from '/@/utils/formUtil';
   import { Button, Select } from 'ant-design-vue';
 
   const { t } = useI18n();
   const router = useRouter();
-  const props = defineProps({
+  const settingStore = useSettingStore();
+
+  defineProps({
     showBack: Boolean,
   });
-  const { showBack } = toRefs(props);
-  const urlOptions = reactive([
-    { label: '5EKQCEm834AMHZ2CvdWeQUP5QrzBJzYa5PQrzBJzYa5PnhByhitgK9RS5o', value: '1' },
-  ]);
+
   const showSetting = ref(false);
   const showPeople = ref(false);
+
+  // balance
+  const balance = reactive({ loading: false, value: '' });
+
+  // Fetching balance once wsUrl and address changed
+  watchEffect(async (onInvalidate) => {
+    const address = settingStore.walletInfo?.address;
+    const wsUrl = settingStore.config?.wsUrl;
+
+    if (!address || !wsUrl) return;
+    balance.loading = true;
+
+    const api = await createPolkadotApi(wsUrl);
+    if (api.isConnected) {
+      const { data: balanceData } = await api.query.system.account(address);
+
+      balance.value = formatBalance(balanceData.free);
+      balance.loading = false;
+
+      onInvalidate(() => api?.disconnect());
+    }
+  });
+
+  // Form
+  const urlOptions = reactive([
+    { label: '183.66.65.207:49944', value: 'wss://183.66.65.207:49944' },
+  ]);
+
+  const formRef = ref();
+  const formData = reactive({
+    wsUrl: settingStore.config?.wsUrl,
+  });
+  const formRules = computed(() => ({
+    wsUrl: [createRule(t('home.wsUrlPlaceholder'))],
+  }));
+
+  const handleWsUrlSave = () => {
+    settingStore.saveWsUrlAction(formData.wsUrl);
+    showSetting.value = false;
+  };
 
   const onBack = async () => {
     router.push({ path: '/applications/index' });
