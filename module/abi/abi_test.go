@@ -74,8 +74,7 @@ func TestAll(t *testing.T) {
 
 func TestGetPrivateKeyWithMnemonicAndPassword(t *testing.T) {
 	mnemonic := ""
-	password := ""
-	privateKeyString, err := GetPrivateKeyHexStringWithMnemonicAndPassword(mnemonic, password)
+	privateKeyString, err := GetPrivateKeyHexStringWithMnemonic(mnemonic)
 	if err != nil {
 		t.Error(err)
 	}
