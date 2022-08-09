@@ -69,14 +69,16 @@
   const settingStore = useSettingStore();
 
   const nodeOptions = reactive([
-    { label: '183.66.65.207:49944', value: '183.66.65.207:49944moon' },
+    { label: '183.66.65.207:49944', value: 'wss://183.66.65.207:49944' },
   ]);
   const stepVal = ref(0);
   const hasBackButton = ref(false);
 
   // Form
   const formRef = ref();
-  const formData = reactive({});
+  const formData = reactive({
+    wsUrl: settingStore.config?.wsUrl,
+  });
   const formRules = computed(() => ({
     wsUrl: [createRule(t('home.wsUrlPlaceholder'))],
   }));

@@ -19,15 +19,6 @@
             :placeholder="t('applications.new.namePlaceholder')"
           />
         </FormItem>
-        <FormItem :label="t('applications.new.plugin')" name="plugin">
-          <Select
-            :allowClear="true"
-            class="input-width"
-            v-model:value="formData.plugin"
-            :placeholder="t('applications.new.pluginPlaceholder')"
-            :options="pluginOptions"
-          />
-        </FormItem>
         <FormItem :label="t('applications.new.leaseTerm')" name="leaseTerm">
           <Input
             :allowClear="true"
@@ -36,13 +27,22 @@
             :placeholder="t('applications.new.leaseTermPlaceholder')"
           />
         </FormItem>
-        <FormItem :label="t('applications.new.mnemonic')" name="mnemonic">
+        <FormItem :label="t('applications.new.selectNodeType')" name="selectNodeType">
+          <Select
+            :allowClear="true"
+            class="input-width"
+            v-model:value="formData.selectNodeType"
+            :placeholder="t('applications.new.selectNodeTypePlaceholder')"
+            :options="pluginOptions"
+          />
+        </FormItem>
+        <FormItem :label="t('applications.new.thegraphIndexer')" name="thegraphIndexer">
           <Input
             s
             :allowClear="true"
             class="input-width"
-            v-model:value="formData.mnemonic"
-            :placeholder="t('applications.new.mnemonicPlaceholder')"
+            v-model:value="formData.thegraphIndexer"
+            :placeholder="t('applications.new.thegraphIndexerPlaceholder')"
           />
         </FormItem>
         <FormItem :label="t('applications.new.stakingAmount')" name="stakingAmount">
@@ -82,7 +82,12 @@
   const { t } = useI18n();
   const { router } = useRouter();
 
-  const pluginOptions = pluginConfigs.map(({ plugin }) => ({ label: plugin, value: plugin }));
+  const pluginOptions = pluginConfigs.map((item) => ({
+    ...item,
+    label: item.plugin,
+    value: item.plugin,
+  }));
+
   const formRef = ref();
   const formData = reactive({
     name: '',

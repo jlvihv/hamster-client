@@ -1,7 +1,7 @@
 export const pluginConfigs = [
-  {
-    plugin: 'The Graph',
-  },
+  { plugin: 'The Graph(Görli)' },
+  { plugin: 'The Graph(Ethereum)', disabled: true },
+  { plugin: 'Polygon(Ethereum)', disabled: true },
 ];
 
 export const deployData = {
