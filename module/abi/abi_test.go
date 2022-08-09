@@ -33,7 +33,8 @@ func getClient() *ethclient.Client {
 func TestAll(t *testing.T) {
 	var stakingAddress common.Address
 	var err error
-	var stakingAmount = big.NewInt(100000)
+	stakingAmount := new(big.Int)
+	stakingAmount.SetString("100000000000000000000000", 10)
 
 	// 获取质押合约地址
 	stakingAddress, err = StakeProxyFactoryAbiGetStakingAddress(context.Background(), sender, client)
