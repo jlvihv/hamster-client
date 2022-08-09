@@ -15,6 +15,9 @@ const (
 
 	// p2p swarm key
 	SwarmKey = "/key/swarm/psk/1.0.0/\n/base16/\n55158d9b6b7e5a8e41aa8b34dd057ff1880e38348613d27ae194ad7c5b9670d7"
+
+	// rinkbey network
+	EndpointUrl = "https://rinkeby.infura.io/v3/62d7b5f33ae443e784919f1c2afe24a3"
 )
 
 // deploy status

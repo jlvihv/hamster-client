@@ -1,16 +1,23 @@
 package v2
 
 import (
+	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	gsrpc "github.com/centrifuge/go-substrate-rpc-client/v4"
 	"github.com/centrifuge/go-substrate-rpc-client/v4/types"
+	"hamster-client/config"
+	ethAbi "hamster-client/module/abi"
+	"hamster-client/module/deploy"
+	"hamster-client/module/keystorage"
 	"hamster-client/module/account"
 	"hamster-client/module/application"
 	"hamster-client/module/p2p"
 	"hamster-client/module/pallet"
 	"hamster-client/module/queue"
 	"hamster-client/utils"
+	"strconv"
 	"time"
 )
 
@@ -152,4 +159,63 @@ func NewWaitResourceJob(api *gsrpc.SubstrateAPI, accountService account.Service,
 		p2pService:         p2pService,
 		applicationId:      applicationId,
 	}, nil
+}
+
+type GraphStakingJob struct {
+	err               error
+	id                int
+	keyStorageService keystorage.Service
+}
+
+func NewGraphStakingJob(id int, keyStorageService keystorage.Service) GraphStakingJob {
+	return GraphStakingJob{id: id, keyStorageService: keyStorageService}
+}
+
+func (g *GraphStakingJob) Run(sc chan queue.StatusCode) (queue.StatusCode, error) {
+	sc <- queue.Running
+	//获取质押金额以及助记词
+	var param deploy.DeployParameter
+	jsonParam := g.keyStorageService.Get("graph_" + strconv.Itoa(g.id))
+	if err := json.Unmarshal([]byte(jsonParam), &param); err != nil {
+		g.err = err
+		sc <- queue.Failed
+		return queue.Failed, err
+	}
+	if param.Initialization.AccountMnemonic == "" {
+		err := errors.New("Saved mnemonic is empty")
+		g.err = err
+		sc <- queue.Failed
+		return queue.Failed, err
+	}
+	//根据助记词获取address
+	addr, err := ethAbi.GetAccountAddress(param.Initialization.AccountMnemonic)
+	if err != nil {
+		g.err = err
+		sc <- queue.Failed
+		return queue.Failed, err
+	}
+	address := ethAbi.GetEthAddress(addr)
+	client, err := ethAbi.GetEthClient(config.EndpointUrl)
+	if err != nil {
+		g.err = err
+		sc <- queue.Failed
+		return queue.Failed, err
+	}
+	stakingAddress, err := ethAbi.StakeProxyFactoryAbiGetStakingAddress(context.Background(), address, client)
+	if err != nil {
+		g.err = err
+		sc <- queue.Failed
+		return queue.Failed, err
+	}
+	if stakingAddress == ethAbi.GetEthAddress("0") {
+	}
+	return queue.Succeeded, nil
+}
+
+func (g *GraphStakingJob) Name() string {
+	return "TheGraph Staking"
+}
+
+func (g *GraphStakingJob) Error() error {
+	return g.err
 }
