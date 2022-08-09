@@ -181,6 +181,7 @@ func (s *ServiceImpl) ProLink(peerId string) error {
 	if err != nil {
 		return err
 	}
+
 	return nil
 }
 
