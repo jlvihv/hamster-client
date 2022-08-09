@@ -56,7 +56,7 @@
         <FormItem class="text-center">
           <Button
             size="large"
-            class="w-32 mt-6 ml-4 !rounded-[30px]"
+            class="w-32 mt-6 ml-4"
             type="primary"
             @click="handleSubmit"
           >

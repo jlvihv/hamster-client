@@ -52,7 +52,7 @@
         </div>
       </div>
     </div>
-    <div v-if="showSetting" @mouseleave="showSetting = false" class="pop-div">
+    <div v-if="showSetting" @mouseleave="onMouseLeave($event)" class="pop-div">
       <div class="top-div right-[10px]"></div>
       <div class="border-box">
         <div class="title-div">
@@ -97,6 +97,13 @@
   const onBack = async () => {
     router.push({ path: '/applications/index' });
   };
+
+  async function onMouseLeave(e) {
+    var currTargetEl = e.relatedTarget || e.toElement;
+    const targetClassName = currTargetEl.className
+    if (targetClassName.indexOf('ant-select-dropdown') !== -1) return; 
+    showSetting.value = false;
+  }
 </script>
 <style lang="less" scoped>
   .pop-div {
@@ -134,11 +141,11 @@
   }
 
   :deep(.ant-select-single:not(.ant-select-customize-input) .ant-select-selector) {
-    height: auto;
+    height: auto !important;
   }
 
   :deep(.ant-select-single .ant-select-selector .ant-select-selection-item) {
-    line-height: 20px;
+    line-height: 20px !important;
     padding-top: 5px;
     padding-bottom: 5px;
     white-space: normal;

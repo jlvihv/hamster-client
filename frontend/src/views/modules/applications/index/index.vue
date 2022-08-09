@@ -1,9 +1,9 @@
 <template>
   <PageWrapper>
     <Header />
-    <div class="grid grid-cols-3 gap-4 text-center">
+    <div class="grid grid-cols-3 gap-8 mt-3 mx-3 text-center">
       <div
-        class="bg-white rounded-[20px] relative"
+        class="bg-white rounded-[20px] relative duration-500 hover:scale-110"
         v-for="(item, index) in [1, 2, 3, 4, 5]"
         :key="index"
       >
@@ -22,11 +22,10 @@
         </div>
         <div class="text-[#6A7EAF] text-[18px] mt-[10px] mb-[50px]">Running</div>
       </div>
-      <router-link
-        to="/applications/new"
-        class="rounded-[20px] border-2 border-[#043CC1] border-dashed flex items-center justify-center cursor-pointer"
-      >
-        <SvgIcon class="text-primary rounded-[50%]" size="60" name="add" />
+      <router-link to="/applications/new">
+        <div class="rounded-[20px] h-full border-2 border-[#043CC1] border-dashed flex items-center justify-center cursor-pointer duration-500 hover:scale-110">
+          <SvgIcon class="text-primary rounded-[50%]" size="60" name="add" />
+        </div>
       </router-link>
     </div>
   </PageWrapper>
