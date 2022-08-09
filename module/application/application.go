@@ -7,39 +7,48 @@ import (
 
 type Application struct {
 	ID             uint           `json:"id" gorm:"primarykey"`
-	Name           string         `json:"name"`   //apply name
-	Plugin         string         `json:"plugin"` //apply plugin
-	Status         int            `json:"status"` //apply status 0: not deploy 1:deployed 2:ALL 3:wait resource 4:In deployment 5:deploy failed
+	Name           string         `json:"name"`           //apply name
+	SelectNodeType string         `json:"selectNodeType"` //apply plugin
+	Status         int            `json:"status"`         //apply status 0: not deploy 1:deployed 2:ALL 3:wait resource 4:In deployment 5:deploy failed
 	P2pForwardPort int            `json:"p2pForwardPort"`
-	GrtIncome      int            `json:"grtIncome"`
+	GrtIncome      int64          `json:"grtIncome"`
+	LeaseTerm      int            `json:"leaseTerm"`
 	CreatedAt      time.Time      `json:"createdAt"`
 	UpdatedAt      time.Time      `json:"updatedAt"`
 	DeletedAt      gorm.DeletedAt `json:"deletedAt" gorm:"index"`
 }
 
 type AddApplicationParam struct {
-	Name   string `json:"name"`   //apply name
-	Plugin string `json:"plugin"` //apply plugin
+	Name           string `json:"name"`           //apply name
+	SelectNodeType string `json:"selectNodeType"` //apply plugin
 }
 
 type UpdateApplicationParam struct {
-	ID     uint   `json:"id"`     //application ID
-	Name   string `json:"name"`   //apply name
-	Plugin string `json:"plugin"` //apply plugin
+	ID             uint   `json:"id"`             //application ID
+	Name           string `json:"name"`           //apply name
+	SelectNodeType string `json:"selectNodeType"` //apply plugin
 }
 
 type PageApplicationVo struct {
-	Items []Application `json:"items"`
-	Total int64         `json:"total"`
+	Items []ListVo `json:"items"`
+	Total int64    `json:"total"`
 }
 
 type ApplyVo struct {
-	ID        uint      `json:"id"`
-	CreatedAt time.Time `json:"createdAt"`
-	UpdatedAt time.Time `json:"updatedAt"`
-	Name      string    `json:"name"`   //apply name
-	Plugin    string    `json:"plugin"` //apply plugin
-	Status    int       `json:"status"`
+	ID             uint      `json:"id"`
+	CreatedAt      time.Time `json:"createdAt"`
+	Name           string    `json:"name"`           //apply name
+	SelectNodeType string    `json:"selectNodeType"` //apply plugin
+	Status         int       `json:"status"`
+	LeaseTerm      int       `json:"leaseTerm"`
+}
+
+type ListVo struct {
+	ID             uint   `json:"id"`
+	Name           string `json:"name"`           //apply name
+	SelectNodeType string `json:"selectNodeType"` //apply plugin
+	Status         int    `json:"status"`
+	GrtIncome      int64  `json:"grtIncome"`
 }
 
 type Service interface {

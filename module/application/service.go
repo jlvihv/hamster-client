@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/jinzhu/copier"
 	"gorm.io/gorm"
 	"hamster-client/config"
 )
@@ -22,7 +23,7 @@ func (a *ServiceImpl) AddApplication(application *AddApplicationParam) (bool, er
 	var applyData Application
 	err := a.db.Where("name=?", application.Name).First(&applyData).Error
 	if err == gorm.ErrRecordNotFound {
-		applyData.Plugin = application.Plugin
+		applyData.SelectNodeType = application.SelectNodeType
 		applyData.Name = application.Name
 		a.db.Create(&applyData)
 		return true, nil
@@ -33,7 +34,7 @@ func (a *ServiceImpl) AddApplication(application *AddApplicationParam) (bool, er
 // UpdateApplication update application field
 func (a *ServiceImpl) UpdateApplication(id int, name string, plugin string) (bool, error) {
 	var applyData Application
-	result := a.db.Model(applyData).Where("id = ?", id).Updates(Application{Name: name, Plugin: plugin})
+	result := a.db.Model(applyData).Where("id = ?", id).Updates(Application{Name: name, SelectNodeType: plugin})
 	if result.Error != nil {
 		return false, result.Error
 	}
@@ -60,9 +61,9 @@ func (a *ServiceImpl) QueryApplicationById(id int) (ApplyVo, error) {
 	}
 	resultData.ID = data.ID
 	resultData.Name = data.Name
-	resultData.Plugin = data.Plugin
+	resultData.SelectNodeType = data.SelectNodeType
 	resultData.CreatedAt = data.CreatedAt
-	resultData.UpdatedAt = data.UpdatedAt
+	resultData.LeaseTerm = data.LeaseTerm
 	resultData.Status = data.Status
 	return resultData, nil
 }
@@ -71,6 +72,7 @@ func (a *ServiceImpl) QueryApplicationById(id int) (ApplyVo, error) {
 func (a *ServiceImpl) ApplicationList(page, pageSize int, name string, status int) (PageApplicationVo, error) {
 	var total int64
 	var list []Application
+	var listVo []ListVo
 	var data PageApplicationVo
 	tx := a.db.Model(Application{})
 	if name != "" {
@@ -83,7 +85,10 @@ func (a *ServiceImpl) ApplicationList(page, pageSize int, name string, status in
 	if result.Error != nil {
 		return data, result.Error
 	}
-	data.Items = list
+	if len(list) > 0 {
+		copier.Copy(&listVo, &list)
+	}
+	data.Items = listVo
 	data.Total = total
 	return data, nil
 }
