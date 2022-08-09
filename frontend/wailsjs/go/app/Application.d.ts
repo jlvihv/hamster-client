@@ -4,7 +4,7 @@ import { v2 } from '../models';
 import { application } from '../models';
 import { context } from '../models';
 
-export function AddApplication(arg1: v2.AddParam): Promise<boolean | Error>;
+export function AddApplication(arg1: v2.AddParam): Promise<v2.AddApplicationVo | Error>;
 
 export function ApplicationList(
   arg1: number,

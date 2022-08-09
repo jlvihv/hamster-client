@@ -22,22 +22,24 @@ func NewServiceImpl(ctx context.Context, db *gorm.DB, keyStorageService keystora
 	return ServiceImpl{ctx, db, keyStorageService}
 }
 
-func (g *ServiceImpl) SaveGraphDeployParameterAndApply(addData AddParam) (bool, error) {
+func (g *ServiceImpl) SaveGraphDeployParameterAndApply(addData AddParam) (AddApplicationVo, error) {
 	var applyData application.Application
 	var deployData GraphDeployParameter
+	var applicationVo AddApplicationVo
 	err := g.db.Transaction(func(tx *gorm.DB) error {
 		if err := tx.Where("name=?", addData.Name).First(&applyData).Error; err != gorm.ErrRecordNotFound {
 			return errors.New(fmt.Sprintf("application:%s already exists", addData.Name))
 		}
 		applyData.Name = addData.Name
-		applyData.Plugin = addData.Plugin
+		applyData.SelectNodeType = addData.SelectNodeType
+		applyData.LeaseTerm = addData.LeaseTerm
 		if err := tx.Create(&applyData).Error; err != nil {
 			return err
 		}
 		deployData.Application = applyData
 		deployData.LeaseTerm = addData.LeaseTerm
-		deployData.Mnemonic = addData.Mnemonic
-		deployData.PledgeAmount = addData.StakingAmount
+		deployData.ThegraphIndexer = addData.ThegraphIndexer
+		deployData.StakingAmount = addData.StakingAmount
 		deployData.ApplicationID = applyData.ID
 		if err := tx.Create(&deployData).Error; err != nil {
 			return err
@@ -45,18 +47,22 @@ func (g *ServiceImpl) SaveGraphDeployParameterAndApply(addData AddParam) (bool, 
 		return nil
 	})
 	if err != nil {
-		return false, err
+		applicationVo.Result = false
+		return applicationVo, err
 	}
 	var deploymentData deploy.DeployParameter
-	deploymentData.Initialization.AccountMnemonic = addData.Mnemonic
+	deploymentData.Initialization.AccountMnemonic = addData.ThegraphIndexer
 	deploymentData.Initialization.LeaseTerm = addData.LeaseTerm
 	deploymentData.Staking.PledgeAmount = addData.StakingAmount
 	jsonData, err := json.Marshal(deploymentData)
 	if err != nil {
-		return false, err
+		applicationVo.Result = false
+		return applicationVo, err
 	}
 	g.keyStorageService.Set("graph_"+strconv.Itoa(int(applyData.ID)), string(jsonData))
-	return true, nil
+	applicationVo.Result = true
+	applicationVo.ID = applyData.ID
+	return applicationVo, nil
 }
 
 func (g *ServiceImpl) DeleteGraphDeployParameterAndApply(id int) (bool, error) {

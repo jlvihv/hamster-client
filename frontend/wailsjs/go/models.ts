@@ -1,168 +1,3 @@
-export namespace v2 {
-  export class AddParam {
-    name: string;
-    plugin: string;
-    leaseTerm: number;
-    mnemonic: string;
-    stakingAmount: number;
-
-    static createFrom(source: any = {}) {
-      return new AddParam(source);
-    }
-
-    constructor(source: any = {}) {
-      if ('string' === typeof source) source = JSON.parse(source);
-      this.name = source['name'];
-      this.plugin = source['plugin'];
-      this.leaseTerm = source['leaseTerm'];
-      this.mnemonic = source['mnemonic'];
-      this.stakingAmount = source['stakingAmount'];
-    }
-  }
-}
-
-export namespace application {
-  export class UpdateApplicationParam {
-    id: number;
-    name: string;
-    plugin: string;
-
-    static createFrom(source: any = {}) {
-      return new UpdateApplicationParam(source);
-    }
-
-    constructor(source: any = {}) {
-      if ('string' === typeof source) source = JSON.parse(source);
-      this.id = source['id'];
-      this.name = source['name'];
-      this.plugin = source['plugin'];
-    }
-  }
-  export class Application {
-    id: number;
-    name: string;
-    plugin: string;
-    status: number;
-    p2pForwardPort: number;
-    grtIncome: number;
-    // Go type: time.Time
-    createdAt: any;
-    // Go type: time.Time
-    updatedAt: any;
-    // Go type: gorm.DeletedAt
-    deletedAt: any;
-
-    static createFrom(source: any = {}) {
-      return new Application(source);
-    }
-
-    constructor(source: any = {}) {
-      if ('string' === typeof source) source = JSON.parse(source);
-      this.id = source['id'];
-      this.name = source['name'];
-      this.plugin = source['plugin'];
-      this.status = source['status'];
-      this.p2pForwardPort = source['p2pForwardPort'];
-      this.grtIncome = source['grtIncome'];
-      this.createdAt = this.convertValues(source['createdAt'], null);
-      this.updatedAt = this.convertValues(source['updatedAt'], null);
-      this.deletedAt = this.convertValues(source['deletedAt'], null);
-    }
-
-    convertValues(a: any, classs: any, asMap: boolean = false): any {
-      if (!a) {
-        return a;
-      }
-      if (a.slice) {
-        return (a as any[]).map((elem) => this.convertValues(elem, classs));
-      } else if ('object' === typeof a) {
-        if (asMap) {
-          for (const key of Object.keys(a)) {
-            a[key] = new classs(a[key]);
-          }
-          return a;
-        }
-        return new classs(a);
-      }
-      return a;
-    }
-  }
-  export class PageApplicationVo {
-    items: Application[];
-    total: number;
-
-    static createFrom(source: any = {}) {
-      return new PageApplicationVo(source);
-    }
-
-    constructor(source: any = {}) {
-      if ('string' === typeof source) source = JSON.parse(source);
-      this.items = this.convertValues(source['items'], Application);
-      this.total = source['total'];
-    }
-
-    convertValues(a: any, classs: any, asMap: boolean = false): any {
-      if (!a) {
-        return a;
-      }
-      if (a.slice) {
-        return (a as any[]).map((elem) => this.convertValues(elem, classs));
-      } else if ('object' === typeof a) {
-        if (asMap) {
-          for (const key of Object.keys(a)) {
-            a[key] = new classs(a[key]);
-          }
-          return a;
-        }
-        return new classs(a);
-      }
-      return a;
-    }
-  }
-  export class ApplyVo {
-    id: number;
-    // Go type: time.Time
-    createdAt: any;
-    // Go type: time.Time
-    updatedAt: any;
-    name: string;
-    plugin: string;
-    status: number;
-
-    static createFrom(source: any = {}) {
-      return new ApplyVo(source);
-    }
-
-    constructor(source: any = {}) {
-      if ('string' === typeof source) source = JSON.parse(source);
-      this.id = source['id'];
-      this.createdAt = this.convertValues(source['createdAt'], null);
-      this.updatedAt = this.convertValues(source['updatedAt'], null);
-      this.name = source['name'];
-      this.plugin = source['plugin'];
-      this.status = source['status'];
-    }
-
-    convertValues(a: any, classs: any, asMap: boolean = false): any {
-      if (!a) {
-        return a;
-      }
-      if (a.slice) {
-        return (a as any[]).map((elem) => this.convertValues(elem, classs));
-      } else if ('object' === typeof a) {
-        if (asMap) {
-          for (const key of Object.keys(a)) {
-            a[key] = new classs(a[key]);
-          }
-          return a;
-        }
-        return new classs(a);
-      }
-      return a;
-    }
-  }
-}
-
 export namespace graph {
   export class GraphParameterVo {
     nodeEthereumUrl: string;
@@ -415,6 +250,155 @@ export namespace deploy {
         return new classs(a);
       }
       return a;
+    }
+  }
+}
+
+export namespace v2 {
+  export class AddParam {
+    name: string;
+    selectNodeType: string;
+    leaseTerm: number;
+    thegraphIndexer: string;
+    stakingAmount: number;
+
+    static createFrom(source: any = {}) {
+      return new AddParam(source);
+    }
+
+    constructor(source: any = {}) {
+      if ('string' === typeof source) source = JSON.parse(source);
+      this.name = source['name'];
+      this.selectNodeType = source['selectNodeType'];
+      this.leaseTerm = source['leaseTerm'];
+      this.thegraphIndexer = source['thegraphIndexer'];
+      this.stakingAmount = source['stakingAmount'];
+    }
+  }
+  export class AddApplicationVo {
+    id: number;
+    result: boolean;
+
+    static createFrom(source: any = {}) {
+      return new AddApplicationVo(source);
+    }
+
+    constructor(source: any = {}) {
+      if ('string' === typeof source) source = JSON.parse(source);
+      this.id = source['id'];
+      this.result = source['result'];
+    }
+  }
+}
+
+export namespace application {
+  export class ListVo {
+    id: number;
+    name: string;
+    selectNodeType: string;
+    status: number;
+    grtIncome: number;
+
+    static createFrom(source: any = {}) {
+      return new ListVo(source);
+    }
+
+    constructor(source: any = {}) {
+      if ('string' === typeof source) source = JSON.parse(source);
+      this.id = source['id'];
+      this.name = source['name'];
+      this.selectNodeType = source['selectNodeType'];
+      this.status = source['status'];
+      this.grtIncome = source['grtIncome'];
+    }
+  }
+  export class PageApplicationVo {
+    items: ListVo[];
+    total: number;
+
+    static createFrom(source: any = {}) {
+      return new PageApplicationVo(source);
+    }
+
+    constructor(source: any = {}) {
+      if ('string' === typeof source) source = JSON.parse(source);
+      this.items = this.convertValues(source['items'], ListVo);
+      this.total = source['total'];
+    }
+
+    convertValues(a: any, classs: any, asMap: boolean = false): any {
+      if (!a) {
+        return a;
+      }
+      if (a.slice) {
+        return (a as any[]).map((elem) => this.convertValues(elem, classs));
+      } else if ('object' === typeof a) {
+        if (asMap) {
+          for (const key of Object.keys(a)) {
+            a[key] = new classs(a[key]);
+          }
+          return a;
+        }
+        return new classs(a);
+      }
+      return a;
+    }
+  }
+  export class ApplyVo {
+    id: number;
+    // Go type: time.Time
+    createdAt: any;
+    name: string;
+    selectNodeType: string;
+    status: number;
+    leaseTerm: number;
+
+    static createFrom(source: any = {}) {
+      return new ApplyVo(source);
+    }
+
+    constructor(source: any = {}) {
+      if ('string' === typeof source) source = JSON.parse(source);
+      this.id = source['id'];
+      this.createdAt = this.convertValues(source['createdAt'], null);
+      this.name = source['name'];
+      this.selectNodeType = source['selectNodeType'];
+      this.status = source['status'];
+      this.leaseTerm = source['leaseTerm'];
+    }
+
+    convertValues(a: any, classs: any, asMap: boolean = false): any {
+      if (!a) {
+        return a;
+      }
+      if (a.slice) {
+        return (a as any[]).map((elem) => this.convertValues(elem, classs));
+      } else if ('object' === typeof a) {
+        if (asMap) {
+          for (const key of Object.keys(a)) {
+            a[key] = new classs(a[key]);
+          }
+          return a;
+        }
+        return new classs(a);
+      }
+      return a;
+    }
+  }
+  export class UpdateApplicationParam {
+    id: number;
+    name: string;
+    selectNodeType: string;
+
+    static createFrom(source: any = {}) {
+      return new UpdateApplicationParam(source);
+    }
+
+    constructor(source: any = {}) {
+      if ('string' === typeof source) source = JSON.parse(source);
+      this.id = source['id'];
+      this.name = source['name'];
+      this.selectNodeType = source['selectNodeType'];
     }
   }
 }

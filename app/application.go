@@ -25,13 +25,13 @@ func (a *Application) WailsInit(ctx context.Context) error {
 }
 
 // AddApplication add application
-func (a *Application) AddApplication(applicationData param.AddParam) (bool, error) {
+func (a *Application) AddApplication(applicationData param.AddParam) (param.AddApplicationVo, error) {
 	return a.graphDeployParamService.SaveGraphDeployParameterAndApply(applicationData)
 }
 
 // UpdateApplication edit application
 func (a *Application) UpdateApplication(application application.UpdateApplicationParam) (bool, error) {
-	return a.applicationService.UpdateApplication(int(application.ID), application.Name, application.Plugin)
+	return a.applicationService.UpdateApplication(int(application.ID), application.Name, application.SelectNodeType)
 }
 
 func (a *Application) DeleteApplication(id int) (bool, error) {
