@@ -3,11 +3,14 @@ package abi
 import (
 	"context"
 	"crypto/ecdsa"
+	"encoding/hex"
 	"errors"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto/secp256k1"
 	"github.com/ethereum/go-ethereum/ethclient"
+	"github.com/tyler-smith/go-bip32"
+	"github.com/tyler-smith/go-bip39"
 	"hamster-client/module/abi/ecr20"
 	"hamster-client/module/abi/stake_distribution_proxy"
 	"hamster-client/module/abi/stake_proxy_factory"
@@ -35,6 +38,66 @@ func GetPrivateKey(privateStr string) *ecdsa.PrivateKey {
 	e.PublicKey.Curve = secp256k1.S256()
 	e.PublicKey.X, e.PublicKey.Y = e.PublicKey.Curve.ScalarBaseMult(e.D.Bytes())
 	return &e
+}
+
+func GetPrivateKeyWithMnemonicAndPassword(mnemonic, password string) (*ecdsa.PrivateKey, error) {
+	privateStr, err := GetPrivateKeyHexStringWithMnemonicAndPassword(mnemonic, password)
+	if err != nil {
+		return nil, err
+	}
+	return GetPrivateKey(privateStr), nil
+}
+
+func GetPrivateKeyHexStringWithMnemonicAndPassword(mnemonic, password string) (string, error) {
+	seed := bip39.NewSeed(mnemonic, password)
+	seedHexStr := hex.EncodeToString(seed)
+	return PrivateKeyBySeed(seedHexStr)
+}
+
+// PrivateKeyBySeed returns private key from seed.
+func PrivateKeyBySeed(seed string) (string, error) {
+	bytes, err := hex.DecodeString(seed)
+	if err != nil {
+		return "", err
+	}
+
+	// Generate a new master node using the seed.
+	masterKey, err := bip32.NewMasterKey(bytes)
+	if err != nil {
+		return "", err
+	}
+
+	// This gives the path: m/44H
+	acc44H, err := masterKey.NewChildKey(bip32.FirstHardenedChild + 44)
+	if err != nil {
+		return "", err
+	}
+
+	// This gives the path: m/44H/60H
+	acc44H60H, err := acc44H.NewChildKey(bip32.FirstHardenedChild + 60)
+	if err != nil {
+		return "", err
+	}
+
+	// This gives the path: m/44H/60H/0H
+	acc44H60H0H, err := acc44H60H.NewChildKey(bip32.FirstHardenedChild + 0)
+	if err != nil {
+		return "", err
+	}
+
+	// This gives the path: m/44H/60H/0H/0
+	acc44H60H0H0, err := acc44H60H0H.NewChildKey(0)
+	if err != nil {
+		return "", err
+	}
+
+	// This gives the path: m/44H/60H/0H/0/0
+	//acc44H60H0H00, err := acc44H60H0H0.NewChildKey(0)
+	//if err != nil {
+	//	return "", err
+	//}
+
+	return hex.EncodeToString(acc44H60H0H0.Key), nil
 }
 
 // Ecr20AbiApprove call ecr20Abi.approve(address,  amount)
