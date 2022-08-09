@@ -41,6 +41,7 @@ type ApplyVo struct {
 	SelectNodeType string    `json:"selectNodeType"` //apply plugin
 	Status         int       `json:"status"`
 	LeaseTerm      int       `json:"leaseTerm"`
+	P2pForwardPort int       `json:"p2pForwardPort"`
 }
 
 type ListVo struct {
@@ -58,4 +59,6 @@ type Service interface {
 	QueryApplicationById(id int) (ApplyVo, error)
 	ApplicationList(page, pageSize int, name string, status int) (PageApplicationVo, error)
 	UpdateApplicationStatus(id, status int) error
+	UpdateApplicationP2pForwardPort(id, port int) error
+	QueryNextP2pPort() int
 }
