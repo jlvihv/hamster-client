@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"sync"
-	"time"
 )
 
 var queues sync.Map
@@ -100,7 +99,6 @@ func (q *queue) init() {
 }
 
 func (q *queue) GetStatus() (info []StatusInfo, err error) {
-	time.Sleep(time.Second * 1)
 	for _, j := range q.jobs {
 		name := j.Name()
 		status, ok := q.Status.Load(name)
