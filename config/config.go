@@ -18,6 +18,11 @@ const (
 
 	// rinkbey network
 	EndpointUrl = "https://rinkeby.infura.io/v3/62d7b5f33ae443e784919f1c2afe24a3"
+	// eth main net
+	EthMainNetwork             = "mainnet:https://cloudflare-eth.com"
+	EthereumRinkebyNetworkName = "rinkeby"
+	EthereumMainNetworkName    = "mainnet"
+	TheGraphStakingAddress     = "0x2d44C0e097F6cD0f514edAC633d82E01280B4A5c"
 )
 
 // deploy status

@@ -21,18 +21,6 @@ const (
 	stakeProxyFactoryContractAddress      = "0xeFF0ed9Fc8276Fcf4eda2e012dD065A3DC18591D"
 )
 
-func GetAccountAddress(mnemonic string) (string, error) {
-	wallet, err := hdwallet.NewFromMnemonic(mnemonic)
-	if err != nil {
-		return "", err
-	}
-
-	path := hdwallet.MustParseDerivationPath("m/44'/60'/0'/0/0")
-	account, err := wallet.Derive(path, false)
-	address := account.Address.Hex()
-	return address, nil
-}
-
 func GetEthClient(url string) (*ethclient.Client, error) {
 	return ethclient.Dial(url)
 }
@@ -50,7 +38,7 @@ func GetPrivateKey(privateStr string) *ecdsa.PrivateKey {
 	return &e
 }
 
-func GetPrivateKeyWithMnemonicAndPassword(mnemonic string) (*ecdsa.PrivateKey, error) {
+func GetPrivateKeyWithMnemonic(mnemonic string) (*ecdsa.PrivateKey, error) {
 	privateStr, err := GetPrivateKeyHexStringWithMnemonic(mnemonic)
 	if err != nil {
 		return nil, err

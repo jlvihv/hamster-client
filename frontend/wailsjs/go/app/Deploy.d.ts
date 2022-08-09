@@ -3,6 +3,8 @@
 import { context } from '../models';
 import { deploy } from '../models';
 
+export function QueryGraphStatus(arg1: number, arg2: Array<string>): Promise<number | Error>;
+
 export function SaveDeployInfo(arg1: number, arg2: string): Promise<boolean | Error>;
 
 export function WailsInit(arg1: context.Context): Promise<Error>;
@@ -10,5 +12,3 @@ export function WailsInit(arg1: context.Context): Promise<Error>;
 export function DeployTheGraph(arg1: number, arg2: string): Promise<boolean | Error>;
 
 export function GetDeployInfo(arg1: number): Promise<deploy.DeployParameter | Error>;
-
-export function QueryGraphStatus(arg1: number, arg2: Array<string>): Promise<number | Error>;

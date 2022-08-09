@@ -17,6 +17,7 @@ import (
 	"hamster-client/module/pallet"
 	"hamster-client/module/queue"
 	"hamster-client/utils"
+	"math/big"
 	"strconv"
 	"time"
 )
@@ -167,13 +168,9 @@ type GraphStakingJob struct {
 	keyStorageService keystorage.Service
 }
 
-func NewGraphStakingJob(id int, keyStorageService keystorage.Service) GraphStakingJob {
-	return GraphStakingJob{id: id, keyStorageService: keyStorageService}
-}
-
 func (g *GraphStakingJob) Run(sc chan queue.StatusCode) (queue.StatusCode, error) {
 	sc <- queue.Running
-	//获取质押金额以及助记词
+	//Obtain pledge amount and mnemonic words
 	var param deploy.DeployParameter
 	jsonParam := g.keyStorageService.Get("graph_" + strconv.Itoa(g.id))
 	if err := json.Unmarshal([]byte(jsonParam), &param); err != nil {
@@ -187,28 +184,76 @@ func (g *GraphStakingJob) Run(sc chan queue.StatusCode) (queue.StatusCode, error
 		sc <- queue.Failed
 		return queue.Failed, err
 	}
-	//根据助记词获取address
-	addr, err := ethAbi.GetAccountAddress(param.Initialization.AccountMnemonic)
+	//Get address from mnemonic
+	addr, err := ethAbi.GetPrivateKeyHexStringWithMnemonic(param.Initialization.AccountMnemonic)
 	if err != nil {
 		g.err = err
 		sc <- queue.Failed
 		return queue.Failed, err
 	}
 	address := ethAbi.GetEthAddress(addr)
+	//Get eth client
 	client, err := ethAbi.GetEthClient(config.EndpointUrl)
 	if err != nil {
 		g.err = err
 		sc <- queue.Failed
 		return queue.Failed, err
 	}
+	// Obtain the agent pledge address
 	stakingAddress, err := ethAbi.StakeProxyFactoryAbiGetStakingAddress(context.Background(), address, client)
 	if err != nil {
 		g.err = err
 		sc <- queue.Failed
 		return queue.Failed, err
 	}
-	if stakingAddress == ethAbi.GetEthAddress("0") {
+	//Get private key from mnemonic
+	privateKey, err := ethAbi.GetPrivateKeyWithMnemonic(param.Initialization.AccountMnemonic)
+	if err != nil {
+		g.err = err
+		sc <- queue.Failed
+		return queue.Failed, err
 	}
+	if stakingAddress == ethAbi.GetEthAddress("0") {
+		//Create agent pledge address
+		err = ethAbi.StakeProxyFactoryAbiCreateStakingContract(address, client, big.NewInt(4), privateKey)
+		if err != nil {
+			g.err = err
+			sc <- queue.Failed
+			return queue.Failed, err
+		}
+		// Get the agent pledge address again
+		stakingAddress, err = ethAbi.StakeProxyFactoryAbiGetStakingAddress(context.Background(), address, client)
+		if err != nil {
+			g.err = err
+			sc <- queue.Failed
+			return queue.Failed, err
+		}
+		//Convert the pledged amount into Wei
+		stakingAmount := utils.ToWei18(int64(param.Staking.PledgeAmount))
+		// Authorize the agency pledge address
+		err = ethAbi.Ecr20AbiApprove(stakingAddress, client, big.NewInt(4), stakingAmount, privateKey)
+		if err != nil {
+			g.err = err
+			sc <- queue.Failed
+			return queue.Failed, err
+		}
+		//GRT pledge
+		err = ethAbi.StakeDistributionProxyAbiStaking(stakingAddress, client, big.NewInt(4), stakingAmount, privateKey)
+		if err != nil {
+			g.err = err
+			sc <- queue.Failed
+			return queue.Failed, err
+		}
+	}
+	param.Deployment.IndexerAddress = addr
+	param.Staking.AgentAddress = stakingAddress.Hex()
+	jsonData, err := json.Marshal(param)
+	if err != nil {
+		g.err = err
+		sc <- queue.Failed
+		return queue.Failed, err
+	}
+	g.keyStorageService.Set("graph_"+strconv.Itoa(int(g.id)), string(jsonData))
 	return queue.Succeeded, nil
 }
 
@@ -218,4 +263,43 @@ func (g *GraphStakingJob) Name() string {
 
 func (g *GraphStakingJob) Error() error {
 	return g.err
+}
+
+type ServiceDeployJob struct {
+	err               error
+	id                int
+	deployService     deploy.Service
+	keyStorageService keystorage.Service
+}
+
+func (s *ServiceDeployJob) Run(sc chan queue.StatusCode) (queue.StatusCode, error) {
+	sc <- queue.Running
+	var param deploy.DeployParameter
+	var sendData deploy.DeployParams
+	jsonParam := s.keyStorageService.Get("graph_" + strconv.Itoa(s.id))
+	if err := json.Unmarshal([]byte(jsonParam), &param); err != nil {
+		s.err = err
+		sc <- queue.Failed
+		return queue.Failed, err
+	}
+	sendData.EthereumUrl = param.Deployment.EthereumUrl
+	sendData.EthereumNetwork = param.Deployment.EthereumNetwork
+	sendData.NodeEthereumUrl = param.Deployment.NodeEthereumUrl
+	sendData.IndexerAddress = param.Staking.AgentAddress
+	sendData.Mnemonic = param.Initialization.AccountMnemonic
+	_, err := s.deployService.DeployGraph(s.id, sendData)
+	if err != nil {
+		s.err = err
+		sc <- queue.Failed
+		return queue.Failed, err
+	}
+	return queue.Succeeded, nil
+}
+
+func (s *ServiceDeployJob) Name() string {
+	return "Service Deploy"
+}
+
+func (s *ServiceDeployJob) Error() error {
+	return s.err
 }
