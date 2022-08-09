@@ -5,19 +5,31 @@ import (
 	"fmt"
 	gsrpc "github.com/centrifuge/go-substrate-rpc-client/v4"
 	"github.com/centrifuge/go-substrate-rpc-client/v4/types"
+	"hamster-client/module/account"
+	"hamster-client/module/application"
+	"hamster-client/module/p2p"
 	"hamster-client/module/pallet"
 	"hamster-client/module/queue"
 	"hamster-client/utils"
+	"time"
 )
 
 type PullImageJob struct {
-	err         error
-	ProviderApi string
+	err                error
+	applicationId      int
+	applicationService application.Service
 }
 
 func (j *PullImageJob) Run(sc chan queue.StatusCode) (queue.StatusCode, error) {
 	sc <- queue.Running
-	url := fmt.Sprintf("%s/api/v1/thegraph/pullImage", j.ProviderApi)
+	vo, err := j.applicationService.QueryApplicationById(j.applicationId)
+	if err != nil {
+		fmt.Println("query application fail, err is :", err)
+		sc <- queue.Failed
+		return queue.Failed, err
+	}
+
+	url := fmt.Sprintf("http://localhost:%d/api/v1/thegraph/pullImage", vo.P2pForwardPort)
 	response, err := utils.NewHttp().NewRequest().Post(url)
 	if err != nil {
 		j.err = err
@@ -41,44 +53,81 @@ func (j *PullImageJob) Error() error {
 	return j.err
 }
 
+func NewPullImageJob(service application.Service, applicationId int) PullImageJob {
+	return PullImageJob{
+		applicationId:      applicationId,
+		applicationService: service,
+	}
+}
+
 type WaitResourceJob struct {
-	err  error
-	api  *gsrpc.SubstrateAPI
-	meta *types.Metadata
+	err                error
+	api                *gsrpc.SubstrateAPI
+	meta               *types.Metadata
+	accountService     account.Service
+	applicationService application.Service
+	p2pService         p2p.Service
+	applicationId      int
 }
 
 func (j *WaitResourceJob) Run(sc chan queue.StatusCode) (queue.StatusCode, error) {
+
 	sc <- queue.Running
-	mapData, err := pallet.GetResourceList(j.meta, j.api, func(resource *pallet.ComputingResource) bool {
-		return resource.Status.IsUnused
-	})
-	if err != nil {
-		sc <- queue.Failed
-		j.err = err
-		return queue.Failed, err
-	}
 
-	fmt.Println("可用资源数：", len(mapData))
+	for i := 0; i < 60; i++ {
 
-	for _, val := range mapData {
+		mapData, err := pallet.GetResourceList(j.meta, j.api, func(resource *pallet.ComputingResource) bool {
+			return resource.Status.IsUnused
+		})
+		if err != nil {
+			sc <- queue.Failed
+			j.err = err
+			return queue.Failed, err
+		}
 
-		if val.Status.IsUnused {
-			fmt.Println("发现未使用资源，占用。资源号：", val.Index)
-			c, err := types.NewCall(j.meta, "ResourceOrder.create_order_info", val.Index, types.NewU32(10), "")
-			if err != nil {
-				panic(err)
-			}
-			err = pallet.CallAndWatch(j.api, c, j.meta, func(header *types.Header) error {
-				fmt.Println("资源占用成功，资源号：", val.Index)
-				return nil
-			})
-			if err == nil {
-				continue
+		fmt.Println("可用资源数：", len(mapData))
+
+		for _, val := range mapData {
+
+			if val.Status.IsUnused {
+				fmt.Println("发现未使用资源，占用。资源号：", val.Index)
+				c, err := types.NewCall(j.meta, "ResourceOrder.create_order_info", val.Index, types.NewU32(10), "")
+				if err != nil {
+					continue
+				}
+				err = pallet.CallAndWatch(j.api, c, j.meta, func(header *types.Header) error {
+					fmt.Println("资源占用成功，资源号：", val.Index)
+					return nil
+				})
+				if err != nil {
+					continue
+				}
+
+				ac, _ := j.accountService.GetAccount()
+				ac.PeerId = string(val.PeerId)
+				j.accountService.SaveAccount(&ac)
+
+				port := j.applicationService.QueryNextP2pPort()
+
+				err = j.applicationService.UpdateApplicationP2pForwardPort(j.applicationId, port)
+				if err != nil {
+					fmt.Println("query p2p max port fail")
+				}
+				err = j.p2pService.LinkByProtocol("/x/provider", port, ac.PeerId)
+
+				if err != nil {
+					fmt.Println("create p2p network forward fail")
+				}
+
+				sc <- queue.Succeeded
+				return queue.Succeeded, nil
 			}
 		}
-	}
 
-	return queue.Succeeded, nil
+		time.Sleep(time.Second * 30)
+
+	}
+	return queue.Failed, errors.New("NO_RESOURCE_TO_USE")
 }
 
 func (j *WaitResourceJob) Name() string {
@@ -88,7 +137,7 @@ func (j *WaitResourceJob) Error() error {
 	return j.err
 }
 
-func NewWaitResourceJob(api *gsrpc.SubstrateAPI) (*WaitResourceJob, error) {
+func NewWaitResourceJob(api *gsrpc.SubstrateAPI, accountService account.Service, applicationService application.Service, p2pService p2p.Service, applicationId int) (*WaitResourceJob, error) {
 
 	meta, err := api.RPC.State.GetMetadataLatest()
 	if err != nil {
@@ -96,7 +145,11 @@ func NewWaitResourceJob(api *gsrpc.SubstrateAPI) (*WaitResourceJob, error) {
 	}
 
 	return &WaitResourceJob{
-		api:  api,
-		meta: meta,
+		api:                api,
+		meta:               meta,
+		accountService:     accountService,
+		applicationService: applicationService,
+		p2pService:         p2pService,
+		applicationId:      applicationId,
 	}, nil
 }

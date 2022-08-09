@@ -27,7 +27,7 @@ func TestQueryResource(t *testing.T) {
 				panic(err)
 				return
 			}
-			err = callAndWatch(substrateApi, c, meta, func(header *types.Header) error {
+			err = CallAndWatch(substrateApi, c, meta, func(header *types.Header) error {
 				fmt.Println("资源占用成功，资源号：", val.Index)
 				return nil
 			})

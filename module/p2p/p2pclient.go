@@ -21,6 +21,7 @@ type LinkInfo struct {
 
 type Service interface {
 	Link(port int, peerId string) error
+	LinkByProtocol(protocol string, localPort int, peerId string) error
 	Close(target string) (int, error)
 	Destroy() error
 	GetLinks() *[]LinkInfo

@@ -72,6 +72,18 @@ func (s *ServiceImpl) Link(port int, peerId string) error {
 	return nil
 }
 
+func (s *ServiceImpl) LinkByProtocol(protocol string, localPort int, peerId string) error {
+	client, err := s.getP2pClient()
+	if err != nil {
+		return err
+	}
+	err = client.Forward(protocol, localPort, peerId)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 // Close Close Link
 func (s *ServiceImpl) Close(target string) (int, error) {
 	client, err := s.getP2pClient()

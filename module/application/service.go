@@ -65,6 +65,7 @@ func (a *ServiceImpl) QueryApplicationById(id int) (ApplyVo, error) {
 	resultData.CreatedAt = data.CreatedAt
 	resultData.LeaseTerm = data.LeaseTerm
 	resultData.Status = data.Status
+	resultData.P2pForwardPort = data.P2pForwardPort
 	return resultData, nil
 }
 
@@ -101,4 +102,20 @@ func (a *ServiceImpl) UpdateApplicationStatus(id, status int) error {
 		return result.Error
 	}
 	return nil
+}
+
+func (a *ServiceImpl) UpdateApplicationP2pForwardPort(id, port int) error {
+	var applyData Application
+	result := a.db.Model(applyData).Where("id = ?", id).Update("p2p_forward_port", port)
+	return result.Error
+}
+
+func (a *ServiceImpl) QueryNextP2pPort() int {
+	var data Application
+	tx := a.db.Model(Application{})
+	result := tx.Order("p2p_forward_port desc").Limit(1).First(&data)
+	if result.Error != nil {
+		return 34000
+	}
+	return data.P2pForwardPort + 1
 }
