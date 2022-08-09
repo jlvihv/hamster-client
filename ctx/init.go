@@ -38,9 +38,8 @@ type App struct {
 	ChainListener           *pallet.ChainListener
 	GraphParamsService      graph.Service
 	KeyStorageService       *keystorage.Service
-	GraphDeployParamService param.Service
-	StateService            state.Service
 	QueueService            queue.Service
+	GraphDeployParamService param.Service
 
 	AccountApp     app.Account
 	P2pApp         app.P2p

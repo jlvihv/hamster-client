@@ -3,6 +3,7 @@ package queue
 import (
 	"errors"
 	"fmt"
+	"github.com/google/uuid"
 	"testing"
 	"time"
 )
@@ -49,7 +50,12 @@ func (h *hiJob) Error() error {
 func TestAll(t *testing.T) {
 	hello := helloJob{}
 	hi := hiJob{}
-	q, _ := NewQueue(&hello, &hi)
+	id := uuid.New().String()
+	_ = NewQueue(id, &hello, &hi)
+	q, err := GetQueue(id)
+	if err != nil {
+		t.Error(err)
+	}
 	done := make(chan struct{})
 	// start queue, in a new goroutine
 	go q.Start(done)

@@ -6,26 +6,31 @@ import (
 )
 
 type GraphDeployParameter struct {
-	ID            uint                    `json:"id"`
-	CreatedAt     time.Time               `json:"createdAt"`
-	UpdatedAt     time.Time               `json:"updatedAt"`
-	Network       string                  `json:"network"`   //rinkbey network or mainnet network
-	LeaseTerm     int                     `json:"leaseTerm"` //indexer-service、indexer-agent eth-url
-	Mnemonic      string                  `json:"mnemonic"`  // mnemonic
-	PledgeAmount  int                     `json:"pledgeAmount"`
-	Application   application.Application `json:"application"`   //application entity
-	ApplicationID uint                    `json:"applicationId"` //application id
+	ID              uint                    `json:"id"`
+	CreatedAt       time.Time               `json:"createdAt"`
+	UpdatedAt       time.Time               `json:"updatedAt"`
+	Network         string                  `json:"network"`         //rinkbey network or mainnet network
+	LeaseTerm       int                     `json:"leaseTerm"`       //indexer-service、indexer-agent eth-url
+	ThegraphIndexer string                  `json:"thegraphIndexer"` // mnemonic
+	StakingAmount   int                     `json:"stakingAmount"`
+	Application     application.Application `json:"application"`   //application entity
+	ApplicationID   uint                    `json:"applicationId"` //application id
 }
 
 type AddParam struct {
-	Name          string `json:"name"`   //apply name
-	Plugin        string `json:"plugin"` //apply plugin
-	LeaseTerm     int    `json:"leaseTerm"`
-	Mnemonic      string `json:"mnemonic"` // mnemonic
-	StakingAmount int    `json:"stakingAmount"`
+	Name            string `json:"name"`           //apply name
+	SelectNodeType  string `json:"selectNodeType"` //apply plugin
+	LeaseTerm       int    `json:"leaseTerm"`
+	ThegraphIndexer string `json:"thegraphIndexer"` // mnemonic
+	StakingAmount   int    `json:"stakingAmount"`
+}
+
+type AddApplicationVo struct {
+	ID     uint `json:"id"`
+	Result bool `json:"result"`
 }
 
 type Service interface {
-	SaveGraphDeployParameterAndApply(data AddParam) (bool, error)
+	SaveGraphDeployParameterAndApply(data AddParam) (AddApplicationVo, error)
 	DeleteGraphDeployParameterAndApply(id int) (bool, error)
 }

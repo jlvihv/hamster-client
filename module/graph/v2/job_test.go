@@ -1,4 +1,4 @@
-package graph
+package v2
 
 import (
 	"fmt"
@@ -12,7 +12,7 @@ func TestDeploy(t *testing.T) {
 	pullJob := PullImageJob{
 		ProviderApi: "http://localhost:34002",
 	}
-	queue, _ := queue2.NewQueue(&pullJob)
+	queue := queue2.NewQueue("1", &pullJob)
 	channel := make(chan struct{})
 	go queue.Start(channel)
 	go func() {

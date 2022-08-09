@@ -6,10 +6,9 @@ const (
 	// HttpGetCode get verification code
 	HttpGetCode = "https://ttchain.tntlinking.com/api/authorization/verification/code"
 	// HttpLogin login
-	HttpLogin           = "https://ttchain.tntlinking.com/api/authorization/oauth/token"
-	Httpprovider        = "http://localhost:10771/api/v1/thegraph/deploy"
-	HttpGraphStatus     = "http://localhost:10771/api/v1/thegraph/status"
-	HamsterProviderPull = "http://localhost:10771/api/v1/thegraph/pullImage"
+	HttpLogin       = "https://ttchain.tntlinking.com/api/authorization/oauth/token"
+	Httpprovider    = "http://localhost:%d/api/v1/thegraph/deploy"
+	HttpGraphStatus = "http://localhost:%d/api/v1/thegraph/status"
 
 	//Port p2p port configuration
 	Port = 4001

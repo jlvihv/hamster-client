@@ -3,7 +3,6 @@ package queue
 import (
 	"errors"
 	"fmt"
-	"github.com/google/uuid"
 	"sync"
 	"time"
 )
@@ -43,18 +42,17 @@ type StatusInfo struct {
 	Error  error      `json:"error,omitempty"`
 }
 
-func NewQueue(jobs ...Job) (q Queue, key string) {
+func NewQueue(id string, jobs ...Job) (q Queue) {
 	q = &queue{
 		jobs:  jobs,
 		index: 0,
 	}
-	key = uuid.New().String()
-	queues.Store(key, q)
+	queues.Store(id, q)
 	return
 }
 
-func GetQueue(key string) (q Queue, err error) {
-	if v, ok := queues.Load(key); ok {
+func GetQueue(id string) (q Queue, err error) {
+	if v, ok := queues.Load(id); ok {
 		return v.(Queue), nil
 	}
 	return nil, errors.New("queue not found")

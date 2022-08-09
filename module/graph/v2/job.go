@@ -1,4 +1,4 @@
-package graph
+package v2
 
 import (
 	"errors"

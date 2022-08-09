@@ -85,8 +85,6 @@
   }));
 
   const handleSubmit = async () => {
-    console.log('goo');
-
     await formRef.value?.validate();
 
     const { jsonContent, jsonString, password } = formData;
