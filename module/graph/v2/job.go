@@ -8,6 +8,7 @@ import (
 	"hamster-client/module/pallet"
 	"hamster-client/module/queue"
 	"hamster-client/utils"
+	"time"
 )
 
 type PullImageJob struct {
@@ -49,36 +50,45 @@ type WaitResourceJob struct {
 
 func (j *WaitResourceJob) Run(sc chan queue.StatusCode) (queue.StatusCode, error) {
 	sc <- queue.Running
-	mapData, err := pallet.GetResourceList(j.meta, j.api, func(resource *pallet.ComputingResource) bool {
-		return resource.Status.IsUnused
-	})
-	if err != nil {
-		sc <- queue.Failed
-		j.err = err
-		return queue.Failed, err
-	}
 
-	fmt.Println("可用资源数：", len(mapData))
+	for i := 0; i < 60; i++ {
 
-	for _, val := range mapData {
+		mapData, err := pallet.GetResourceList(j.meta, j.api, func(resource *pallet.ComputingResource) bool {
+			return resource.Status.IsUnused
+		})
+		if err != nil {
+			sc <- queue.Failed
+			j.err = err
+			return queue.Failed, err
+		}
 
-		if val.Status.IsUnused {
-			fmt.Println("发现未使用资源，占用。资源号：", val.Index)
-			c, err := types.NewCall(j.meta, "ResourceOrder.create_order_info", val.Index, types.NewU32(10), "")
-			if err != nil {
-				panic(err)
-			}
-			err = pallet.CallAndWatch(j.api, c, j.meta, func(header *types.Header) error {
-				fmt.Println("资源占用成功，资源号：", val.Index)
-				return nil
-			})
-			if err == nil {
-				continue
+		fmt.Println("可用资源数：", len(mapData))
+
+		for _, val := range mapData {
+
+			if val.Status.IsUnused {
+				fmt.Println("发现未使用资源，占用。资源号：", val.Index)
+				c, err := types.NewCall(j.meta, "ResourceOrder.create_order_info", val.Index, types.NewU32(10), "")
+				if err != nil {
+					continue
+				}
+				err = pallet.CallAndWatch(j.api, c, j.meta, func(header *types.Header) error {
+					fmt.Println("资源占用成功，资源号：", val.Index)
+					return nil
+				})
+				if err != nil {
+					continue
+				}
+
+				sc <- queue.Succeeded
+				return queue.Succeeded, nil
 			}
 		}
-	}
 
-	return queue.Succeeded, nil
+		time.Sleep(time.Second * 30)
+
+	}
+	return queue.Failed, errors.New("NO_RESOURCE_TO_USE")
 }
 
 func (j *WaitResourceJob) Name() string {
