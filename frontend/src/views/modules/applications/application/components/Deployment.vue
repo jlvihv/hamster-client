@@ -42,7 +42,7 @@
       </TimelineItem>
     </Timeline>
     <div class="text-center">
-      <Button size="large" class="w-32 mt-6 ml-4 !rounded-[30px]" type="primary">
+      <Button size="large" class="w-32 mt-6 ml-4" type="primary">
         {{ t('common.doneText') }}
       </Button>
     </div>

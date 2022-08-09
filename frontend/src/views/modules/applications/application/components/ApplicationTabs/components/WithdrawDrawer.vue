@@ -11,7 +11,7 @@
       <div class="grid grid-cols-2 text-center mt-[20px]">
         <div class="right-line">
           <div>
-            <SvgIcon color="#63A0FA" size="16" name="grt" />
+            <SvgIcon color="#63A0FA" size="16" name="with" />
             <label class="text-[#7B8082] ml-[6px]">{{ t('applications.see.withdraw') }}</label>
           </div>
           <div>
@@ -21,7 +21,7 @@
         </div>
         <div>
           <div>
-            <SvgIcon color="#63A0FA" size="16" name="balance" />
+            <SvgIcon color="#63A0FA" size="16" name="time" />
             <label class="text-[#7B8082] ml-[6px]">{{ t('applications.see.thawLeft') }}</label>
           </div>
           <div class="text-[18px] font-bold">1D 0H 19M</div>

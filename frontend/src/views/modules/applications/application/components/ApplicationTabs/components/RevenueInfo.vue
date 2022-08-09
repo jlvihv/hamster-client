@@ -77,26 +77,25 @@
   import StakeDrawer from './StakeDrawer.vue';
   import UnstakeDrawer from './UnstakeDrawer.vue';
   import WithdrawDrawer from './WithdrawDrawer.vue';
-  import { Modal, Drawer } from 'ant-design-vue';
+  import { Drawer } from 'ant-design-vue';
 
   const { t } = useI18n();
+  const emits = defineEmits(['modalConfirm']);
+  
   const drawerVisible = ref(false);
   const stakeVisible = ref(false);
   const unstakeVisible = ref(false);
   const withdrawVisible = ref(false);
-  const receiveBenefits = () => {
-    Modal.confirm({
-      title: t('applications.see.receiveBenefitsInfo'),
-      icon: '',
-      okText: t('common.okText'),
-      cancelText: t('common.cancelText'),
-    });
-  };
+  
   async function onDrawerClose() {
     stakeVisible.value = false;
     unstakeVisible.value = false;
     withdrawVisible.value = false;
   }
+
+  const receiveBenefits = () => {
+    emits('modalConfirm');
+  };
 </script>
 <style lang="less" scoped>
   :deep(.ant-drawer-body) {

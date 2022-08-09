@@ -23,6 +23,7 @@ export default {
   downloadText: 'Download',
   createText: 'Create',
   doneText: 'Done',
+  moreText: 'Load More',
 
   redo: 'Refresh',
   back: 'Back',

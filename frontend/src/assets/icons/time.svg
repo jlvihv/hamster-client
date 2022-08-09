@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="20px" height="20px" viewBox="0 0 20 20" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>编组 3</title>
+    <g id="页面-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Withdraw" transform="translate(-831.000000, -227.000000)">
+            <g id="矩形-2" transform="translate(0.000000, -1.000000)">
+                <g id="弹出框" transform="translate(553.000000, 130.000000)">
+                    <g id="编组-9" transform="translate(18.000000, 98.000000)">
+                        <g id="编组-3" transform="translate(260.000000, 0.000000)">
+                            <g id="余额" transform="translate(3.000000, 3.500000)">
+                                <circle id="椭圆形" stroke="#63A0FA" cx="7" cy="7" r="7"></circle>
+                                <path d="M5,4.1378103 L5,8.19931909 L5,8.19931909 L8.06208483,10.195974 C8.2857759,10.3418334 8.58535576,10.2787384 8.73121517,10.0550473 C8.74357278,10.0360956 8.754585,10.0162999 8.76417065,9.99580619 C8.9004472,9.70445232 8.80720174,9.35729772 8.54328267,9.17343609 L6.38558921,7.67025925 L6.38558921,7.67025925 L6.29243364,4.13758866 C6.28307721,3.78277168 5.99275062,3.5 5.6378103,3.5 C5.2855574,3.5 5,3.7855574 5,4.1378103 Z" id="路径-3" fill="#63A0FA"></path>
+                            </g>
+                        </g>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>
