@@ -11,9 +11,9 @@ import (
 )
 
 const (
-	senderAddress = "0xa7Aa9A6D3D682b29D9C9e30Bb206c961d860861C"
-	endpointUrl   = "https://rinkeby.infura.io/v3/bab2a1a435b04c07a488d847cf6788f7"
-	privateKey    = "8d290072a3517f47e6c7c8db5ecd1876b6ef6576096797a7d6470022e7b3910a"
+	senderAddress = "0xe9C29208012f52230866b6Cd367A789fEF6B189D"
+	endpointUrl   = "https://rinkeby.infura.io/v3/62d7b5f33ae443e784919f1c2afe24a3"
+	privateKey    = "46d5cce3f60bf3557f7f999a834850579708c4b0999f82376b629028dac44395"
 )
 
 var (

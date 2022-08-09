@@ -47,24 +47,11 @@ func (s *ServiceImpl) DeployTheGraph(id int, jsonData string) (bool, error) {
 		}
 		return true, nil
 	}
+	err = s.setupP2p()
 	//Determine whether to initialize configuration
-	_, resultErr := s.p2pServer.GetSetting()
-	if resultErr != nil {
-		res := s.p2pServer.InitSetting()
-		if res != nil {
-			return false, err
-		}
+	if err != nil {
+		return false, err
 	}
-	//close p2p link
-	s.closeP2p()
-	fmt.Println("p2p start")
-	fmt.Println(info.PeerId)
-	proErr := s.p2pServer.ProLink(info.PeerId)
-	if proErr != nil {
-		runtime.LogError(s.ctx, "provider link error:"+proErr.Error())
-		return false, proErr
-	}
-	fmt.Println("p2p end")
 	var param DeployParameter
 	jsonParam := s.keyStorageService.Get("graph_" + strconv.Itoa(id))
 	if err := json.Unmarshal([]byte(jsonParam), &param); err != nil {
@@ -92,10 +79,34 @@ func (s *ServiceImpl) DeployTheGraph(id int, jsonData string) (bool, error) {
 	if result != nil {
 		return false, result
 	}
-	go s.queryDeployStatus()
+	go s.queryDeployStatus(id)
 	return true, nil
 }
-
+func (s *ServiceImpl) DeployGraph(id int, sendData DeployParams) (bool, error) {
+	var data application.Application
+	queryResult := s.db.Where("id = ? ", id).First(&data)
+	if queryResult.Error != nil {
+		return false, queryResult.Error
+	}
+	providerUrl := fmt.Sprintf(config.Httpprovider, data.P2pForwardPort)
+	runtime.LogInfo(s.ctx, "start Deploy the graph")
+	res, err := s.httpUtil.NewRequest().SetBody(sendData).Post(providerUrl)
+	if err != nil {
+		runtime.LogError(s.ctx, "DeployTheGraph http error:"+err.Error())
+		return false, err
+	}
+	if !res.IsSuccess() {
+		runtime.LogError(s.ctx, "DeployTheGraph Response error: "+res.Status())
+		return false, errors.New(res.Status())
+	}
+	//Modification status is in deployment
+	result := s.db.Model(application.Application{}).Where("id = ?", id).Update("status", config.IN_DEPLOYMENT).Error
+	if result != nil {
+		return false, result
+	}
+	go s.queryDeployStatus(id)
+	return true, nil
+}
 func (s *ServiceImpl) GetDeployInfo(id int) (DeployParameter, error) {
 	data := s.keyStorageService.Get("graph_" + strconv.Itoa(id))
 	var param DeployParameter
@@ -114,12 +125,18 @@ func (s *ServiceImpl) SaveDeployInfo(id int, json string) (bool, error) {
 	return true, nil
 }
 
-func (g *ServiceImpl) QueryGraphStatus(serviceName ...string) (int, error) {
+func (g *ServiceImpl) QueryGraphStatus(id int, serviceName ...string) (int, error) {
 	var data Result
+	var application application.Application
+	queryResult := g.db.Where("id = ? ", id).First(&application)
+	if queryResult.Error != nil {
+		return config.RequestStatusFailed, queryResult.Error
+	}
+	providerUrl := fmt.Sprintf(config.HttpGraphStatus, application.P2pForwardPort)
 	res, err := g.httpUtil.NewRequest().
 		SetQueryParamsFromValues(url.Values{"serviceName": serviceName}).
 		SetResult(&data).
-		Get(config.HttpGraphStatus)
+		Get(providerUrl)
 	if err != nil {
 		runtime.LogError(g.ctx, "DeployTheGraph http error:"+err.Error())
 		return config.RequestStatusFailed, err
@@ -132,12 +149,12 @@ func (g *ServiceImpl) QueryGraphStatus(serviceName ...string) (int, error) {
 }
 
 // query deploy graph status
-func (s *ServiceImpl) queryDeployStatus() {
+func (s *ServiceImpl) queryDeployStatus(id int) {
 	containerIds := []string{"graph-node", "postgres", "index-service", "index-agent", "index-cli"}
 	numbers := 0
 	for {
 		time.Sleep(time.Duration(10) * time.Second)
-		res, _ := s.QueryGraphStatus(containerIds...)
+		res, _ := s.QueryGraphStatus(id, containerIds...)
 		fmt.Println("docker status :", res)
 		if res == 1 {
 			result := s.db.Model(application.Application{}).Where("status = ?", config.IN_DEPLOYMENT).Update("status", config.DEPLOYED).Error
@@ -164,4 +181,33 @@ func (s *ServiceImpl) closeP2p() {
 			s.p2pServer.Close(value.TargetAddress)
 		}
 	}
+}
+
+func (s *ServiceImpl) setupP2p() error {
+
+	info, err := s.accountService.GetAccount()
+	if err != nil {
+		return err
+	}
+
+	peerId := info.PeerId
+
+	_, resultErr := s.p2pServer.GetSetting()
+	if resultErr != nil {
+		err := s.p2pServer.InitSetting()
+		if err != nil {
+			return err
+		}
+	}
+	//close p2p link
+	s.closeP2p()
+	fmt.Println("p2p start")
+	fmt.Println(peerId)
+	proErr := s.p2pServer.ProLink(peerId)
+	if proErr != nil {
+		runtime.LogError(s.ctx, "provider link error:"+proErr.Error())
+		return proErr
+	}
+	fmt.Println("p2p end")
+	return nil
 }
