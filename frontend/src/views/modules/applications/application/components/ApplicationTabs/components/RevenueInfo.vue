@@ -39,27 +39,24 @@
           drawerVisible = true;
           stakeVisible = true;
         "
+        >{{ t('applications.see.stake') }}</label
       >
-        {{ t('applications.see.stake') }}
-      </label>
       <label
         class="label-btn ml-[30px]"
         @click="
           drawerVisible = true;
           unstakeVisible = true;
         "
+        >{{ t('applications.see.unstake') }}</label
       >
-        {{ t('applications.see.unstake') }}
-      </label>
       <label
         class="label-btn ml-[30px]"
         @click="
           drawerVisible = true;
           withdrawVisible = true;
         "
+        >{{ t('applications.see.withdraw') }}</label
       >
-        {{ t('applications.see.withdraw') }}
-      </label>
     </div>
   </div>
   <Drawer
@@ -108,10 +105,6 @@
   };
 </script>
 <style lang="less" scoped>
-  :deep(.ant-drawer-body) {
-    padding: 0px;
-  }
-
   .drawer-revenue-info {
     :global(.ant-drawer) {
       display: flex;

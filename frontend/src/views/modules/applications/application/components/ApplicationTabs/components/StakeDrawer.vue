@@ -33,33 +33,22 @@
     </div>
     <div class="px-[20px] pb-[60px]">
       <div class="font-bold my-[10px]">{{ t('applications.reward.stakeAmount') }}</div>
-      <div
-        class="border border-[#043CC1] rounded-[8px] h-[60px] px-[10px] flex items-center justify-between"
-      >
-        <div>10000000000</div>
-    <div class="font-bold my-[10px]">{{ t('applications.reward.stakeAmount') }}</div>
-    <Input class="border !border-[#043CC1] rounded-[8px] h-[60px] px-[10px]" value="10000000">
-      <template #suffix>
-        <div>
-          <label class="text-[#7B8082] mr-[10px]">{{ t('applications.see.grt') }}</label>
-          <label class="bg-[#63A0FA] px-[20px] py-[8px] rounded-[4px] text-white">
-            {{ t('applications.see.max') }}
-          </label>
-        </div>
-      </div>
+      <Input class="border !border-[#043CC1] rounded-[8px] h-[60px] px-[10px]" value="10000000">
+        <template #suffix>
+          <div>
+            <label class="text-[#7B8082] mr-[10px]">{{ t('applications.see.grt') }}</label>
+            <label class="bg-[#63A0FA] px-[20px] py-[8px] rounded-[4px] text-white">
+              {{ t('applications.see.max') }}
+            </label>
+          </div>
+        </template>
+      </Input>
       <div class="flex justify-between mt-[10px]">
         <div>{{ t('applications.see.minAmount') }}</div>
         <div>
           <label class="text-[18px] font-bold mr-[3px]">10000000000</label
           >{{ t('applications.see.grt') }}
         </div>
-      </template>
-    </Input>
-    <div class="flex justify-between mt-[10px]">
-      <div>{{ t('applications.see.minAmount') }}</div>
-      <div>
-        <label class="text-[18px] font-bold mr-[3px]">10000000000</label
-        >{{ t('applications.see.grt') }}
       </div>
       <div class="flex justify-between mt-[10px]">
         <div>{{ t('applications.see.thawPeriod') }}</div>
@@ -77,16 +66,6 @@
       </div>
       <Button type="primary" size="large" disabled>{{ t('applications.see.stake') }}</Button>
     </div>
-  </div>
-    <div class="flex my-[10px]">
-      <div class="seq-div !bg-[#043CC1]">1</div>{{ t('applications.see.gtrStak') }}
-    </div>
-    <Button type="primary" size="large">{{ t('applications.see.grtAccess') }}</Button>
-    <div class="flex my-[10px]">
-      <div class="seq-div">2</div
-      ><label class="text-[#7B8082]">{{ t('applications.see.gtrStak') }}</label>
-    </div>
-    <Button type="primary" size="large" disabled>{{ t('applications.see.stake') }}</Button>
   </Form>
 </template>
 <script lang="ts" setup>
