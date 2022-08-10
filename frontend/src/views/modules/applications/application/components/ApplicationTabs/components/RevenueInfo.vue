@@ -39,30 +39,34 @@
           drawerVisible = true;
           stakeVisible = true;
         "
-        >{{ t('applications.see.stake') }}</label
       >
+        {{ t('applications.see.stake') }}
+      </label>
       <label
         class="label-btn ml-[30px]"
         @click="
           drawerVisible = true;
           unstakeVisible = true;
         "
-        >{{ t('applications.see.unstake') }}</label
       >
+        {{ t('applications.see.unstake') }}
+      </label>
       <label
         class="label-btn ml-[30px]"
         @click="
           drawerVisible = true;
           withdrawVisible = true;
         "
-        >{{ t('applications.see.withdraw') }}</label
       >
+        {{ t('applications.see.withdraw') }}
+      </label>
     </div>
   </div>
   <Drawer
     v-model:visible="drawerVisible"
     :closable="false"
     placement="right"
+    wrapClassName="drawer-revenue-info"
     @close="onDrawerClose"
   >
     <StakeDrawer v-if="stakeVisible" />
@@ -106,6 +110,26 @@
 <style lang="less" scoped>
   :deep(.ant-drawer-body) {
     padding: 0px;
+  }
+
+  .drawer-revenue-info {
+    :global(.ant-drawer) {
+      display: flex;
+      align-items: center;
+    }
+
+    :global(.ant-drawer-right .ant-drawer-content-wrapper) {
+      height: auto;
+    }
+
+    :global(.ant-drawer-content) {
+      border-radius: 0 8px 8px 0;
+      min-height: 500px;
+    }
+
+    :global(.ant-drawer-body) {
+      padding: 0px;
+    }
   }
 
   .revenue-bg {
