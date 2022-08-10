@@ -38,19 +38,24 @@ func (j *PullImageJob) Run(sc chan queue.StatusCode) (queue.StatusCode, error) {
 	}
 
 	url := fmt.Sprintf("http://localhost:%d/api/v1/thegraph/pullImage", vo.P2pForwardPort)
-	response, err := utils.NewHttp().NewRequest().Post(url)
-	if err != nil {
-		j.err = err
-		return queue.Failed, err
+	for i := 0; i < 3; i++ {
+		response, err := utils.NewHttp().NewRequest().Post(url)
+		if err != nil {
+			j.err = err
+			continue
+		}
+		if response.IsSuccess() {
+			sc <- queue.Succeeded
+			return queue.Succeeded, nil
+		} else {
+			time.Sleep(time.Second * 3)
+			continue
+		}
 	}
 
-	if response.IsSuccess() {
-		sc <- queue.Succeeded
-		return queue.Succeeded, nil
-	} else {
-		sc <- queue.Failed
-		return queue.Failed, errors.New("api response fail")
-	}
+	sc <- queue.Failed
+	return queue.Failed, errors.New("api response fail")
+
 }
 
 func (j *PullImageJob) Name() string {
