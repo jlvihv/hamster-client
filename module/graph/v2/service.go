@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"gorm.io/gorm"
+	"hamster-client/config"
 	"hamster-client/module/application"
 	"hamster-client/module/deploy"
 	"hamster-client/module/keystorage"
@@ -54,6 +55,11 @@ func (g *ServiceImpl) SaveGraphDeployParameterAndApply(addData AddParam) (AddApp
 	deploymentData.Initialization.AccountMnemonic = addData.ThegraphIndexer
 	deploymentData.Initialization.LeaseTerm = addData.LeaseTerm
 	deploymentData.Staking.PledgeAmount = addData.StakingAmount
+	deploymentData.Deployment.NodeEthereumUrl = config.EthMainNetwork
+	deploymentData.Deployment.EthereumUrl = config.EndpointUrl
+	deploymentData.Deployment.EthereumNetwork = config.EthereumRinkebyNetworkName
+	deploymentData.Staking.NetworkUrl = config.EndpointUrl
+	deploymentData.Staking.Address = config.TheGraphStakingAddress
 	jsonData, err := json.Marshal(deploymentData)
 	if err != nil {
 		applicationVo.Result = false

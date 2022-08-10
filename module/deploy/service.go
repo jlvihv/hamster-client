@@ -10,7 +10,6 @@ import (
 	"hamster-client/config"
 	"hamster-client/module/account"
 	"hamster-client/module/application"
-	"hamster-client/module/graph"
 	"hamster-client/module/keystorage"
 	"hamster-client/module/p2p"
 	"hamster-client/utils"
@@ -23,14 +22,13 @@ type ServiceImpl struct {
 	ctx               context.Context
 	httpUtil          *utils.HttpUtil
 	db                *gorm.DB
-	graphService      graph.Service
 	keyStorageService keystorage.Service
 	accountService    account.Service
 	p2pServer         p2p.Service
 }
 
-func NewServiceImpl(ctx context.Context, httpUtil *utils.HttpUtil, db *gorm.DB, graphService graph.Service, keyStorageService *keystorage.Service, accountService account.Service, p2pServer p2p.Service) ServiceImpl {
-	return ServiceImpl{ctx, httpUtil, db, graphService, *keyStorageService, accountService, p2pServer}
+func NewServiceImpl(ctx context.Context, httpUtil *utils.HttpUtil, db *gorm.DB, keyStorageService *keystorage.Service, accountService account.Service, p2pServer p2p.Service) ServiceImpl {
+	return ServiceImpl{ctx, httpUtil, db, *keyStorageService, accountService, p2pServer}
 }
 
 func (s *ServiceImpl) DeployTheGraph(id int, jsonData string) (bool, error) {

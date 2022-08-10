@@ -7,7 +7,7 @@ export function WailsInit(arg1) {
 }
 
 export function WailsShutdown() {
-  return window['go']['app']['P2p']['WailsShutdown']();
+  window['go']['app']['P2p']['WailsShutdown']();
 }
 
 export function CloseLink(arg1) {
