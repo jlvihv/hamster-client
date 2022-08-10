@@ -31,32 +31,34 @@
         </div>
       </div>
     </div>
-    <div class="font-bold my-[10px]">{{ t('applications.reward.unStakeAmount') }}</div>
-    <div
-      class="border border-[#043CC1] rounded-[8px] h-[60px] px-[10px] flex items-center justify-between"
-    >
-      <div>10000000000</div>
-      <div>
-        <label class="text-[#7B8082] mr-[10px]">{{ t('applications.see.grt') }}</label>
-        <label class="bg-[#63A0FA] px-[20px] py-[8px] rounded-[4px] text-white">{{
-          t('applications.see.max')
-        }}</label>
+    <div class="px-[20px] pb-[60px]">
+      <div class="font-bold my-[10px]">{{ t('applications.reward.unStakeAmount') }}</div>
+      <div
+        class="border border-[#043CC1] rounded-[8px] h-[60px] px-[10px] flex items-center justify-between"
+      >
+        <div>10000000000</div>
+        <div>
+          <label class="text-[#7B8082] mr-[10px]">{{ t('applications.see.grt') }}</label>
+          <label class="bg-[#63A0FA] px-[20px] py-[8px] rounded-[4px] text-white">{{
+            t('applications.see.max')
+          }}</label>
+        </div>
       </div>
-    </div>
-    <div class="flex justify-between mt-[10px]">
-      <div>{{ t('applications.see.minAmount') }}</div>
-      <div>
-        <label class="text-[18px] font-bold mr-[3px]">10000000000</label
-        >{{ t('applications.see.grt') }}
+      <div class="flex justify-between mt-[10px]">
+        <div>{{ t('applications.see.minAmount') }}</div>
+        <div>
+          <label class="text-[18px] font-bold mr-[3px]">10000000000</label
+          >{{ t('applications.see.grt') }}
+        </div>
       </div>
-    </div>
-    <div class="flex justify-between my-[10px]">
-      <div>{{ t('applications.see.endPeriod') }}</div>
-      <div>
-        <label class="text-[18px] font-bold mr-[3px]">28</label>{{ t('applications.see.days') }}
+      <div class="flex justify-between my-[10px]">
+        <div>{{ t('applications.see.endPeriod') }}</div>
+        <div>
+          <label class="text-[18px] font-bold mr-[3px]">28</label>{{ t('applications.see.days') }}
+        </div>
       </div>
+      <Button type="primary" size="large">{{ t('applications.see.unstake') }}</Button>
     </div>
-    <Button type="primary" size="large">{{ t('applications.see.unstake') }}</Button>
   </div>
 </template>
 <script lang="ts" setup>
