@@ -29,9 +29,9 @@
       </div>
     </div>
     <div class="px-[20px] pb-[60px]">
-      <Button class="mt-[20px]" type="primary" size="large">{{
-        t('applications.see.withdraw')
-      }}</Button>
+      <Button class="mt-[20px]" type="primary" size="large">
+        {{ t('applications.see.withdraw') }}
+      </Button>
     </div>
   </div>
 </template>
