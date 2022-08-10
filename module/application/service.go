@@ -117,5 +117,8 @@ func (a *ServiceImpl) QueryNextP2pPort() int {
 	if result.Error != nil {
 		return 34000
 	}
+	if data.P2pForwardPort < 34000 {
+		return 34000
+	}
 	return data.P2pForwardPort + 1
 }

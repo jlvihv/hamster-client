@@ -231,6 +231,13 @@ func (c *P2pClient) Forward(protoOpt string, port int, peerId string) error {
 		meta, _ := api.RPC.State.GetMetadataLatest()
 		key, err := types.CreateStorageKey(meta, "Gateway", "Gateways")
 		api.RPC.State.GetStorageLatest(key, &nodes)
+		if len(nodes) > 0 {
+			fmt.Println("++++++++++++++++++")
+			for _, value := range nodes {
+				fmt.Println("peer id is: ", value)
+			}
+			fmt.Println("++++++++++++++++++")
+		}
 		bootstrapPeers := randomSubsetOfPeers(convertPeers(nodes), 1)
 		if len(bootstrapPeers) == 0 {
 			return errors.New("not enough bootstrap peers")

@@ -1,3 +1,117 @@
+export namespace application {
+  export class ListVo {
+    id: number;
+    name: string;
+    selectNodeType: string;
+    status: number;
+    grtIncome: number;
+
+    static createFrom(source: any = {}) {
+      return new ListVo(source);
+    }
+
+    constructor(source: any = {}) {
+      if ('string' === typeof source) source = JSON.parse(source);
+      this.id = source['id'];
+      this.name = source['name'];
+      this.selectNodeType = source['selectNodeType'];
+      this.status = source['status'];
+      this.grtIncome = source['grtIncome'];
+    }
+  }
+  export class PageApplicationVo {
+    items: ListVo[];
+    total: number;
+
+    static createFrom(source: any = {}) {
+      return new PageApplicationVo(source);
+    }
+
+    constructor(source: any = {}) {
+      if ('string' === typeof source) source = JSON.parse(source);
+      this.items = this.convertValues(source['items'], ListVo);
+      this.total = source['total'];
+    }
+
+    convertValues(a: any, classs: any, asMap: boolean = false): any {
+      if (!a) {
+        return a;
+      }
+      if (a.slice) {
+        return (a as any[]).map((elem) => this.convertValues(elem, classs));
+      } else if ('object' === typeof a) {
+        if (asMap) {
+          for (const key of Object.keys(a)) {
+            a[key] = new classs(a[key]);
+          }
+          return a;
+        }
+        return new classs(a);
+      }
+      return a;
+    }
+  }
+  export class ApplyVo {
+    id: number;
+    // Go type: time.Time
+    createdAt: any;
+    name: string;
+    selectNodeType: string;
+    status: number;
+    leaseTerm: number;
+    p2pForwardPort: number;
+
+    static createFrom(source: any = {}) {
+      return new ApplyVo(source);
+    }
+
+    constructor(source: any = {}) {
+      if ('string' === typeof source) source = JSON.parse(source);
+      this.id = source['id'];
+      this.createdAt = this.convertValues(source['createdAt'], null);
+      this.name = source['name'];
+      this.selectNodeType = source['selectNodeType'];
+      this.status = source['status'];
+      this.leaseTerm = source['leaseTerm'];
+      this.p2pForwardPort = source['p2pForwardPort'];
+    }
+
+    convertValues(a: any, classs: any, asMap: boolean = false): any {
+      if (!a) {
+        return a;
+      }
+      if (a.slice) {
+        return (a as any[]).map((elem) => this.convertValues(elem, classs));
+      } else if ('object' === typeof a) {
+        if (asMap) {
+          for (const key of Object.keys(a)) {
+            a[key] = new classs(a[key]);
+          }
+          return a;
+        }
+        return new classs(a);
+      }
+      return a;
+    }
+  }
+  export class UpdateApplicationParam {
+    id: number;
+    name: string;
+    selectNodeType: string;
+
+    static createFrom(source: any = {}) {
+      return new UpdateApplicationParam(source);
+    }
+
+    constructor(source: any = {}) {
+      if ('string' === typeof source) source = JSON.parse(source);
+      this.id = source['id'];
+      this.name = source['name'];
+      this.selectNodeType = source['selectNodeType'];
+    }
+  }
+}
+
 export namespace graph {
   export class GraphParameterVo {
     nodeEthereumUrl: string;
@@ -141,6 +255,36 @@ export namespace app {
       this.port = source['port'];
       this.peerId = source['peerId'];
       this.wsUrl = source['wsUrl'];
+    }
+  }
+  export class QueueInfo {
+    info: StatusInfo[];
+
+    static createFrom(source: any = {}) {
+      return new QueueInfo(source);
+    }
+
+    constructor(source: any = {}) {
+      if ('string' === typeof source) source = JSON.parse(source);
+      this.info = this.convertValues(source['info'], StatusInfo);
+    }
+
+    convertValues(a: any, classs: any, asMap: boolean = false): any {
+      if (!a) {
+        return a;
+      }
+      if (a.slice) {
+        return (a as any[]).map((elem) => this.convertValues(elem, classs));
+      } else if ('object' === typeof a) {
+        if (asMap) {
+          for (const key of Object.keys(a)) {
+            a[key] = new classs(a[key]);
+          }
+          return a;
+        }
+        return new classs(a);
+      }
+      return a;
     }
   }
 }
@@ -287,118 +431,6 @@ export namespace v2 {
       if ('string' === typeof source) source = JSON.parse(source);
       this.id = source['id'];
       this.result = source['result'];
-    }
-  }
-}
-
-export namespace application {
-  export class ListVo {
-    id: number;
-    name: string;
-    selectNodeType: string;
-    status: number;
-    grtIncome: number;
-
-    static createFrom(source: any = {}) {
-      return new ListVo(source);
-    }
-
-    constructor(source: any = {}) {
-      if ('string' === typeof source) source = JSON.parse(source);
-      this.id = source['id'];
-      this.name = source['name'];
-      this.selectNodeType = source['selectNodeType'];
-      this.status = source['status'];
-      this.grtIncome = source['grtIncome'];
-    }
-  }
-  export class PageApplicationVo {
-    items: ListVo[];
-    total: number;
-
-    static createFrom(source: any = {}) {
-      return new PageApplicationVo(source);
-    }
-
-    constructor(source: any = {}) {
-      if ('string' === typeof source) source = JSON.parse(source);
-      this.items = this.convertValues(source['items'], ListVo);
-      this.total = source['total'];
-    }
-
-    convertValues(a: any, classs: any, asMap: boolean = false): any {
-      if (!a) {
-        return a;
-      }
-      if (a.slice) {
-        return (a as any[]).map((elem) => this.convertValues(elem, classs));
-      } else if ('object' === typeof a) {
-        if (asMap) {
-          for (const key of Object.keys(a)) {
-            a[key] = new classs(a[key]);
-          }
-          return a;
-        }
-        return new classs(a);
-      }
-      return a;
-    }
-  }
-  export class ApplyVo {
-    id: number;
-    // Go type: time.Time
-    createdAt: any;
-    name: string;
-    selectNodeType: string;
-    status: number;
-    leaseTerm: number;
-
-    static createFrom(source: any = {}) {
-      return new ApplyVo(source);
-    }
-
-    constructor(source: any = {}) {
-      if ('string' === typeof source) source = JSON.parse(source);
-      this.id = source['id'];
-      this.createdAt = this.convertValues(source['createdAt'], null);
-      this.name = source['name'];
-      this.selectNodeType = source['selectNodeType'];
-      this.status = source['status'];
-      this.leaseTerm = source['leaseTerm'];
-    }
-
-    convertValues(a: any, classs: any, asMap: boolean = false): any {
-      if (!a) {
-        return a;
-      }
-      if (a.slice) {
-        return (a as any[]).map((elem) => this.convertValues(elem, classs));
-      } else if ('object' === typeof a) {
-        if (asMap) {
-          for (const key of Object.keys(a)) {
-            a[key] = new classs(a[key]);
-          }
-          return a;
-        }
-        return new classs(a);
-      }
-      return a;
-    }
-  }
-  export class UpdateApplicationParam {
-    id: number;
-    name: string;
-    selectNodeType: string;
-
-    static createFrom(source: any = {}) {
-      return new UpdateApplicationParam(source);
-    }
-
-    constructor(source: any = {}) {
-      if ('string' === typeof source) source = JSON.parse(source);
-      this.id = source['id'];
-      this.name = source['name'];
-      this.selectNodeType = source['selectNodeType'];
     }
   }
 }
