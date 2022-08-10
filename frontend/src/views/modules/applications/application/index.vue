@@ -1,8 +1,8 @@
 <template>
   <PageWrapper>
     <Header :showBack="true" />
-    <ApplicationTabs v-if="isAppDeployed" />
-    <Deployment v-else />
+    <ApplicationTabs :applicationId="applicationId" v-if="isAppDeployed" />
+    <Deployment :applicationId="applicationId" v-else />
   </PageWrapper>
 </template>
 

@@ -1,5 +1,5 @@
 <template>
-  <div class="relative h-full">
+  <div class="relative h-full" v-if="isGuideVisible">
     <form
       class="home-bg h-full label-center text-center"
       ref="formRef"
@@ -69,7 +69,7 @@
   const settingStore = useSettingStore();
 
   const nodeOptions = reactive([
-    { label: '183.66.65.207:49944', value: 'wss://183.66.65.207:49944' },
+    { label: '183.66.65.207:49944', value: 'ws://183.66.65.207:49944' },
   ]);
   const stepVal = ref(0);
   const hasBackButton = ref(false);
@@ -83,14 +83,24 @@
     wsUrl: [createRule(t('home.wsUrlPlaceholder'))],
   }));
 
-  onMounted(() => {
+  // Loading settingStore and check if should show guide
+  const isGuideVisible = ref(false);
+  onMounted(async () => {
+    // fetch settings from API
+    await settingStore.getWalletInfoAction();
+    await settingStore.getConfigAction();
+
     if (route.query.step) {
+      isGuideVisible.value = true;
+
       stepVal.value = parseInt(route.query.step);
       hasBackButton.value = true;
     } else {
-      // Redirect to applidation index if wallet binded
       if (settingStore.walletInfo) {
+        // Redirect to applidation index if wallet binded
         router.push('/applications/index');
+      } else {
+        isGuideVisible.value = true;
       }
     }
   });
