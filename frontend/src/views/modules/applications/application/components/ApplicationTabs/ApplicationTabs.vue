@@ -21,6 +21,10 @@
   import ServiceDetails from './components/ServiceDetails.vue';
   import { Tabs, TabPane, Modal } from 'ant-design-vue';
 
+  defineProps({
+    applicationId: Number,
+  });
+
   const { t } = useI18n();
 
   const activeKey = ref('1');

@@ -11,7 +11,12 @@
       />
     </div>
     <div>
-      <Popover placement="bottomRight" arrow-point-at-center v-model:visible="showPeople" trigger="click">
+      <Popover
+        placement="bottomRight"
+        arrow-point-at-center
+        v-model:visible="showPeople"
+        trigger="click"
+      >
         <template #content>
           <div class="w-[300px]">
             <div class="title-div">
@@ -40,14 +45,14 @@
             </div>
           </div>
         </template>
-        <SvgIcon
-          class="cursor-pointer border-none"
-          color="#858B92"
-          size="20"
-          name="people"
-        />
+        <SvgIcon class="cursor-pointer border-none" color="#858B92" size="20" name="people" />
       </Popover>
-      <Popover placement="bottomRight" arrow-point-at-center v-model:visible="showSetting" trigger="click">
+      <Popover
+        placement="bottomRight"
+        arrow-point-at-center
+        v-model:visible="showSetting"
+        trigger="click"
+      >
         <template #content>
           <Form ref="formRef" :model="formData" :rules="formRules" class="w-[300px]">
             <div class="title-div">
@@ -68,12 +73,7 @@
             </div>
           </Form>
         </template>
-        <SvgIcon
-          class="cursor-pointer ml-[20px]"
-          color="#858B92"
-          size="20"
-          name="setting"
-        />
+        <SvgIcon class="cursor-pointer ml-[20px]" color="#858B92" size="20" name="setting" />
       </Popover>
     </div>
   </div>
@@ -125,7 +125,7 @@
 
   // Form
   const urlOptions = reactive([
-    { label: '183.66.65.207:49944', value: 'wss://183.66.65.207:49944' },
+    { label: '183.66.65.207:49944', value: 'ws://183.66.65.207:49944' },
   ]);
 
   const formRef = ref();
@@ -146,9 +146,10 @@
   };
 </script>
 <style lang="less" scoped>
-  :deep(.humster-svg-icon){
+  :deep(.humster-svg-icon) {
     outline: none;
   }
+
   .title-div {
     @apply font-bold;
     margin-bottom: 10px;

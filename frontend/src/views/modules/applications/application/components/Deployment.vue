@@ -54,11 +54,30 @@
 </template>
 
 <script lang="ts" setup>
+  import { ref, watchEffect } from 'vue';
   import { useI18n } from '/@/hooks/web/useI18n';
   import { SvgIcon } from '/@/components/Icon';
+  import { GetQueueInfo } from '/@wails/go/app/Queue';
   import { Timeline, TimelineItem, Button } from 'ant-design-vue';
 
+  const props = defineProps({
+    applicationId: Number,
+  });
+
   const { t } = useI18n();
+
+  const queueInfo = ref([]);
+  const fetchQueueInfo = async () => {
+    const info = await GetQueueInfo(props.applicationId);
+    console.log(info);
+    queueInfo.value = info;
+  };
+
+  const interval = 5000;
+  watchEffect((onInvalidate) => {
+    const timer = setInterval(fetchQueueInfo, interval);
+    onInvalidate(() => clearInterval(timer));
+  });
 </script>
 
 <style lang="less" scoped>
