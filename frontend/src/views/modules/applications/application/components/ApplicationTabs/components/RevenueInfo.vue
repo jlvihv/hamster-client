@@ -82,12 +82,12 @@
 
   const { t } = useI18n();
   const emits = defineEmits(['modalConfirm']);
-  
+
   const drawerVisible = ref(false);
   const stakeVisible = ref(false);
   const unstakeVisible = ref(false);
   const withdrawVisible = ref(false);
-  
+
   async function onDrawerClose() {
     stakeVisible.value = false;
     unstakeVisible.value = false;
@@ -102,19 +102,23 @@
   :deep(.ant-drawer-body) {
     padding: 0px;
   }
-  .drawer-revenue-info{
-    :global(.ant-drawer){
+
+  .drawer-revenue-info {
+    :global(.ant-drawer) {
       display: flex;
       align-items: center;
     }
-    :global(.ant-drawer-right .ant-drawer-content-wrapper){
+
+    :global(.ant-drawer-right .ant-drawer-content-wrapper) {
       height: auto;
     }
+
     :global(.ant-drawer-content) {
       border-radius: 0 8px 8px 0;
       min-height: 500px;
     }
-    :global(.ant-drawer-body){
+
+    :global(.ant-drawer-body) {
       padding: 0px;
     }
   }
