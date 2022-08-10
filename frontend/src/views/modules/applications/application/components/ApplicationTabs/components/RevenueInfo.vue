@@ -8,10 +8,10 @@
       <SvgIcon class="text-white rounded-[50%] mx-[5px]" size="16" name="right" />
     </div>
     <div class="flex">
-      <div class="bg-[#D8D8D8] rounded-[50%] h-[120px] w-[120px]"></div>
+      <img :src="addressAvatar" class="bg-[#D8D8D8] rounded-[50%] h-[120px] w-[120px]" />
       <div class="text-[#F4F4F4] ml-[20px]">
-        <div class="text-[26px]">0xd5f6—1a6b79</div>
-        <div>0xd5f6e31199220a0d5334cad2b6ecd70c8f1a6b79</div>
+        <div class="text-[26px]">{{ shortenAddress(address) }}</div>
+        <div>{{ address }}</div>
         <div class="relative text-white"
           ><label class="text-[26px] font-bold">88999999</label
           ><label class="absolute top-0">GRT</label></div
@@ -71,22 +71,28 @@
   </Drawer>
 </template>
 <script lang="ts" setup>
-  import { ref } from 'vue';
+  import { ref, computed } from 'vue';
   import { useI18n } from '/@/hooks/web/useI18n';
   import { SvgIcon } from '/@/components/Icon';
   import StakeDrawer from './StakeDrawer.vue';
   import UnstakeDrawer from './UnstakeDrawer.vue';
   import WithdrawDrawer from './WithdrawDrawer.vue';
+  import { createSvgAvatar } from '/@/utils/avatar';
+  import { shortenAddress } from '/@/utils/thegraphUtil';
   import { Drawer } from 'ant-design-vue';
 
   const { t } = useI18n();
   const emits = defineEmits(['modalConfirm']);
-  
+
   const drawerVisible = ref(false);
   const stakeVisible = ref(false);
   const unstakeVisible = ref(false);
   const withdrawVisible = ref(false);
-  
+
+  // This is an placeholder, address will be get from API later
+  const address = '0xd5f6e31199220a0d5334cad2b6ecd70c8f1a6b79';
+  const addressAvatar = computed(() => createSvgAvatar(address));
+
   async function onDrawerClose() {
     stakeVisible.value = false;
     unstakeVisible.value = false;

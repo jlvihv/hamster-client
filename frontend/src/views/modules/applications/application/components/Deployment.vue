@@ -1,8 +1,8 @@
 <template>
-  <div class="text-center text-[30px] font-bold mb-[40px]">{{
-    t('applications.deploy.stepTitle3')
-  }}</div>
-  <div class="bg-white rounded-[20px] mx-[40px] mb-[100px] py-[40px] px-[90px]">
+  <div class="text-center text-[30px] font-bold mb-[40px]">
+    {{ t('applications.deploy.stepTitle3') }}
+  </div>
+  <div class="bg-white rounded-[20px] mx-[40px] mb-[100px] py-[50px] px-[90px]">
     <Timeline>
       <TimelineItem class="ant-timeline-suc" label="Complete">
         <template #dot>
@@ -36,18 +36,23 @@
       </TimelineItem>
       <TimelineItem label="Runing">
         <template #dot>
-          <div class="ant-timeline-item-icon"></div>
+          <div class="ant-timeline-item-icon">
+            <div class="deployment-status-not-start"></div>
+          </div>
         </template>
         <div class="ant-timeline-item-title">{{ t('applications.see.serviceDeploy') }}</div>
       </TimelineItem>
     </Timeline>
     <div class="text-center">
-      <Button size="large" class="w-32 mt-6 ml-4" type="primary">
-        {{ t('common.doneText') }}
-      </Button>
+      <router-link to="/applications">
+        <Button size="large" class="w-32 mt-6 ml-4" type="primary">
+          {{ t('common.doneText') }}
+        </Button>
+      </router-link>
     </div>
   </div>
 </template>
+
 <script lang="ts" setup>
   import { useI18n } from '/@/hooks/web/useI18n';
   import { SvgIcon } from '/@/components/Icon';
@@ -55,3 +60,15 @@
 
   const { t } = useI18n();
 </script>
+
+<style lang="less" scoped>
+  .deployment-status-not-start {
+    @apply w-full h-full rounded-full bg-white border-2 border-[#63A0FA];
+  }
+
+  :deep(.ant-timeline) {
+    .svg {
+      margin: 0;
+    }
+  }
+</style>

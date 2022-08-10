@@ -2,13 +2,13 @@
   <div class="mx-[40px] mb-[100px]">
     <Tabs v-model:activeKey="activeKey">
       <TabPane key="1" :tab="t('applications.see.revenueInfo')">
-        <RevenueInfo @modalConfirm="modalConfirm" />
+        <RevenueInfo @modal-confirm="modalConfirm" />
       </TabPane>
       <TabPane key="2" :tab="t('applications.see.subgraph')">
         <Subgraph />
       </TabPane>
       <TabPane key="3" :tab="t('applications.see.serviceDetails')">
-        <ServiceDetails @modalConfirm="modalConfirm" />
+        <ServiceDetails @modal-confirm="modalConfirm" />
       </TabPane>
     </Tabs>
   </div>
@@ -23,8 +23,8 @@
 
   const { t } = useI18n();
 
-  const activeKey = ref('3');
-  
+  const activeKey = ref('1');
+
   const modalConfirm = () => {
     Modal.confirm({
       title: t('applications.see.receiveBenefitsInfo'),
