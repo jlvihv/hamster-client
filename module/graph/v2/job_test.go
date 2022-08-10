@@ -9,7 +9,9 @@ import (
 	"gorm.io/gorm"
 	"hamster-client/module/account"
 	"hamster-client/module/application"
+	"hamster-client/module/deploy"
 	"hamster-client/module/graph"
+	"hamster-client/module/keystorage"
 	"hamster-client/module/p2p"
 	queue2 "hamster-client/module/queue"
 	"hamster-client/module/resource"
@@ -35,17 +37,40 @@ func TestDeploy(t *testing.T) {
 		&graph.GraphParameter{},
 	)
 
-	applicationId := 11
+	//applicationId := 11
+	var applicationId int
 	ctx := context.Background()
 	httpUtil := utils.NewHttp()
 	accountService := account.NewServiceImpl(ctx, db, httpUtil)
 	applicationService := application.NewServiceImpl(ctx, db)
 	p2pService := p2p.NewServiceImpl(ctx, db)
+	keyStorageService := keystorage.NewServiceImpl(ctx, db)
+	graphParamService := NewServiceImpl(ctx, db, keyStorageService)
+	deployService := deploy.NewServiceImpl(ctx, httpUtil, db, &keyStorageService, &accountService, &p2pService)
+	//create application
+	var addParam AddParam
+	addParam.Name = "Service one9"
+	addParam.ThegraphIndexer = "chef moon high razor hockey steak better version myself large purchase cave"
+	addParam.SelectNodeType = "The Graph"
+	addParam.StakingAmount = 100000
+	addParam.LeaseTerm = 1
+	res, err := graphParamService.SaveGraphDeployParameterAndApply(addParam)
+	if err != nil {
+		fmt.Println("create deploy service failed,err is: ", err)
+		return
+	}
+	if !res.Result {
+		fmt.Println("create deploy service failed,err is: ", err)
+		return
+	}
+	applicationId = int(res.ID)
+	stakingJob := NewGraphStakingJob(keyStorageService, applicationId)
 	pullJob := NewPullImageJob(&applicationService, applicationId)
 	substrateApi, _ := gsrpc.NewSubstrateAPI("ws://183.66.65.207:49944")
 
-	job2, _ := NewWaitResourceJob(substrateApi, &accountService, &applicationService, &p2pService, applicationId)
-	queue := queue2.NewQueue("1", job2, &pullJob)
+	waitResourceJob, _ := NewWaitResourceJob(substrateApi, &accountService, &applicationService, &p2pService, applicationId)
+	deployJob := NewServiceDeployJob(keyStorageService, &deployService, applicationId)
+	queue := queue2.NewQueue("1", &stakingJob, waitResourceJob, &pullJob, &deployJob)
 
 	channel := make(chan struct{})
 	go queue.Start(channel)

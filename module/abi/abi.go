@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/ecdsa"
 	"errors"
+	"fmt"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto/secp256k1"
@@ -39,11 +40,26 @@ func GetPrivateKey(privateStr string) *ecdsa.PrivateKey {
 }
 
 func GetPrivateKeyWithMnemonic(mnemonic string) (*ecdsa.PrivateKey, error) {
-	privateStr, err := GetPrivateKeyHexStringWithMnemonic(mnemonic)
+	var e ecdsa.PrivateKey
+	wallet, err := hdwallet.NewFromMnemonic(mnemonic)
 	if err != nil {
-		return nil, err
+		fmt.Println("get wallet err,err is: ", err)
+		return &e, err
 	}
-	return GetPrivateKey(privateStr), nil
+
+	path := hdwallet.MustParseDerivationPath("m/44'/60'/0'/0/0")
+	account, err := wallet.Derive(path, false)
+	if err != nil {
+		fmt.Println("get wallet account err,err is: ", err)
+		return &e, err
+	}
+
+	privateKey, err := wallet.PrivateKey(account)
+	if err != nil {
+		fmt.Println("get private key failed, ", err)
+		return &e, err
+	}
+	return privateKey, nil
 }
 
 func GetPrivateKeyHexStringWithMnemonic(mnemonic string) (string, error) {

@@ -1,149 +1,3 @@
-export namespace wallet {
-  export class WalletVo {
-    address: string;
-    addressJson: string;
-
-    static createFrom(source: any = {}) {
-      return new WalletVo(source);
-    }
-
-    constructor(source: any = {}) {
-      if ('string' === typeof source) source = JSON.parse(source);
-      this.address = source['address'];
-      this.addressJson = source['addressJson'];
-    }
-  }
-}
-
-export namespace deploy {
-  export class Deployment {
-    nodeEthereumUrl: string;
-    ethereumUrl: string;
-    ethereumNetwork: string;
-    indexerAddress: string;
-
-    static createFrom(source: any = {}) {
-      return new Deployment(source);
-    }
-
-    constructor(source: any = {}) {
-      if ('string' === typeof source) source = JSON.parse(source);
-      this.nodeEthereumUrl = source['nodeEthereumUrl'];
-      this.ethereumUrl = source['ethereumUrl'];
-      this.ethereumNetwork = source['ethereumNetwork'];
-      this.indexerAddress = source['indexerAddress'];
-    }
-  }
-  export class Staking {
-    networkUrl: string;
-    address: string;
-    agentAddress: string;
-    pledgeAmount: number;
-
-    static createFrom(source: any = {}) {
-      return new Staking(source);
-    }
-
-    constructor(source: any = {}) {
-      if ('string' === typeof source) source = JSON.parse(source);
-      this.networkUrl = source['networkUrl'];
-      this.address = source['address'];
-      this.agentAddress = source['agentAddress'];
-      this.pledgeAmount = source['pledgeAmount'];
-    }
-  }
-  export class Initialization {
-    leaseTerm: number;
-    publicKey: string;
-    accountMnemonic: string;
-
-    static createFrom(source: any = {}) {
-      return new Initialization(source);
-    }
-
-    constructor(source: any = {}) {
-      if ('string' === typeof source) source = JSON.parse(source);
-      this.leaseTerm = source['leaseTerm'];
-      this.publicKey = source['publicKey'];
-      this.accountMnemonic = source['accountMnemonic'];
-    }
-  }
-  export class DeployParameter {
-    // Go type: Initialization
-    initialization: any;
-    // Go type: Staking
-    staking: any;
-    // Go type: Deployment
-    deployment: any;
-
-    static createFrom(source: any = {}) {
-      return new DeployParameter(source);
-    }
-
-    constructor(source: any = {}) {
-      if ('string' === typeof source) source = JSON.parse(source);
-      this.initialization = this.convertValues(source['initialization'], null);
-      this.staking = this.convertValues(source['staking'], null);
-      this.deployment = this.convertValues(source['deployment'], null);
-    }
-
-    convertValues(a: any, classs: any, asMap: boolean = false): any {
-      if (!a) {
-        return a;
-      }
-      if (a.slice) {
-        return (a as any[]).map((elem) => this.convertValues(elem, classs));
-      } else if ('object' === typeof a) {
-        if (asMap) {
-          for (const key of Object.keys(a)) {
-            a[key] = new classs(a[key]);
-          }
-          return a;
-        }
-        return new classs(a);
-      }
-      return a;
-    }
-  }
-}
-
-export namespace v2 {
-  export class AddParam {
-    name: string;
-    selectNodeType: string;
-    leaseTerm: number;
-    thegraphIndexer: string;
-    stakingAmount: number;
-
-    static createFrom(source: any = {}) {
-      return new AddParam(source);
-    }
-
-    constructor(source: any = {}) {
-      if ('string' === typeof source) source = JSON.parse(source);
-      this.name = source['name'];
-      this.selectNodeType = source['selectNodeType'];
-      this.leaseTerm = source['leaseTerm'];
-      this.thegraphIndexer = source['thegraphIndexer'];
-      this.stakingAmount = source['stakingAmount'];
-    }
-  }
-  export class AddApplicationVo {
-    id: number;
-    result: boolean;
-
-    static createFrom(source: any = {}) {
-      return new AddApplicationVo(source);
-    }
-
-    constructor(source: any = {}) {
-      if ('string' === typeof source) source = JSON.parse(source);
-      this.id = source['id'];
-      this.result = source['result'];
-    }
-  }
-}
-
 export namespace application {
   export class ListVo {
     id: number;
@@ -205,6 +59,7 @@ export namespace application {
     selectNodeType: string;
     status: number;
     leaseTerm: number;
+    p2pForwardPort: number;
 
     static createFrom(source: any = {}) {
       return new ApplyVo(source);
@@ -218,6 +73,7 @@ export namespace application {
       this.selectNodeType = source['selectNodeType'];
       this.status = source['status'];
       this.leaseTerm = source['leaseTerm'];
+      this.p2pForwardPort = source['p2pForwardPort'];
     }
 
     convertValues(a: any, classs: any, asMap: boolean = false): any {
@@ -429,6 +285,152 @@ export namespace app {
         return new classs(a);
       }
       return a;
+    }
+  }
+}
+
+export namespace wallet {
+  export class WalletVo {
+    address: string;
+    addressJson: string;
+
+    static createFrom(source: any = {}) {
+      return new WalletVo(source);
+    }
+
+    constructor(source: any = {}) {
+      if ('string' === typeof source) source = JSON.parse(source);
+      this.address = source['address'];
+      this.addressJson = source['addressJson'];
+    }
+  }
+}
+
+export namespace deploy {
+  export class Deployment {
+    nodeEthereumUrl: string;
+    ethereumUrl: string;
+    ethereumNetwork: string;
+    indexerAddress: string;
+
+    static createFrom(source: any = {}) {
+      return new Deployment(source);
+    }
+
+    constructor(source: any = {}) {
+      if ('string' === typeof source) source = JSON.parse(source);
+      this.nodeEthereumUrl = source['nodeEthereumUrl'];
+      this.ethereumUrl = source['ethereumUrl'];
+      this.ethereumNetwork = source['ethereumNetwork'];
+      this.indexerAddress = source['indexerAddress'];
+    }
+  }
+  export class Staking {
+    networkUrl: string;
+    address: string;
+    agentAddress: string;
+    pledgeAmount: number;
+
+    static createFrom(source: any = {}) {
+      return new Staking(source);
+    }
+
+    constructor(source: any = {}) {
+      if ('string' === typeof source) source = JSON.parse(source);
+      this.networkUrl = source['networkUrl'];
+      this.address = source['address'];
+      this.agentAddress = source['agentAddress'];
+      this.pledgeAmount = source['pledgeAmount'];
+    }
+  }
+  export class Initialization {
+    leaseTerm: number;
+    publicKey: string;
+    accountMnemonic: string;
+
+    static createFrom(source: any = {}) {
+      return new Initialization(source);
+    }
+
+    constructor(source: any = {}) {
+      if ('string' === typeof source) source = JSON.parse(source);
+      this.leaseTerm = source['leaseTerm'];
+      this.publicKey = source['publicKey'];
+      this.accountMnemonic = source['accountMnemonic'];
+    }
+  }
+  export class DeployParameter {
+    // Go type: Initialization
+    initialization: any;
+    // Go type: Staking
+    staking: any;
+    // Go type: Deployment
+    deployment: any;
+
+    static createFrom(source: any = {}) {
+      return new DeployParameter(source);
+    }
+
+    constructor(source: any = {}) {
+      if ('string' === typeof source) source = JSON.parse(source);
+      this.initialization = this.convertValues(source['initialization'], null);
+      this.staking = this.convertValues(source['staking'], null);
+      this.deployment = this.convertValues(source['deployment'], null);
+    }
+
+    convertValues(a: any, classs: any, asMap: boolean = false): any {
+      if (!a) {
+        return a;
+      }
+      if (a.slice) {
+        return (a as any[]).map((elem) => this.convertValues(elem, classs));
+      } else if ('object' === typeof a) {
+        if (asMap) {
+          for (const key of Object.keys(a)) {
+            a[key] = new classs(a[key]);
+          }
+          return a;
+        }
+        return new classs(a);
+      }
+      return a;
+    }
+  }
+}
+
+export namespace v2 {
+  export class AddParam {
+    name: string;
+    selectNodeType: string;
+    leaseTerm: number;
+    thegraphIndexer: string;
+    stakingAmount: number;
+
+    static createFrom(source: any = {}) {
+      return new AddParam(source);
+    }
+
+    constructor(source: any = {}) {
+      if ('string' === typeof source) source = JSON.parse(source);
+      this.name = source['name'];
+      this.selectNodeType = source['selectNodeType'];
+      this.leaseTerm = source['leaseTerm'];
+      this.thegraphIndexer = source['thegraphIndexer'];
+      this.stakingAmount = source['stakingAmount'];
+    }
+  }
+  export class AddApplicationVo {
+    id: number;
+    result: boolean;
+
+    static createFrom(source: any = {}) {
+      return new AddApplicationVo(source);
+    }
+
+    constructor(source: any = {}) {
+      if ('string' === typeof source) source = JSON.parse(source);
+      this.id = source['id'];
+      this.result = source['result'];
     }
   }
 }
