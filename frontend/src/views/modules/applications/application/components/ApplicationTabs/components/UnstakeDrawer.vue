@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <Form>
     <div class="stake-box p-[20px]">
       <div class="flex">
         <div class="bg-[#D8D8D8] rounded-[50%] w-[60px] h-[60px]"></div>
@@ -32,17 +32,16 @@
       </div>
     </div>
     <div class="font-bold my-[10px]">{{ t('applications.reward.unStakeAmount') }}</div>
-    <div
-      class="border border-[#043CC1] rounded-[8px] h-[60px] px-[10px] flex items-center justify-between"
-    >
-      <div>10000000000</div>
-      <div>
-        <label class="text-[#7B8082] mr-[10px]">{{ t('applications.see.grt') }}</label>
-        <label class="bg-[#63A0FA] px-[20px] py-[8px] rounded-[4px] text-white">{{
-          t('applications.see.max')
-        }}</label>
-      </div>
-    </div>
+    <Input class="border !border-[#043CC1] rounded-[8px] h-[60px] px-[10px]" value="10000000">
+      <template #suffix>
+        <div>
+          <label class="text-[#7B8082] mr-[10px]">{{ t('applications.see.grt') }}</label>
+          <label class="bg-[#63A0FA] px-[20px] py-[8px] rounded-[4px] text-white">
+            {{ t('applications.see.max') }}
+          </label>
+        </div>
+      </template>
+    </Input>
     <div class="flex justify-between mt-[10px]">
       <div>{{ t('applications.see.minAmount') }}</div>
       <div>
@@ -57,12 +56,12 @@
       </div>
     </div>
     <Button type="primary" size="large">{{ t('applications.see.unstake') }}</Button>
-  </div>
+  </Form>
 </template>
 <script lang="ts" setup>
   import { useI18n } from '/@/hooks/web/useI18n';
   import { SvgIcon } from '/@/components/Icon';
-  import { Button } from 'ant-design-vue';
+  import { Button, Input, Form } from 'ant-design-vue';
 
   const { t } = useI18n();
 </script>
