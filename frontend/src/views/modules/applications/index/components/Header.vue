@@ -11,76 +11,70 @@
       />
     </div>
     <div>
-      <SvgIcon
-        class="cursor-pointer"
-        color="#858B92"
-        size="20"
-        name="people"
-        @click="
-          showPeople = true;
-          showSetting = false;
-        "
-      />
-      <SvgIcon
-        class="cursor-pointer ml-[20px]"
-        color="#858B92"
-        size="20"
-        name="setting"
-        @click="
-          showSetting = true;
-          showPeople = false;
-        "
-      />
-    </div>
-    <div v-if="showPeople" @mouseleave="showPeople = false" class="pop-div">
-      <div class="top-div right-[50px]"></div>
-      <div class="border-box">
-        <div class="title-div">
-          <SvgIcon size="16" color="#63A0FA" name="address" />
-          {{ t('applications.index.address') }}
-        </div>
-        <div class="text-[12px] mb-[20px] whitespace-normal break-all">
-          {{ settingStore.walletInfo?.address }}
-        </div>
-        <div class="title-div">
-          <SvgIcon size="16" color="#63A0FA" name="balance" />
-          {{ t('applications.index.balance') }}
-        </div>
-        <div class="text-[12px] mb-[20px]">
-          <template v-if="balance.loading">
-            <LoadingOutlined />
-          </template>
-          <template v-else>
-            {{ balance.value }}
-          </template>
-        </div>
-        <div class="button-div">
-          <router-link :to="{ path: '/home', query: { step: 1 } }">
-            <Button type="primary">{{ t('applications.index.changeWallet') }}</Button>
-          </router-link>
-        </div>
-      </div>
-    </div>
-    <div v-if="showSetting" @mouseleave="onMouseLeave($event)" class="pop-div">
-      <div class="top-div right-[10px]"></div>
-      <Form class="border-box" ref="formRef" :model="formData" :rules="formRules">
-        <div class="title-div">
-          <SvgIcon size="16" color="#63A0FA" name="ws" />
-          {{ t('applications.index.wsUrl') }}
-        </div>
-        <div>
-          <Select
-            class="w-full"
-            :allowClear="true"
-            :placeholder="t('applications.index.wsUrlPlaceholder')"
-            :options="urlOptions"
-            v-model:value="formData.wsUrl"
-          />
-        </div>
-        <div class="button-div">
-          <Button type="primary" @click="handleWsUrlSave">{{ t('common.saveText') }}</Button>
-        </div>
-      </Form>
+      <Popover placement="bottomRight" arrow-point-at-center v-model:visible="showPeople" trigger="click">
+        <template #content>
+          <div class="w-[300px]">
+            <div class="title-div">
+              <SvgIcon size="16" color="#63A0FA" name="address" />
+              {{ t('applications.index.address') }}
+            </div>
+            <div class="text-[12px] mb-[20px] mx-[20px] whitespace-normal break-all">
+              {{ settingStore.walletInfo?.address }}
+            </div>
+            <div class="title-div">
+              <SvgIcon size="16" color="#63A0FA" name="balance" />
+              {{ t('applications.index.balance') }}
+            </div>
+            <div class="text-[12px] mb-[20px] mx-[20px]">
+              <template v-if="balance.loading">
+                <LoadingOutlined />
+              </template>
+              <template v-else>
+                {{ balance.value }}
+              </template>
+            </div>
+            <div class="button-div">
+              <router-link :to="{ path: '/home', query: { step: 1 } }">
+                <Button type="primary">{{ t('applications.index.changeWallet') }}</Button>
+              </router-link>
+            </div>
+          </div>
+        </template>
+        <SvgIcon
+          class="cursor-pointer border-none"
+          color="#858B92"
+          size="20"
+          name="people"
+        />
+      </Popover>
+      <Popover placement="bottomRight" arrow-point-at-center v-model:visible="showSetting" trigger="click">
+        <template #content>
+          <Form ref="formRef" :model="formData" :rules="formRules" class="w-[300px]">
+            <div class="title-div">
+              <SvgIcon size="16" color="#63A0FA" name="ws" />
+              {{ t('applications.index.wsUrl') }}
+            </div>
+            <div>
+              <Select
+                class="w-full"
+                :allowClear="true"
+                :placeholder="t('applications.index.wsUrlPlaceholder')"
+                :options="urlOptions"
+                v-model:value="formData.wsUrl"
+              />
+            </div>
+            <div class="button-div">
+              <Button type="primary" @click="handleWsUrlSave">{{ t('common.saveText') }}</Button>
+            </div>
+          </Form>
+        </template>
+        <SvgIcon
+          class="cursor-pointer ml-[20px]"
+          color="#858B92"
+          size="20"
+          name="setting"
+        />
+      </Popover>
     </div>
   </div>
 </template>
@@ -94,7 +88,7 @@
   import { LoadingOutlined } from '@ant-design/icons-vue';
   import { createPolkadotApi, formatBalance } from '/@/utils/polkadotUtil';
   import { createRule } from '/@/utils/formUtil';
-  import { Button, Select } from 'ant-design-vue';
+  import { Button, Select, Popover } from 'ant-design-vue';
 
   const { t } = useI18n();
   const router = useRouter();
@@ -150,38 +144,11 @@
   const onBack = async () => {
     router.push({ path: '/applications/index' });
   };
-
-  async function onMouseLeave(e) {
-    var currTargetEl = e.relatedTarget || e.toElement;
-    const targetClassName = currTargetEl.className
-    if (targetClassName.indexOf('ant-select-dropdown') !== -1) return; 
-    showSetting.value = false;
-  }
 </script>
 <style lang="less" scoped>
-  .pop-div {
-    @apply absolute z-50 top-9;
-    width: 250px;
-    right: -10px;
+  :deep(.humster-svg-icon){
+    outline: none;
   }
-
-  .border-box {
-    @apply bg-white;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0px 0px 4px 0px rgba(31, 31, 35, 0.2);
-  }
-
-  .top-div {
-    @apply absolute;
-    top: -40px;
-    width: 20px;
-    height: 40px;
-    border-bottom: 10px solid #fff;
-    border-left: 10px solid transparent;
-    border-right: 10px solid transparent;
-  }
-
   .title-div {
     @apply font-bold;
     margin-bottom: 10px;
