@@ -141,5 +141,6 @@ export default {
     thegraphIndexerPlaceholder: 'Enter your thegraph indexer mnemonic',
     stakingAmount: 'Staking Amount',
     stakingAmountPlaceholder: 'Enter the amount of GRT stake',
+    createFailed: 'Failed to create',
   },
 };

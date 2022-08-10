@@ -54,12 +54,7 @@
           />
         </FormItem>
         <FormItem class="text-center">
-          <Button
-            size="large"
-            class="w-32 mt-6 ml-4"
-            type="primary"
-            @click="handleSubmit"
-          >
+          <Button size="large" class="w-32 mt-6 ml-4" type="primary" @click="handleSubmit">
             {{ t('common.createText') }}
           </Button>
         </FormItem>
@@ -73,14 +68,16 @@
   import { useRouter } from 'vue-router';
   import { PageWrapper } from '/@/components/Page';
   import { useI18n } from '/@/hooks/web/useI18n';
+  import { useMessage } from '/@/hooks/web/useMessage';
   import { createRule } from '/@/utils/formUtil';
   import Header from '../index/components/Header.vue';
-  import { pluginConfigs } from '/@/utils/graphDeployUtil';
+  import { pluginConfigs } from '/@/utils/thegraphUtil';
   import { AddApplication } from '/@wails/go/app/Application';
   import { Form, FormItem, Input, Select, Button } from 'ant-design-vue';
 
   const { t } = useI18n();
   const { router } = useRouter();
+  const { createErrorModal } = useMessage();
 
   const pluginOptions = pluginConfigs.map((item) => ({
     ...item,
@@ -100,10 +97,17 @@
   const handleSubmit = async () => {
     await formRef.value?.validate();
 
-    const params = toRaw(formData);
-    const { id } = await AddApplication(params);
+    try {
+      const params = toRaw(formData);
+      const { id } = await AddApplication(params);
 
-    router.push(`/applications/${id}`);
+      router.push(`/applications/${id}`);
+    } catch (e: any) {
+      createErrorModal({
+        title: t('common.errorTip'),
+        content: t('applications.new.createFailed'),
+      });
+    }
   };
 </script>
 
