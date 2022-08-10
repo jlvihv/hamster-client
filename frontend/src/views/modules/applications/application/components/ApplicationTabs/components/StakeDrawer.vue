@@ -39,9 +39,9 @@
         <div>10000000000</div>
         <div>
           <label class="text-[#7B8082] mr-[10px]">{{ t('applications.see.grt') }}</label>
-          <label class="bg-[#63A0FA] px-[20px] py-[8px] rounded-[4px] text-white">{{
-            t('applications.see.max')
-          }}</label>
+          <label class="bg-[#63A0FA] px-[20px] py-[8px] rounded-[4px] text-white">
+            {{ t('applications.see.max') }}
+          </label>
         </div>
       </div>
       <div class="flex justify-between mt-[10px]">
