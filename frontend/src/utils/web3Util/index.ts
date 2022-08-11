@@ -76,3 +76,8 @@ export function runContractMethod(options: {
 
   return contract.methods[method](...methodArgs)[type]({ from: ethAddress });
 }
+
+export function formatfromWei(value: any, precision = 2) {
+  const newValue = +Web3.utils.fromWei(value);
+  return newValue.toFixed(precision);
+}

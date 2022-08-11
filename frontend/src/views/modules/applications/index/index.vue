@@ -33,24 +33,42 @@
         </div>
       </div>
     </div>
+    <div class="text-center my-[40px]" v-if="isTouchedEnd">
+      <Button
+        class="!h-[60px] w-[200px]"
+        size="large"
+        type="primary"
+        @click="loadApplications"
+        :loading="isLoading"
+      >
+        {{ t('common.moreText') }}
+      </Button>
+    </div>
   </PageWrapper>
 </template>
 
 <script lang="ts" setup>
-  import { reactive, onMounted } from 'vue';
+  import { onMounted } from 'vue';
   import { PageWrapper } from '/@/components/Page';
   import { SvgIcon } from '/@/components/Icon';
   import Header from './components/Header.vue';
+  import { useI18n } from '/@/hooks/web/useI18n';
+  import { useLoadMore } from '/@/hooks/web/useLoadMore';
   import { ApplicationList } from '/@wails/go/app/Application';
   import { DictCodeEnum } from '/@/enums/dictCodeEnum';
+  import { Button } from 'ant-design-vue';
 
-  const applications = reactive([]);
-  const pagination = reactive({ page: 1, pageSize: 20 });
+  const { t } = useI18n();
 
-  const loadApplications = async () => {
-    const { items } = await ApplicationList(pagination.page, pagination.pageSize);
-    applications.push(...items);
-  };
+  const {
+    items: applications,
+    isLoading,
+    isTouchedEnd,
+    loadMore: loadApplications,
+  } = useLoadMore(ApplicationList, {
+    responseHandler: (data) => data.items,
+    perPage: 20,
+  });
 
   onMounted(loadApplications);
 </script>
