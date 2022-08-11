@@ -76,4 +76,9 @@ export const DictCodeEnum = {
   ApplicationDeployStatus_InProgress: new DictCode('ApplicationDeployStatus', 4),
   ApplicationDeployStatus_Deployed: new DictCode('ApplicationDeployStatus', 1),
   ApplicationDeployStatus_DeployFailed: new DictCode('ApplicationDeployStatus', 5),
+  ApplicationQueueStatus: new DictCode('ApplicationQueueStatus'),
+  ApplicationQueueStatus_None: new DictCode('ApplicationQueueStatus', 0),
+  ApplicationQueueStatus_Running: new DictCode('ApplicationQueueStatus', 1),
+  ApplicationQueueStatus_Succeeded: new DictCode('ApplicationQueueStatus', 2),
+  ApplicationQueueStatus_Failed: new DictCode('ApplicationQueueStatus', 3),
 };

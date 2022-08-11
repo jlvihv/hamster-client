@@ -3,53 +3,69 @@
     {{ t('applications.deploy.stepTitle3') }}
   </div>
   <div class="bg-white rounded-[20px] mx-[40px] mb-[100px] py-[50px] px-[90px]">
-    <Timeline>
-      <TimelineItem class="ant-timeline-suc" label="Complete">
-        <template #dot>
-          <div class="ant-timeline-item-icon !bg-[#63A0FA]">
-            <SvgIcon class="text-white rounded-[50%]" size="20" name="yes" />
+    <div v-if="queueInfo.length">
+      <Timeline>
+        <TimelineItem
+          :class="getTimelineItemClass(item.status)"
+          :label="DictCodeEnum.ApplicationQueueStatus.getOptionLabel(item.status || 0)"
+          v-for="item in queueInfo"
+          :key="item.name"
+        >
+          <template #dot>
+            <div
+              class="ant-timeline-item-icon !bg-[#63A0FA]"
+              v-if="DictCodeEnum.ApplicationQueueStatus_Succeeded.is(item.status)"
+            >
+              <SvgIcon class="text-white rounded-[50%]" size="20" name="yes" />
+            </div>
+
+            <div
+              class="ant-timeline-item-icon !bg-[#63A0FA]"
+              v-else-if="DictCodeEnum.ApplicationQueueStatus_Running.is(item.status)"
+            >
+              <SvgIcon class="text-white rounded-[50%]" size="20" name="yes" />
+            </div>
+
+            <div
+              class="!bg-[#E70000] ant-timeline-item-icon"
+              v-else-if="DictCodeEnum.ApplicationQueueStatus_Failed.is(item.status)"
+            >
+              <SvgIcon class="text-white rounded-[50%]" size="20" name="no" />
+            </div>
+
+            <div class="ant-timeline-item-icon" v-else>
+              <div class="deployment-status-not-start"></div>
+            </div>
+          </template>
+
+          <svg
+            class="svg"
+            width="200"
+            height="200"
+            v-if="DictCodeEnum.ApplicationQueueStatus_Running.is(item.status)"
+          >
+            <circle cx="100" cy="100" r="80" />
+          </svg>
+
+          <div
+            class="ant-timeline-fail-realod cursor-pointer"
+            @click="handleQueueFailed"
+            v-if="DictCodeEnum.ApplicationQueueStatus_Failed.is(item.status)"
+          >
+            <SvgIcon class="text-[#E70000]" size="40" name="reload" />
           </div>
-        </template>
-        <div class="ant-timeline-item-title">{{ t('applications.see.staking') }}</div>
-      </TimelineItem>
-      <TimelineItem class="ant-timeline-run" label="Runing">
-        <template #dot>
-          <div class="ant-timeline-item-icon !bg-[#63A0FA]">
-            <SvgIcon class="text-white rounded-[50%]" size="20" name="yes" />
-          </div>
-        </template>
-        <svg class="svg" width="200" height="200">
-          <circle cx="100" cy="100" r="80" />
-        </svg>
-        <div class="ant-timeline-item-title">{{ t('applications.see.waiting') }}</div>
-      </TimelineItem>
-      <TimelineItem class="ant-timeline-fail" label="Runing">
-        <template #dot>
-          <div class="!bg-[#E70000] ant-timeline-item-icon">
-            <SvgIcon class="text-white rounded-[50%]" size="20" name="no" />
-          </div>
-        </template>
-        <div class="ant-timeline-item-title">{{ t('applications.see.servicePull') }}</div>
-        <div class="ant-timeline-fail-realod">
-          <SvgIcon class="text-[#E70000]" size="40" name="reload" />
-        </div>
-      </TimelineItem>
-      <TimelineItem label="Runing">
-        <template #dot>
-          <div class="ant-timeline-item-icon">
-            <div class="deployment-status-not-start"></div>
-          </div>
-        </template>
-        <div class="ant-timeline-item-title">{{ t('applications.see.serviceDeploy') }}</div>
-      </TimelineItem>
-    </Timeline>
-    <div class="text-center">
-      <router-link to="/applications">
-        <Button size="large" class="w-32 mt-6 ml-4" type="primary">
-          {{ t('common.doneText') }}
-        </Button>
-      </router-link>
+          <div class="ant-timeline-item-title">{{ item.name }}</div>
+        </TimelineItem>
+      </Timeline>
+      <div class="text-center">
+        <router-link to="/applications">
+          <Button size="large" class="w-32 mt-6 ml-4" type="primary">
+            {{ t('common.doneText') }}
+          </Button>
+        </router-link>
+      </div>
     </div>
+    <div class="text-center text-xl font-bold p-6" v-else>{{ t('common.loadingText') }}</div>
   </div>
 </template>
 
@@ -58,6 +74,7 @@
   import { useI18n } from '/@/hooks/web/useI18n';
   import { SvgIcon } from '/@/components/Icon';
   import { GetQueueInfo } from '/@wails/go/app/Queue';
+  import { DictCodeEnum } from '/@/enums/dictCodeEnum';
   import { Timeline, TimelineItem, Button } from 'ant-design-vue';
 
   const props = defineProps({
@@ -68,8 +85,7 @@
 
   const queueInfo = ref([]);
   const fetchQueueInfo = async () => {
-    const info = await GetQueueInfo(props.applicationId);
-    console.log(info);
+    const { info } = await GetQueueInfo(props.applicationId);
     queueInfo.value = info;
   };
 
@@ -78,6 +94,18 @@
     const timer = setInterval(fetchQueueInfo, interval);
     onInvalidate(() => clearInterval(timer));
   });
+
+  const getTimelineItemClass = (status?: number) => {
+    return {
+      [DictCodeEnum.ApplicationQueueStatus_Succeeded.value]: 'ant-timeline-suc',
+      [DictCodeEnum.ApplicationQueueStatus_Running.value]: 'ant-timeline-run',
+      [DictCodeEnum.ApplicationQueueStatus_Failed.value]: 'ant-timeline-fail',
+    }[status];
+  };
+
+  const handleQueueFailed = () => {
+    console.log('Rerun!');
+  };
 </script>
 
 <style lang="less" scoped>

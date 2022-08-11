@@ -10,7 +10,7 @@
     <div class="flex">
       <img :src="addressAvatar" class="bg-[#D8D8D8] rounded-[50%] h-[120px] w-[120px]" />
       <div class="text-[#F4F4F4] ml-[20px]">
-        <div class="text-[26px]">{{ shortenAddress(address) }}</div>
+        <div class="text-[26px]">{{ shortAddress }}</div>
         <div>{{ address }}</div>
         <div class="relative text-white"
           ><label class="text-[26px] font-bold">{{ addressBalance }}</label
@@ -69,12 +69,21 @@
     <StakeDrawer
       :stakeAmount="stakeTotal"
       :addressBalance="addressBalance"
-      :addressAvatar="shortenAddress(address)"
+      :addressAvatar="addressAvatar"
+      :shortAddress="shortAddress"
       :deployInfo="deployData"
       v-if="stakeVisible"
     />
-    <UnstakeDrawer v-if="unstakeVisible" />
-    <WithdrawDrawer v-if="withdrawVisible" />
+    <UnstakeDrawer
+      :addressAvatar="addressAvatar"
+      :shortAddress="shortAddress"
+      v-if="unstakeVisible"
+    />
+    <WithdrawDrawer
+      :addressAvatar="addressAvatar"
+      :shortAddress="shortAddress"
+      v-if="withdrawVisible"
+    />
   </Drawer>
 </template>
 <script lang="ts" setup>
@@ -103,6 +112,8 @@
 
   // This is an placeholder, address will be get from API later
   const address = ref('');
+  const shortAddress = computed(() => shortenAddress(address.value));
+
   // address balance
   const addressBalance = ref('0');
   const addressAvatar = ref();
@@ -213,7 +224,7 @@
     }
   };
   watchEffect(() => {
-    if (props.deployInfo?.staking.agentAddress) {
+    if (props.deployInfo?.staking?.agentAddress) {
       deployData.value = props.deployInfo;
       initAddress();
       getAddressBalance();

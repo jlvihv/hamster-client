@@ -1,13 +1,15 @@
 <template>
   <PageWrapper>
     <Header :showBack="true" />
-    <ApplicationTabs :applicationId="applicationId" v-if="isAppDeployed" />
-    <Deployment :applicationId="applicationId" v-else />
+    <template v-if="!isLoading">
+      <ApplicationTabs :applicationId="applicationId" v-if="isAppDeployed" />
+      <Deployment :applicationId="applicationId" v-else />
+    </template>
   </PageWrapper>
 </template>
 
 <script lang="ts" setup>
-  import { onMounted, reactive, computed } from 'vue';
+  import { onMounted, reactive, ref, computed } from 'vue';
   import { useRoute } from 'vue-router';
   import { DictCodeEnum } from '/@/enums/dictCodeEnum';
   import { PageWrapper } from '/@/components/Page';
@@ -24,12 +26,15 @@
   const applicationId = Number(params.id);
 
   const appInfo = reactive({});
+  const isLoading = ref(true);
 
   const isAppDeployed = computed(() =>
     DictCodeEnum.ApplicationDeployStatus_Deployed.is(appInfo.status),
   );
 
   const getAppInfo = async () => {
+    isLoading.value = true;
+
     try {
       const result = await QueryApplicationById(applicationId);
       Object.assign(appInfo, result);
@@ -38,6 +43,8 @@
         title: t('common.errorTip'),
         content: t('common.operateFailText'),
       });
+    } finally {
+      isLoading.value = false;
     }
   };
 
