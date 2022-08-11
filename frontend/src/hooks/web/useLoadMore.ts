@@ -9,7 +9,7 @@ export function useLoadMore(
 
   const items = reactive<any[]>([]);
   const isLoading = ref(false);
-  const isTouchedEnd = ref(true);
+  const isTouchedEnd = ref(false);
 
   const loadMore = async (event: any) => {
     if (isLoading.value) return;
@@ -25,7 +25,7 @@ export function useLoadMore(
     items.push(...newItems);
 
     if (newItems.length < perPage) {
-      isTouchedEnd.value = false;
+      isTouchedEnd.value = true;
     }
 
     isLoading.value = false;

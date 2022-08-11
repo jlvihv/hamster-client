@@ -80,10 +80,9 @@
   import WithdrawDrawer from './WithdrawDrawer.vue';
   import { createSvgAvatar } from '/@/utils/avatar';
   import { shortenAddress } from '/@/utils/thegraphUtil';
-  import { Drawer } from 'ant-design-vue';
+  import { Drawer, Modal } from 'ant-design-vue';
 
   const { t } = useI18n();
-  const emits = defineEmits(['modalConfirm']);
 
   const drawerVisible = ref(false);
   const stakeVisible = ref(false);
@@ -101,7 +100,18 @@
   }
 
   const receiveBenefits = () => {
-    emits('modalConfirm');
+    Modal.confirm({
+      title: t('applications.see.receiveBenefitsInfo'),
+      icon: '',
+      okText: t('common.okText'),
+      cancelText: t('common.cancelText'),
+      onOk() {
+        console.log('OK');
+      },
+      onCancel() {
+        console.log('Cancel');
+      },
+    });
   };
 </script>
 <style lang="less" scoped>

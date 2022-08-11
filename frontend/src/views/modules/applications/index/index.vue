@@ -65,10 +65,14 @@
     isLoading,
     isTouchedEnd,
     loadMore: loadApplications,
-  } = useLoadMore(ApplicationList, {
-    responseHandler: (data) => data.items,
-    perPage: 20,
-  });
+  } = useLoadMore(
+    (page, perPage) =>
+      ApplicationList(page, perPage, undefined, DictCodeEnum.ApplicationDeployStatus_All.value),
+    {
+      responseHandler: (data) => data.items,
+      perPage: 20,
+    },
+  );
 
   onMounted(loadApplications);
 </script>
