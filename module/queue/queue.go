@@ -8,12 +8,15 @@ import (
 	log "github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 	"hamster-client/module/keystorage"
+	"strconv"
 	"sync"
 )
 
 var queues sync.Map
 
 type StatusCode = int
+
+const DB_KEY_PREFIX = "queue_"
 
 const (
 	None      StatusCode = iota // 0
@@ -29,7 +32,7 @@ type StatusInfo struct {
 }
 
 type Queue interface {
-	ID() string
+	ID() int
 	GetStatus() (info []StatusInfo, err error)
 	Start(done chan struct{})
 	Reset()
@@ -38,14 +41,14 @@ type Queue interface {
 }
 
 type queue struct {
-	id            string
+	id            int
 	statusInfoMap sync.Map
 	jobs          []Job
 	index         int
 	mu            sync.Mutex
 }
 
-func NewQueue(id string, jobs ...Job) (q Queue, err error) {
+func NewQueue(id int, jobs ...Job) (q Queue, err error) {
 	for i := range jobs {
 		jobs[i].InitStatus()
 	}
@@ -62,14 +65,14 @@ func NewQueue(id string, jobs ...Job) (q Queue, err error) {
 	return
 }
 
-func GetQueue(id string) (q Queue, err error) {
+func GetQueue(id int) (q Queue, err error) {
 	if v, ok := queues.Load(id); ok {
 		return v.(Queue), nil
 	}
 	return nil, errors.New("queue not found")
 }
 
-func (q *queue) ID() string {
+func (q *queue) ID() int {
 	return q.id
 }
 
@@ -111,7 +114,7 @@ func (q *queue) Start(done chan struct{}) {
 }
 
 func (q *queue) init() {
-	log.Debugf("init queue %s", q.id)
+	log.Debugf("init queue %d", q.id)
 	for _, j := range q.jobs {
 		q.statusInfoMap.Store(j.Status().Name, j.Status())
 	}
@@ -144,7 +147,7 @@ type StatusStorage struct {
 }
 
 func (q *queue) SaveStatus(db *gorm.DB) error {
-	log.Debugf("save status to db for queue %s", q.id)
+	log.Debugf("save status to db for queue %d", q.id)
 	info, err := q.GetStatus()
 	if err != nil {
 		log.Errorf("get status failed: %s", err)
@@ -159,15 +162,15 @@ func (q *queue) SaveStatus(db *gorm.DB) error {
 		log.Errorf("marshal status storage failed: %s", err)
 		return err
 	}
-	keystorage.NewServiceImpl(context.Background(), db).Set(q.id, string(statusStorageJson))
+	keystorage.NewServiceImpl(context.Background(), db).Set(DB_KEY_PREFIX+strconv.Itoa(q.id), string(statusStorageJson))
 	return nil
 }
 
 func (q *queue) LoadStatus(db *gorm.DB) error {
-	log.Debugf("load status from db for queue %s", q.id)
-	statusStorageJson := keystorage.NewServiceImpl(context.Background(), db).Get(q.id)
+	log.Debugf("load status from db for queue %d", q.id)
+	statusStorageJson := keystorage.NewServiceImpl(context.Background(), db).Get(DB_KEY_PREFIX + strconv.Itoa(q.id))
 	if statusStorageJson == "" {
-		log.Debugf("status storage not found for queue %s, skip", q.id)
+		log.Debugf("status storage not found for queue %d, skip", q.id)
 		return nil
 	}
 	log.Debugf("load status info from db: %s", statusStorageJson)

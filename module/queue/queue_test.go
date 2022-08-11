@@ -22,7 +22,7 @@ func (h *helloJob) Run(si chan StatusInfo) (StatusInfo, error) {
 	h.si.Status = Running
 	si <- h.si
 
-	//time.Sleep(time.Second * 5)
+	time.Sleep(time.Second * 5)
 
 	h.si.Status = Succeeded
 	si <- h.si
@@ -47,7 +47,7 @@ func (h *hiJob) Run(si chan StatusInfo) (StatusInfo, error) {
 	h.si.Status = Running
 	si <- h.si
 
-	//time.Sleep(time.Second * 5)
+	time.Sleep(time.Second * 5)
 
 	h.si.Status = Failed
 	err := fmt.Errorf("hiJob error")
@@ -67,8 +67,7 @@ func TestAll(t *testing.T) {
 	hi := hiJob{}
 
 	db := getGormDB()
-	//id := uuid.New().String()
-	id := "4e54212a-b5e4-4c3b-8b10-7e13b2f82aa2"
+	id := 1
 
 	_, err := NewQueue(id, &hello, &hi)
 	if err != nil {
@@ -138,7 +137,7 @@ func TestQueueJobDuplicate(t *testing.T) {
 	hi := hiJob{}
 	hello2 := helloJob{}
 
-	id := "4e54212a-b5e4-4c3b-8b10-7e13b2f82aa2"
+	id := 10
 
 	_, err := NewQueue(id, &hello, &hi, &hello2)
 	assert.Error(t, err)

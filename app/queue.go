@@ -16,8 +16,8 @@ type QueueInfo struct {
 	Info []queue.StatusInfo `json:"info"`
 }
 
-func (q *Queue) GetQueueInfo(key string) (QueueInfo, error) {
-	info, err := q.service.GetStatusInfo(key)
+func (q *Queue) GetQueueInfo(id int) (QueueInfo, error) {
+	info, err := q.service.GetStatusInfo(id)
 	if err != nil {
 		return QueueInfo{}, err
 	}

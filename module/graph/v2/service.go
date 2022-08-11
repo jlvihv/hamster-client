@@ -112,7 +112,7 @@ func (g *ServiceImpl) deployGraphJob(applicationId int) {
 
 	deployJob := NewServiceDeployJob(g.keyStorageService, g.deployService, applicationId)
 
-	queue, err := queue2.NewQueue(strconv.Itoa(applicationId), &stakingJob, waitResourceJob, &pullJob, &deployJob)
+	queue, err := queue2.NewQueue(applicationId, &stakingJob, waitResourceJob, &pullJob, &deployJob)
 	if err != nil {
 		fmt.Println("new queue failed,err is: ", err)
 	}
