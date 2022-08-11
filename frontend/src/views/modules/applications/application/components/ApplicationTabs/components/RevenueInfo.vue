@@ -63,7 +63,7 @@
     v-model:visible="drawerVisible"
     :closable="false"
     placement="right"
-    wrapClassName="drawer-revenue-info"
+    class="drawer-revenue-info"
     @close="onDrawerClose"
   >
     <StakeDrawer v-if="stakeVisible" />
