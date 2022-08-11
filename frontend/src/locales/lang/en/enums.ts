@@ -7,5 +7,10 @@ export default {
     ApplicationDeployStatus_3: 'Waiting Resource',
     ApplicationDeployStatus_4: 'In Progress',
     ApplicationDeployStatus_5: 'Failed',
+    ApplicationQueueStatus: 'Deployment Status',
+    ApplicationQueueStatus_0: 'Not Started',
+    ApplicationQueueStatus_1: 'Running',
+    ApplicationQueueStatus_2: 'Complete',
+    ApplicationQueueStatus_3: 'Failed',
   },
 };

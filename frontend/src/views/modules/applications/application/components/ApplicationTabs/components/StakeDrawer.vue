@@ -2,10 +2,10 @@
   <Form>
     <div class="stake-box p-[20px]">
       <div class="flex">
-        <div class="bg-[#D8D8D8] rounded-[50%] w-[60px] h-[60px]"></div>
+        <img :src="addressAvatar" class="bg-[#D8D8D8] rounded-[50%] w-[60px] h-[60px]" />
         <div class="ml-[16px]">
           <div>{{ t('applications.see.stake') }}</div>
-          <div class="text-[20px] font-bold">{{ addressAvatar }}</div>
+          <div class="text-[20px] font-bold">{{ shortAddress }}</div>
         </div>
       </div>
       <div class="grid grid-cols-2 text-center mt-[20px]">
@@ -87,15 +87,15 @@
   import { useI18n } from '/@/hooks/web/useI18n';
   import { SvgIcon } from '/@/components/Icon';
   import { Button, Input, Form } from 'ant-design-vue';
-  import { string } from 'vue-types';
   import { computed, ref } from 'vue';
   import { buildContract, createWeb3Api, runContractMethod, web3Abi } from '/@/utils/web3Util';
   import { useMessage } from '/@/hooks/web/useMessage';
   // defines
   const props = defineProps({
-    stakeAmount: string,
-    addressBalance: string,
-    addressAvatar: string,
+    stakeAmount: String,
+    addressBalance: String,
+    addressAvatar: String,
+    shortAddress: String,
     deployInfo: Object as PropType<Recordable>,
   });
   const { t } = useI18n();

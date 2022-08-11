@@ -2,10 +2,10 @@
   <div>
     <div class="stake-box p-[20px]">
       <div class="flex">
-        <div class="bg-[#D8D8D8] rounded-[50%] w-[60px] h-[60px]"></div>
+        <img :src="addressAvatar" class="bg-[#D8D8D8] rounded-[50%] w-[60px] h-[60px]" />
         <div class="ml-[16px]">
           <div>{{ t('applications.see.withdraw') }}</div>
-          <div class="text-[20px] font-bold">0xd5f6—1a6b79</div>
+          <div class="text-[20px] font-bold">{{ shortAddress }}</div>
         </div>
       </div>
       <div class="grid grid-cols-2 text-center mt-[20px]">
@@ -39,6 +39,11 @@
   import { useI18n } from '/@/hooks/web/useI18n';
   import { SvgIcon } from '/@/components/Icon';
   import { Button } from 'ant-design-vue';
+
+  defineProps({
+    addressAvatar: String,
+    shortAddress: String,
+  });
 
   const { t } = useI18n();
 </script>

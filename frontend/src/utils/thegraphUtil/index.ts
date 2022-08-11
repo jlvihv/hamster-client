@@ -14,5 +14,5 @@ export const deployData = {
 // Make address shorter,
 // Example: "0xd5f6e31199220a0d5334cad2b6ecd70c8f1a6b79" => "0xd5f6—1a6b79"
 export function shortenAddress(address: string, digit = 6) {
-  return address.slice(0, digit) + '-' + address.slice(-digit);
+  return address.slice(0, digit) + '—' + address.slice(-digit);
 }
