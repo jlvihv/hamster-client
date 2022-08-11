@@ -45,11 +45,11 @@ func TestDeploy(t *testing.T) {
 	applicationService := application.NewServiceImpl(ctx, db)
 	p2pService := p2p.NewServiceImpl(ctx, db)
 	keyStorageService := keystorage.NewServiceImpl(ctx, db)
-	graphParamService := NewServiceImpl(ctx, db, keyStorageService)
 	deployService := deploy.NewServiceImpl(ctx, httpUtil, db, &keyStorageService, &accountService, &p2pService)
+	graphParamService := NewServiceImpl(ctx, db, keyStorageService, &accountService, &applicationService, &p2pService, &deployService)
 	//create application
 	var addParam AddParam
-	addParam.Name = "Service one9"
+	addParam.Name = "Service one12"
 	addParam.ThegraphIndexer = "chef moon high razor hockey steak better version myself large purchase cave"
 	addParam.SelectNodeType = "The Graph"
 	addParam.StakingAmount = 100000
@@ -70,8 +70,11 @@ func TestDeploy(t *testing.T) {
 
 	waitResourceJob, _ := NewWaitResourceJob(substrateApi, &accountService, &applicationService, &p2pService, applicationId)
 	deployJob := NewServiceDeployJob(keyStorageService, &deployService, applicationId)
-	queue := queue2.NewQueue("1", &stakingJob, waitResourceJob, &pullJob, &deployJob)
-
+	queue, err := queue2.NewQueue("1", &stakingJob, waitResourceJob, &pullJob, &deployJob)
+	if err != nil {
+		fmt.Println("new queue failed,err is: ", err)
+		t.Error(err)
+	}
 	channel := make(chan struct{})
 	go queue.Start(channel)
 	go func() {
@@ -93,4 +96,8 @@ func TestDeploy(t *testing.T) {
 	info, _ := queue.GetStatus()
 
 	fmt.Println(info)
+}
+
+func TestStringSplice(t *testing.T) {
+
 }
