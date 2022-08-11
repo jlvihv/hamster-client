@@ -88,7 +88,7 @@
   import { LoadingOutlined } from '@ant-design/icons-vue';
   import { createPolkadotApi, formatBalance } from '/@/utils/polkadotUtil';
   import { createRule } from '/@/utils/formUtil';
-  import { Button, Select, Popover } from 'ant-design-vue';
+  import { Form, Button, Select, Popover } from 'ant-design-vue';
 
   const { t } = useI18n();
   const router = useRouter();

@@ -40,6 +40,10 @@
   import { formatfromWei } from '/@/utils/web3Util';
   import { Button } from 'ant-design-vue';
 
+  defineProps({
+    application: Object as PropType<Recordable>,
+  });
+
   const { t } = useI18n();
   const {
     isTouchedEnd,
