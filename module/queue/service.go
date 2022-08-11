@@ -1,7 +1,7 @@
 package queue
 
 type Service interface {
-	GetStatusInfo(key string) ([]StatusInfo, error)
+	GetStatusInfo(id int) ([]StatusInfo, error)
 }
 
 type ServiceImpl struct{}
@@ -10,8 +10,8 @@ func NewServiceImpl() Service {
 	return &ServiceImpl{}
 }
 
-func (s *ServiceImpl) GetStatusInfo(key string) ([]StatusInfo, error) {
-	q, err := GetQueue(key)
+func (s *ServiceImpl) GetStatusInfo(id int) ([]StatusInfo, error) {
+	q, err := GetQueue(id)
 	if err != nil {
 		return nil, err
 	}
