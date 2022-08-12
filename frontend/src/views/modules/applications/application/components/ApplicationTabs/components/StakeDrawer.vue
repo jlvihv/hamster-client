@@ -36,6 +36,7 @@
       <Input
         class="border !border-[#043CC1] rounded-[8px] h-[60px] px-[10px]"
         v-model:value="inputStakeAmount"
+        @change="inputStakeChange"
       >
         <template #suffix>
           <div>
@@ -104,6 +105,7 @@
   const stakeDisabled = ref(true);
   const stakingLoading = ref(false);
   const { createErrorModal } = useMessage();
+  const emits = defineEmits(['close-drawer', 'query-stake']);
   const maxClick = () => {
     inputStakeAmount.value = props.addressBalance;
   };
@@ -116,6 +118,9 @@
     }
     return undefined;
   });
+  const inputStakeChange = () => {
+    inputStakeAmount.value = inputStakeAmount.value.replace(/[^\d.]/g, '');
+  };
   const approve = async () => {
     const api = web3Api.value;
     if (api && api.__config) {
@@ -158,6 +163,9 @@
           methodArgs: [api.utils.toWei(inputStakeAmount.value.toString())],
           type: 'send',
         });
+        inputStakeAmount.value = '';
+        emits('close-drawer');
+        emits('query-stake');
         stakingLoading.value = false;
       } catch (e: any) {
         stakingLoading.value = false;

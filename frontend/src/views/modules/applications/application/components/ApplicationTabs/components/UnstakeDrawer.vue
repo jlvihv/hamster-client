@@ -15,7 +15,7 @@
             <label class="text-[#7B8082] ml-[6px]">{{ t('applications.see.yStake') }}</label>
           </div>
           <div>
-            <label class="text-[18px] font-bold">0</label>
+            <label class="text-[18px] font-bold">{{ stakeAmount }}</label>
             <label class="text-[12px]">{{ t('applications.see.grt') }}</label>
           </div>
         </div>
@@ -25,7 +25,7 @@
             <label class="text-[#7B8082] ml-[6px]">{{ t('applications.see.wBalance') }}</label>
           </div>
           <div>
-            <label class="text-[18px] font-bold">0</label>
+            <label class="text-[18px] font-bold">{{ addressBalance }}</label>
             <label class="text-[12px]">{{ t('applications.see.grt') }}</label>
           </div>
         </div>
@@ -34,11 +34,18 @@
 
     <div class="px-[20px] pb-[60px]">
       <div class="font-bold my-[10px]">{{ t('applications.reward.unStakeAmount') }}</div>
-      <Input class="border !border-[#043CC1] rounded-[8px] h-[60px] px-[10px]" value="10000000">
+      <Input
+        class="border !border-[#043CC1] rounded-[8px] h-[60px] px-[10px]"
+        v-model:value="inputUnStakeAmount"
+        @change="inputUnStakeChange"
+      >
         <template #suffix>
           <div>
             <label class="text-[#7B8082] mr-[10px]">{{ t('applications.see.grt') }}</label>
-            <label class="bg-[#63A0FA] px-[20px] py-[8px] rounded-[4px] text-white">
+            <label
+              class="bg-[#63A0FA] px-[20px] py-[8px] rounded-[4px] text-white"
+              @click="maxClick"
+            >
               {{ t('applications.see.max') }}
             </label>
           </div>
@@ -57,7 +64,9 @@
           <label class="text-[18px] font-bold mr-[3px]">28</label>{{ t('applications.see.days') }}
         </div>
       </div>
-      <Button type="primary" size="large">{{ t('applications.see.unstake') }}</Button>
+      <Button type="primary" size="large" @click="unStake" :loading="unStakeButtonLoading">{{
+        t('applications.see.unstake')
+      }}</Button>
     </div>
   </Form>
 </template>
@@ -65,13 +74,65 @@
   import { useI18n } from '/@/hooks/web/useI18n';
   import { SvgIcon } from '/@/components/Icon';
   import { Button, Input, Form } from 'ant-design-vue';
-
-  defineProps({
+  import { computed, ref } from 'vue';
+  import { buildContract, createWeb3Api, runContractMethod, web3Abi } from '/@/utils/web3Util';
+  import { useMessage } from '/@/hooks/web/useMessage';
+  // defines
+  const props = defineProps({
+    stakeAmount: String,
+    addressBalance: String,
     addressAvatar: String,
     shortAddress: String,
+    deployInfo: Object as PropType<Recordable>,
   });
-
+  const inputUnStakeAmount = ref();
+  const unStakeButtonLoading = ref(false);
   const { t } = useI18n();
+  const { createErrorModal } = useMessage();
+  const emits = defineEmits(['close-drawer', 'query-un-stake']);
+  const web3Api = computed(() => {
+    const { initialization, staking } = props.deployInfo;
+    const accountMnemonic = initialization.accountMnemonic;
+    const networkUrl = staking.networkUrl;
+    if (accountMnemonic && networkUrl) {
+      return createWeb3Api(networkUrl, accountMnemonic);
+    }
+    return undefined;
+  });
+  const maxClick = () => {
+    inputUnStakeAmount.value = props.stakeAmount;
+  };
+  const inputUnStakeChange = () => {
+    inputUnStakeAmount.value = inputUnStakeAmount.value.replace(/[^\d.]/g, '');
+  };
+  const unStake = async () => {
+    const api = web3Api.value;
+    if (api && api.__config) {
+      unStakeButtonLoading.value = true;
+      const address = props.deployInfo?.staking.agentAddress;
+      const contract = buildContract(api, web3Abi.stakeDistributionProxyAbi, address);
+      try {
+        await runContractMethod({
+          api,
+          contract,
+          method: 'unstake',
+          methodArgs: [api.utils.toWei(inputUnStakeAmount.value.toString())],
+          type: 'send',
+        });
+        inputUnStakeAmount.value = '';
+        emits('close-drawer');
+        emits('query-un-stake');
+        unStakeButtonLoading.value = false;
+      } catch (e: any) {
+        unStakeButtonLoading.value = false;
+        createErrorModal({
+          title: t('common.errorTip'),
+          content: e.message,
+        });
+        console.info('Approve Staking Proxy Contract Error', e);
+      }
+    }
+  };
 </script>
 <style lang="less" scoped>
   .stake-box {

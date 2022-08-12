@@ -20,15 +20,15 @@
     </div>
     <div class="grid grid-cols-3 text-white text-center mt-[20px]">
       <div class="right-line">
-        <div class="text-[22px] font-bold">{{ income }}</div>
+        <div class="text-[22px] font-bold">{{ income }} GRT</div>
         <div>{{ t('applications.see.income') }}</div>
       </div>
       <div class="right-line">
-        <div class="text-[22px] font-bold">{{ stakeTotal }}</div>
+        <div class="text-[22px] font-bold">{{ stakeTotal }} GRT</div>
         <div>{{ t('applications.see.stakAmount') }}</div>
       </div>
       <div>
-        <div class="text-[22px] font-bold">{{ unStakeAmount }}</div>
+        <div class="text-[22px] font-bold">{{ unStakeAmount }} GRT</div>
         <div>{{ t('applications.see.unstakAmount') }}</div>
       </div>
     </div>
@@ -67,6 +67,8 @@
     @close="onDrawerClose"
   >
     <StakeDrawer
+      @query-stake="getStakeAmount"
+      @close-drawer="onDrawerClose"
       :stakeAmount="stakeTotal"
       :addressBalance="addressBalance"
       :addressAvatar="addressAvatar"
@@ -75,13 +77,23 @@
       v-if="stakeVisible"
     />
     <UnstakeDrawer
+      @query-un-stake="getUnStakeAmount"
+      @close-drawer="onDrawerClose"
+      :stakeAmount="stakeTotal"
+      :addressBalance="addressBalance"
       :addressAvatar="addressAvatar"
       :shortAddress="shortAddress"
+      :deployInfo="deployData"
       v-if="unstakeVisible"
     />
     <WithdrawDrawer
+      @query-stake="getStakeAmount"
+      @query-un-stake="getUnStakeAmount"
+      @close-drawer="onDrawerClose"
+      :unStakeAmount="unStakeAmount"
       :addressAvatar="addressAvatar"
       :shortAddress="shortAddress"
+      :deployInfo="deployData"
       v-if="withdrawVisible"
     />
   </Drawer>
@@ -131,6 +143,7 @@
     deployment: {},
   });
   async function onDrawerClose() {
+    drawerVisible.value = false;
     stakeVisible.value = false;
     unstakeVisible.value = false;
     withdrawVisible.value = false;
@@ -157,7 +170,7 @@
         api,
         contract: erc20,
         method: 'balanceOf',
-        methodArgs: ['0x9438BbE4E7AF1ec6b13f75ECd1f53391506A12DF'],
+        methodArgs: [address.value],
         type: 'call',
       });
       addressBalance.value = api.utils.fromWei(balance_data);

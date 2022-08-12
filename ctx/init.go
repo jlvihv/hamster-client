@@ -12,6 +12,7 @@ import (
 	"hamster-client/module/application"
 	"hamster-client/module/deploy"
 	"hamster-client/module/graph"
+	"hamster-client/module/graph/cli"
 	param "hamster-client/module/graph/v2"
 	"hamster-client/module/keystorage"
 	"hamster-client/module/p2p"
@@ -40,6 +41,7 @@ type App struct {
 	KeyStorageService       *keystorage.Service
 	QueueService            queue.Service
 	GraphDeployParamService param.Service
+	CliService              cli.Service
 
 	AccountApp     app.Account
 	P2pApp         app.P2p
@@ -121,6 +123,8 @@ func (a *App) initService() {
 	a.QueueService = queueImpl
 	graphDeployParamServiceImpl := param.NewServiceImpl(a.ctx, a.gormDB, *a.KeyStorageService, a.AccountService, a.ApplicationService, a.P2pService, a.DeployService)
 	a.GraphDeployParamService = &graphDeployParamServiceImpl
+	cliServiceImpl := cli.NewServiceImpl(a.ctx, a.gormDB, *a.KeyStorageService, a.AccountService, a.ApplicationService, a.P2pService, a.DeployService)
+	a.CliService = &cliServiceImpl
 }
 
 func (a *App) initApp() {
@@ -131,7 +135,7 @@ func (a *App) initApp() {
 	a.WalletApp = app.NewWalletApp(a.WalletService)
 	a.DeployApp = app.NewDeployApp(a.DeployService, a.AccountService, a.P2pService)
 	a.ApplicationApp = app.NewApplicationApp(a.ApplicationService, a.GraphDeployParamService)
-	a.GraphApp = app.NewGraphApp(a.GraphParamsService)
+	a.GraphApp = app.NewGraphApp(a.GraphParamsService, a.CliService)
 	a.KeyStorageApp = app.NewKeyStorageApp(a.KeyStorageService)
 	a.QueueApp = app.NewQueueApp(a.QueueService)
 }

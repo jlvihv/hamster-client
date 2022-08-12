@@ -15,7 +15,7 @@
             <label class="text-[#7B8082] ml-[6px]">{{ t('applications.see.withdraw') }}</label>
           </div>
           <div>
-            <label class="text-[18px] font-bold">0</label>
+            <label class="text-[18px] font-bold">{{ unStakeAmount }}</label>
             <label class="text-[12px]">{{ t('applications.see.grt') }}</label>
           </div>
         </div>
@@ -29,7 +29,13 @@
       </div>
     </div>
     <div class="px-[20px] pb-[60px]">
-      <Button class="mt-[20px]" type="primary" size="large">
+      <Button
+        class="mt-[20px]"
+        type="primary"
+        size="large"
+        @click="withdraw"
+        :loading="withdrawButtonLoading"
+      >
         {{ t('applications.see.withdraw') }}
       </Button>
     </div>
@@ -39,13 +45,57 @@
   import { useI18n } from '/@/hooks/web/useI18n';
   import { SvgIcon } from '/@/components/Icon';
   import { Button } from 'ant-design-vue';
-
-  defineProps({
+  import { computed, ref } from 'vue';
+  import { buildContract, createWeb3Api, runContractMethod, web3Abi } from '/@/utils/web3Util';
+  import { useMessage } from '/@/hooks/web/useMessage';
+  // defines
+  const props = defineProps({
+    unStakeAmount: String,
     addressAvatar: String,
     shortAddress: String,
+    deployInfo: Object as PropType<Recordable>,
   });
-
   const { t } = useI18n();
+  const emits = defineEmits(['close-drawer', 'query-un-stake', 'query-stake']);
+  const { createErrorModal } = useMessage();
+  const withdrawButtonLoading = ref(false);
+  const web3Api = computed(() => {
+    const { initialization, staking } = props.deployInfo;
+    const accountMnemonic = initialization.accountMnemonic;
+    const networkUrl = staking.networkUrl;
+    if (accountMnemonic && networkUrl) {
+      return createWeb3Api(networkUrl, accountMnemonic);
+    }
+    return undefined;
+  });
+  const withdraw = async () => {
+    const api = web3Api.value;
+    if (api) {
+      withdrawButtonLoading.value = true;
+      const address = props.deployInfo?.staking.agentAddress;
+      const contract = buildContract(api, web3Abi.stakeDistributionProxyAbi, address);
+      try {
+        await runContractMethod({
+          api,
+          contract,
+          method: 'withdraw',
+          methodArgs: [],
+          type: 'send',
+        });
+        emits('close-drawer');
+        emits('query-un-stake');
+        emits('query-stake');
+        withdrawButtonLoading.value = false;
+      } catch (e: any) {
+        withdrawButtonLoading.value = false;
+        createErrorModal({
+          title: t('common.errorTip'),
+          content: e.message,
+        });
+        console.info('Approve Staking Proxy Contract Error', e);
+      }
+    }
+  };
 </script>
 <style lang="less" scoped>
   .stake-box {

@@ -3,6 +3,8 @@
 import { graph } from '../models';
 import { context } from '../models';
 
+export function CliLink(arg1: number): Promise<number | Error>;
+
 export function QueryApplyAndParams(arg1: number): Promise<graph.GraphParameterVo | Error>;
 
 export function WailsInit(arg1: context.Context): Promise<Error>;

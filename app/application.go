@@ -47,3 +47,7 @@ func (a *Application) ApplicationList(page, pageSize int, name string, status in
 func (a *Application) QueryApplicationById(id int) (application.ApplyVo, error) {
 	return a.applicationService.QueryApplicationById(id)
 }
+
+func (a *Application) RefreshGraphDeployJob(applicationId int) {
+	a.graphDeployParamService.DeployGraphJob(applicationId)
+}

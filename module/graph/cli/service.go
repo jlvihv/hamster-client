@@ -10,6 +10,8 @@ import (
 	"hamster-client/module/deploy"
 	"hamster-client/module/keystorage"
 	"hamster-client/module/p2p"
+	"strconv"
+	"strings"
 )
 
 type ServiceImpl struct {
@@ -66,19 +68,43 @@ func (c *ServiceImpl) CliLink(applicationId int) (int, error) {
 	if err != nil {
 		return port, err
 	}
-
-	return currentPort, nil
+	isActive := c.judgePortIsActive(currentPort, protocol)
+	if isActive {
+		return currentPort, nil
+	}
+	err = c.applicationService.UpdateApplicationCliForwardPort(applicationId, nextPort)
+	if err != nil {
+		fmt.Println("update cli p2p forward port failed,error is: ", err)
+		return 0, err
+	}
+	err = c.p2pServer.LinkByProtocol(protocol, nextPort, info.PeerId)
+	if err != nil {
+		fmt.Println("cli p2p forward link error, error is: ", err)
+		return 0, err
+	}
+	return nextPort, nil
 }
 
-func (c *ServiceImpl) judgePortIsActive(port int, protocol string) (bool, error) {
+func (c *ServiceImpl) judgePortIsActive(port int, protocol string) bool {
 	links := c.p2pServer.QueryLinks(protocol)
 	if len(*links) > 0 {
 		for _, value := range *links {
-			if value.Status {
-
+			listenAddress := value.ListenAddress
+			if listenAddress != "" {
+				lastIndex := strings.LastIndex(listenAddress, "/")
+				listenPort := listenAddress[lastIndex+1 : len(listenAddress)-1]
+				listenPortInt, err := strconv.Atoi(listenPort)
+				if err != nil {
+					continue
+				}
+				if listenPortInt == port {
+					if value.Status {
+						return true
+					}
+					return false
+				}
 			}
 		}
-		return false, nil
 	}
-	return true, nil
+	return false
 }
