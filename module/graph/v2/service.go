@@ -76,7 +76,7 @@ func (g *ServiceImpl) SaveGraphDeployParameterAndApply(addData AddParam) (AddApp
 	g.keyStorageService.Set("graph_"+strconv.Itoa(int(applyData.ID)), string(jsonData))
 	applicationVo.Result = true
 	applicationVo.ID = applyData.ID
-	go g.deployGraphJob(int(applyData.ID))
+	go g.DeployGraphJob(int(applyData.ID))
 	return applicationVo, nil
 }
 
@@ -98,7 +98,7 @@ func (g *ServiceImpl) DeleteGraphDeployParameterAndApply(id int) (bool, error) {
 	return true, nil
 }
 
-func (g *ServiceImpl) deployGraphJob(applicationId int) {
+func (g *ServiceImpl) DeployGraphJob(applicationId int) {
 	stakingJob := NewGraphStakingJob(g.keyStorageService, applicationId)
 	var accountInfo account.Account
 	accountInfo, err := g.accountService.GetAccount()
