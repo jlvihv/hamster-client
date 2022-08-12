@@ -31,8 +31,15 @@
 
   const activeKey = ref('1');
   const application = reactive({});
-  const deployInfo = reactive({});
-
+  const deployInfo = ref<{
+    initialization: Recordable;
+    staking: Recordable;
+    deployment: Recordable;
+  }>({
+    initialization: {},
+    staking: {},
+    deployment: {},
+  });
   onMounted(() => {
     QueryApplicationById(props.applicationId).then((app) => {
       console.log(app);
@@ -40,7 +47,7 @@
     });
     GetDeployInfo(props.applicationId).then((info) => {
       console.log(info);
-      Object.assign(deployInfo, info);
+      Object.assign(deployInfo.value, info);
     });
   });
 </script>
