@@ -42,7 +42,7 @@
           <div class="title-text my-[40px]">{{ t('home.complete') }}</div>
           <SvgButton
             @click="stepAction.gotoApplicationsPage"
-            class="text-primary cursor-pointer"
+            class="text-primary"
             size="56"
             icon="next"
           />
@@ -85,7 +85,7 @@
   }));
 
   // Loading settingStore and check if should show guide
-  const isGuideVisible = ref(true); //@todo 需修改为false
+  const isGuideVisible = ref(false);
   onMounted(async () => {
     // fetch settings from API
     await settingStore.getWalletInfoAction();

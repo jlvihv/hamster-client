@@ -1,8 +1,8 @@
 <template>
-  <Button @click="onClick" class="!border-none !bg-transparent" :style="btnWH" :type="type" :shape="shape" :target="target" :loading="loading" :htmlType="htmlType" :ghost="ghost" :disabled="disabled" :danger="danger" :block="block">
+  <Button v-bind="$attrs" :loading="loading" @click="onClick" class="!border-none !bg-transparent" :style="btnWH">
     <template #icon>
       <SvgIcon 
-        :class="className"
+        :class="class"
         :size="size"
         :name="icon"
       />
@@ -15,20 +15,12 @@
   import { SvgIcon } from '/@/components/Icon';
   import { Button } from 'ant-design-vue';
 
-  const props = defineProps({
-    block: propTypes.bool.def(false),
-    danger: propTypes.bool.def(false),
-    disabled: propTypes.bool.def(false),
-    ghost: propTypes.bool.def(false),
+  const props =  defineProps({
     class: propTypes.string.def(''),
-    htmlType: propTypes.string.def('button'),
     icon: propTypes.string.def(''),
-    shape: propTypes.string.def('circle'),
-    size: propTypes.string.def('middle'),
-    target: propTypes.string.def(''),
-    type: propTypes.string.def('default'),
+    size: propTypes.string.def(''),
   });
-  const { block, danger, disabled, ghost, htmlType, icon, shape, size, target, type, class:className } = toRefs(props);
+  const { size } = toRefs(props);
 
   const emits = defineEmits(['click']);
   const loading = ref(false);
