@@ -43,6 +43,7 @@ type ApplyVo struct {
 	Status         int       `json:"status"`
 	LeaseTerm      int       `json:"leaseTerm"`
 	P2pForwardPort int       `json:"p2pForwardPort"`
+	CliForwardPort int       `json:"cliForwardPort"`
 }
 
 type ListVo struct {

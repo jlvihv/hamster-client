@@ -66,6 +66,7 @@ func (a *ServiceImpl) QueryApplicationById(id int) (ApplyVo, error) {
 	resultData.LeaseTerm = data.LeaseTerm
 	resultData.Status = data.Status
 	resultData.P2pForwardPort = data.P2pForwardPort
+	resultData.CliForwardPort = data.CliForwardPort
 	return resultData, nil
 }
 
