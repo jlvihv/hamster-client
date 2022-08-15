@@ -18,11 +18,11 @@
               v-model:value="formData.wsUrl"
             />
           </div>
-          <SvgIcon
+          <SvgButton
             @click="stepAction.setWsUrl"
-            class="text-primary cursor-pointer"
+            class="text-primary"
             size="56"
-            name="next"
+            icon="next"
           />
         </div>
         <div v-else-if="stepVal === 1">
@@ -40,11 +40,11 @@
             <img :src="doneImage" class="w-[200px]" />
           </div>
           <div class="title-text my-[40px]">{{ t('home.complete') }}</div>
-          <SvgIcon
+          <SvgButton
             @click="stepAction.gotoApplicationsPage"
             class="text-primary cursor-pointer"
             size="56"
-            name="next"
+            icon="next"
           />
         </div>
       </transition-group>
@@ -58,6 +58,7 @@
   import { useSettingStore } from '/@/store/modules/setting';
   import { useI18n } from '/@/hooks/web/useI18n';
   import { SvgIcon } from '/@/components/Icon';
+  import { SvgButton } from '/@/components/SvgButton';
   import { createRule } from '/@/utils/formUtil';
   import WalletImporter from './components/WalletImporter.vue';
   import doneImage from '/@/assets/images/suc.png';
@@ -84,7 +85,7 @@
   }));
 
   // Loading settingStore and check if should show guide
-  const isGuideVisible = ref(false);
+  const isGuideVisible = ref(true); //@todo 需修改为false
   onMounted(async () => {
     // fetch settings from API
     await settingStore.getWalletInfoAction();
@@ -109,9 +110,10 @@
     next() {
       stepVal.value++;
     },
-    setWsUrl() {
+    setWsUrl(callback) {
       settingStore.saveWsUrlAction(formData.wsUrl);
       stepAction.next();
+      callback();
     },
     gotoApplicationsPage() {
       router.push('/applications/index');
