@@ -33,5 +33,5 @@ type AddApplicationVo struct {
 type Service interface {
 	SaveGraphDeployParameterAndApply(data AddParam) (AddApplicationVo, error)
 	DeleteGraphDeployParameterAndApply(id int) (bool, error)
-	DeployGraphJob(applicationId int)
+	DeployGraphJob(applicationId int) error
 }

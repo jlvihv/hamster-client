@@ -3,7 +3,6 @@ package v2
 import (
 	"context"
 	"fmt"
-	gsrpc "github.com/centrifuge/go-substrate-rpc-client/v4"
 	"github.com/mitchellh/go-homedir"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
@@ -36,9 +35,6 @@ func TestDeploy(t *testing.T) {
 		&application.Application{},
 		&graph.GraphParameter{},
 	)
-
-	//applicationId := 11
-	var applicationId int
 	ctx := context.Background()
 	httpUtil := utils.NewHttp()
 	accountService := account.NewServiceImpl(ctx, db, httpUtil)
@@ -51,7 +47,7 @@ func TestDeploy(t *testing.T) {
 	var addParam AddParam
 	addParam.Name = "Service one12"
 	addParam.ThegraphIndexer = "chef moon high razor hockey steak better version myself large purchase cave"
-	addParam.SelectNodeType = "The Graph"
+	addParam.SelectNodeType = "thegraph_rinkeby"
 	addParam.StakingAmount = 100000
 	addParam.LeaseTerm = 1
 	res, err := graphParamService.SaveGraphDeployParameterAndApply(addParam)
@@ -63,20 +59,11 @@ func TestDeploy(t *testing.T) {
 		fmt.Println("create deploy service failed,err is: ", err)
 		return
 	}
-	applicationId = int(res.ID)
-	stakingJob := NewGraphStakingJob(keyStorageService, applicationId)
-	pullJob := NewPullImageJob(&applicationService, applicationId)
-	substrateApi, _ := gsrpc.NewSubstrateAPI("ws://183.66.65.207:49944")
-
-	waitResourceJob, _ := NewWaitResourceJob(substrateApi, &accountService, &applicationService, &p2pService, applicationId)
-	deployJob := NewServiceDeployJob(keyStorageService, &deployService, applicationId)
-	queue, err := queue2.NewQueue("1", &stakingJob, waitResourceJob, &pullJob, &deployJob)
+	queue, err := queue2.GetQueue(int(res.ID))
 	if err != nil {
 		fmt.Println("new queue failed,err is: ", err)
 		t.Error(err)
 	}
-	channel := make(chan struct{})
-	go queue.Start(channel)
 	go func() {
 		for {
 			time.Sleep(time.Second)
@@ -90,14 +77,8 @@ func TestDeploy(t *testing.T) {
 			fmt.Println()
 		}
 	}()
-	// wait
-	<-channel
 	// view status
 	info, _ := queue.GetStatus()
 
 	fmt.Println(info)
-}
-
-func TestStringSplice(t *testing.T) {
-
 }
