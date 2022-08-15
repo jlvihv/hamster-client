@@ -59,7 +59,7 @@
       </Timeline>
       <div class="text-center">
         <router-link to="/applications">
-          <Button size="large" class="w-32 mt-6 ml-4" type="primary">
+          <Button size="large" class="w-32 mt-6 ml-4" type="primary" shape="round">
             {{ t('common.doneText') }}
           </Button>
         </router-link>

@@ -11,19 +11,22 @@
       <div class="text-[14px] text-[#BFC6D4] mt-[6px]">
         Signal: {{ formatfromWei(item.currentSignalledTokens) }} GRT
       </div>
-      <div
-        class="text-[#63A0FA] text-[14px] mt-[20px] border border-[#63A0FA] rounded-[4px] h-[30px]"
+      <Button
+        class="text-[#63A0FA] text-[14px] mt-[20px] border border-[#63A0FA] rounded-[4px] h-[30px] !min-w-[100px]"
+        :loading="subgraphDeployLoading[getSubgraphIpfsHash(item)]"
+        @click="handleDeploySubgraph(item)"
       >
-        {{ t('applications.see.stop') }}
-      </div>
+        {{ t('applications.see.start') }}
+      </Button>
     </div>
   </div>
-  <div class="text-center my-[40px]" v-if="isTouchedEnd">
+  <div class="text-center my-[40px]" v-if="!isTouchedEnd">
     <Button
       class="!h-[60px] w-[200px]"
       size="large"
       type="primary"
-      @click="loadSubgraphs"
+      shape="round"
+      @click="loadSubgraphList"
       :loading="isSubgraphsLoading"
     >
       {{ t('common.moreText') }}
@@ -32,28 +35,66 @@
 </template>
 
 <script lang="ts" setup>
-  import { onMounted } from 'vue';
+  import { onMounted, reactive, toRefs } from 'vue';
   import { useI18n } from '/@/hooks/web/useI18n';
   import { useLoadMore } from '/@/hooks/web/useLoadMore';
-  import { fetchSubgraphs } from '/@/utils/thegraphUtil/subgraph';
-  import { shortenAddress } from '/@/utils/thegraphUtil';
+  import {
+    createSubgraphClient,
+    fetchSubgraphs,
+    // deploySubgraph,
+  } from '/@/utils/thegraphUtil/subgraph';
+  import { shortenAddress, pluginConfigs } from '/@/utils/thegraphUtil';
   import { formatfromWei } from '/@/utils/web3Util';
   import { Button } from 'ant-design-vue';
 
-  defineProps({
+  const props = defineProps({
     application: Object as PropType<Recordable>,
   });
+  const { application } = toRefs(props);
 
   const { t } = useI18n();
+
+  // client for deploy
+  // const clientUrl = `localhost://${application.value.cliForwardPort}`;
+  const clientUrl = 'http://137.184.188.49:49154';
+  const client = createSubgraphClient(clientUrl);
+
+  // const deployedSubgraphs = reactive([]);
+  const subgraphDeployLoading = reactive<Record<string, boolean>>({});
+
+  const getSubgraphIpfsHash = (item: any) => item.currentVersion.subgraphDeployment.ipfsHash;
+  const handleDeploySubgraph = (item: any) => {
+    const deploymentId = getSubgraphIpfsHash(item);
+
+    subgraphDeployLoading[deploymentId] = true;
+
+    try {
+      deploySubgraph(client, deploymentId);
+    } catch (error: any) {
+      console.log('Deployed Failed', deploymentId);
+    } finally {
+      subgraphDeployLoading[deploymentId] = false;
+    }
+  };
+
+  // client for get subgraph lists
+  const nodeType = application.value.selectNodeType;
+  const plugin =
+    pluginConfigs.find(({ value }) => value === nodeType) ||
+    pluginConfigs.find(({ value }) => value === 'thegrapth_rinkeby');
+  const listClient = createSubgraphClient(plugin.url);
+
   const {
     isTouchedEnd,
     items: subgraphs,
     isLoading: isSubgraphsLoading,
-    loadMore: loadSubgraphs,
-  } = useLoadMore(fetchSubgraphs, {
+    loadMore: loadSubgraphList,
+  } = useLoadMore((page, perPage) => fetchSubgraphs(listClient, page, perPage), {
     responseHandler: (data) => data.data.subgraphs,
     perPage: 20,
   });
 
-  onMounted(loadSubgraphs);
+  onMounted(async () => {
+    loadSubgraphList();
+  });
 </script>

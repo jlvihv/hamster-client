@@ -18,12 +18,7 @@
               v-model:value="formData.wsUrl"
             />
           </div>
-          <SvgButton
-            @click="stepAction.setWsUrl"
-            class="text-primary"
-            size="56"
-            icon="next"
-          />
+          <SvgButton @click="stepAction.setWsUrl" class="text-primary" size="56" icon="next" />
         </div>
         <div v-else-if="stepVal === 1">
           <div
@@ -88,8 +83,12 @@
   const isGuideVisible = ref(false);
   onMounted(async () => {
     // fetch settings from API
-    await settingStore.getWalletInfoAction();
-    await settingStore.getConfigAction();
+    try {
+      await settingStore.getWalletInfoAction();
+      await settingStore.getConfigAction();
+    } catch {
+      console.log('Failed to load wallet and config.');
+    }
 
     if (route.query.step) {
       isGuideVisible.value = true;

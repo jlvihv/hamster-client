@@ -51,6 +51,7 @@
       class="!h-[60px] w-[200px]"
       size="large"
       type="primary"
+      shape="round"
       danger
       :loading="isLoading"
       @click="onDelete"
