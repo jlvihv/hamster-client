@@ -2,11 +2,16 @@ package v2
 
 import (
 	"context"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
 	gsrpc "github.com/centrifuge/go-substrate-rpc-client/v4"
 	"github.com/centrifuge/go-substrate-rpc-client/v4/types"
+	"github.com/google/uuid"
+	log "github.com/sirupsen/logrus"
+	"github.com/vedhavyas/go-subkey/v2"
+	"github.com/vedhavyas/go-subkey/v2/sr25519"
 	ethAbi "hamster-client/module/abi"
 	"hamster-client/module/account"
 	"hamster-client/module/application"
@@ -20,6 +25,8 @@ import (
 	"strconv"
 	"time"
 )
+
+var ss58seed = "0x17403b2287de48c43934533f457f17f7cec505d9a54045567a9d121c3feb7b2e"
 
 type PullImageJob struct {
 	statusInfo         queue.StatusInfo
@@ -46,7 +53,9 @@ func (j *PullImageJob) Run(sc chan queue.StatusInfo) (queue.StatusInfo, error) {
 
 	url := fmt.Sprintf("http://localhost:%d/api/v1/thegraph/pullImage", vo.P2pForwardPort)
 	for i := 0; i < 3; i++ {
-		response, err := utils.NewHttp().NewRequest().Post(url)
+		req := utils.NewHttp().NewRequest()
+		req.SetHeader("SS58AuthData", getSS58AuthData(ss58seed))
+		response, err := req.Post(url)
 		if err != nil {
 			j.statusInfo.Error = err.Error()
 			continue
@@ -374,4 +383,36 @@ func (s *ServiceDeployJob) Run(sc chan queue.StatusInfo) (queue.StatusInfo, erro
 
 func (s *ServiceDeployJob) Status() queue.StatusInfo {
 	return s.statusInfo
+}
+
+func getSS58AuthData(seed string) string {
+	ss58Address := seedToSS58(seed)
+	data := uuid.New().String()
+	signDataHex := hex.EncodeToString(signWithSeed(seed, []byte(data)))
+	return fmt.Sprintf("%s:%s:%s", ss58Address, data, signDataHex)
+}
+
+func seedToSS58(seed string) string {
+	scheme := sr25519.Scheme{}
+	keyPair, err := subkey.DeriveKeyPair(scheme, seed)
+	if err != nil {
+		log.Errorf("subkey.DeriveKeyPair error: %s", err)
+		return ""
+	}
+	return keyPair.SS58Address(42)
+}
+
+func signWithSeed(seed string, data []byte) []byte {
+	scheme := sr25519.Scheme{}
+	keyPair, err := subkey.DeriveKeyPair(scheme, seed)
+	if err != nil {
+		log.Errorf("subkey.DeriveKeyPair error: %s", err)
+		return nil
+	}
+	signData, err := keyPair.Sign(data)
+	if err != nil {
+		log.Errorf("keyPair.Sign error: %s", err)
+		return nil
+	}
+	return signData
 }

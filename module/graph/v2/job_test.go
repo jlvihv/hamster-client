@@ -82,3 +82,14 @@ func TestDeploy(t *testing.T) {
 
 	fmt.Println(info)
 }
+
+func TestTheGraphSS58AuthWork(t *testing.T) {
+	url := fmt.Sprintf("http://localhost:%d/api/v1/thegraph/status", 34003)
+	req := utils.NewHttp().NewRequest()
+	req.SetHeader("SS58AuthData", getSS58AuthData(ss58seed))
+	response, err := req.Get(url)
+	if err != nil {
+		t.Error(err)
+	}
+	fmt.Println(response.String())
+}
