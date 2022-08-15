@@ -121,7 +121,7 @@ func (a *App) initService() {
 	a.ChainListener = chainListener
 	queueImpl := queue.NewServiceImpl()
 	a.QueueService = queueImpl
-	graphDeployParamServiceImpl := param.NewServiceImpl(a.ctx, a.gormDB, *a.KeyStorageService, a.AccountService, a.ApplicationService, a.P2pService, a.DeployService)
+	graphDeployParamServiceImpl := param.NewServiceImpl(a.ctx, a.gormDB, *a.KeyStorageService, a.AccountService, a.ApplicationService, a.P2pService, a.DeployService, a.WalletService)
 	a.GraphDeployParamService = &graphDeployParamServiceImpl
 	cliServiceImpl := cli.NewServiceImpl(a.ctx, a.gormDB, *a.KeyStorageService, a.AccountService, a.ApplicationService, a.P2pService, a.DeployService)
 	a.CliService = &cliServiceImpl

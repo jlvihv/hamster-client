@@ -59,7 +59,7 @@ func GetResourceList(meta *types.Metadata, api *gsrpc.SubstrateAPI, filter func(
 }
 
 func GetResource(index types.U64, meta *types.Metadata, api *gsrpc.SubstrateAPI) (*ComputingResource, error) {
-	bytes, err := types.EncodeToBytes(index)
+	bytes, err := types.Encode(index)
 	if err != nil {
 		return nil, err
 	}
@@ -78,7 +78,7 @@ func GetResource(index types.U64, meta *types.Metadata, api *gsrpc.SubstrateAPI)
 	}
 }
 
-func CallAndWatch(api *gsrpc.SubstrateAPI, c types.Call, meta *types.Metadata, hook func(header *types.Header) error) error {
+func CallAndWatch(api *gsrpc.SubstrateAPI, c types.Call, meta *types.Metadata, hook func(header *types.Header) error, pair signature.KeyringPair) error {
 
 	// Create the extrinsic
 	ext := types.NewExtrinsic(c)
@@ -92,13 +92,8 @@ func CallAndWatch(api *gsrpc.SubstrateAPI, c types.Call, meta *types.Metadata, h
 		return err
 	}
 
-	keypair, err := signature.KeyringPairFromSecret("cheese beef craft shiver illegal grow void tide rotate secret correct inform", 42)
-	if err != nil {
-		return err
-	}
-
 	// Get the nonce for Account
-	key, err := types.CreateStorageKey(meta, "System", "Account", keypair.PublicKey)
+	key, err := types.CreateStorageKey(meta, "System", "Account", pair.PublicKey)
 	if err != nil {
 		return err
 	}
@@ -124,7 +119,7 @@ func CallAndWatch(api *gsrpc.SubstrateAPI, c types.Call, meta *types.Metadata, h
 	}
 
 	// Sign the transaction using User's default account
-	err = ext.Sign(keypair, o)
+	err = ext.Sign(pair, o)
 	if err != nil {
 		return err
 	}

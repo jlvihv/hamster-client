@@ -3,7 +3,7 @@
 import { context } from '../models';
 import { wallet } from '../models';
 
-export function SaveWallet(arg1: string, arg2: string): Promise<boolean | Error>;
+export function SaveWallet(arg1: string, arg2: string, arg3: string): Promise<boolean | Error>;
 
 export function WailsInit(arg1: context.Context): Promise<Error>;
 

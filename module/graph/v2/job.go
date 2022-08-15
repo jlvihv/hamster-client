@@ -19,6 +19,7 @@ import (
 	"hamster-client/module/p2p"
 	"hamster-client/module/pallet"
 	"hamster-client/module/queue"
+	"hamster-client/module/wallet"
 	"hamster-client/utils"
 	"math/big"
 	"strconv"
@@ -93,6 +94,7 @@ type WaitResourceJob struct {
 	applicationService application.Service
 	p2pService         p2p.Service
 	applicationId      int
+	walletService      wallet.Service
 }
 
 func (j *WaitResourceJob) InitStatus() {
@@ -103,6 +105,21 @@ func (j *WaitResourceJob) InitStatus() {
 func (j *WaitResourceJob) Run(sc chan queue.StatusInfo) (queue.StatusInfo, error) {
 	j.statusInfo.Status = queue.Running
 	sc <- j.statusInfo
+
+	walletJson, passphrase, err := j.walletService.GetWalletJson()
+	if err != nil {
+		j.statusInfo.Status = queue.Failed
+		j.statusInfo.Error = "WALLET_LOAD_ERROR"
+		sc <- j.statusInfo
+		return j.statusInfo, err
+	}
+	pair, err := pallet.KeyringPairFromEncoded(walletJson.Encoded, passphrase, 42)
+	if err != nil {
+		j.statusInfo.Status = queue.Failed
+		j.statusInfo.Error = "WALLET_LOAD_ERROR"
+		sc <- j.statusInfo
+		return j.statusInfo, err
+	}
 
 	for i := 0; i < 60; i++ {
 
@@ -134,7 +151,7 @@ func (j *WaitResourceJob) Run(sc chan queue.StatusInfo) (queue.StatusInfo, error
 				err = pallet.CallAndWatch(j.api, c, j.meta, func(header *types.Header) error {
 					fmt.Println("资源占用成功，资源号：", val.Index)
 					return nil
-				})
+				}, pair)
 				if err != nil {
 					continue
 				}
@@ -174,7 +191,7 @@ func (j *WaitResourceJob) Status() queue.StatusInfo {
 	return j.statusInfo
 }
 
-func NewWaitResourceJob(api *gsrpc.SubstrateAPI, accountService account.Service, applicationService application.Service, p2pService p2p.Service, applicationId int) (*WaitResourceJob, error) {
+func NewWaitResourceJob(api *gsrpc.SubstrateAPI, accountService account.Service, applicationService application.Service, p2pService p2p.Service, applicationId int, walletService wallet.Service) (*WaitResourceJob, error) {
 
 	meta, err := api.RPC.State.GetMetadataLatest()
 	if err != nil {
@@ -188,6 +205,7 @@ func NewWaitResourceJob(api *gsrpc.SubstrateAPI, accountService account.Service,
 		applicationService: applicationService,
 		p2pService:         p2pService,
 		applicationId:      applicationId,
+		walletService:      walletService,
 	}, nil
 }
 
@@ -390,7 +408,7 @@ func getSS58AuthDataWithKeyringPair(keyringPair signature.KeyringPair) string {
 }
 
 func signWithKeyringPair(keyringPair signature.KeyringPair, data []byte) []byte {
-	signData, err := signature.Sign(data, keyringPair.URI)
+	signData, err := keyringPair.Sign(data)
 	if err != nil {
 		log.Errorf("signature.Sign error: %s", err)
 		return nil
