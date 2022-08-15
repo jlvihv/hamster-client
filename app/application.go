@@ -48,6 +48,6 @@ func (a *Application) QueryApplicationById(id int) (application.ApplyVo, error) 
 	return a.applicationService.QueryApplicationById(id)
 }
 
-func (a *Application) RefreshGraphDeployJob(applicationId int) {
-	a.graphDeployParamService.DeployGraphJob(applicationId)
+func (a *Application) RefreshGraphDeployJob(applicationId int) error {
+	return a.graphDeployParamService.DeployGraphJob(applicationId)
 }

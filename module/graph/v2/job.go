@@ -7,7 +7,6 @@ import (
 	"fmt"
 	gsrpc "github.com/centrifuge/go-substrate-rpc-client/v4"
 	"github.com/centrifuge/go-substrate-rpc-client/v4/types"
-	"hamster-client/config"
 	ethAbi "hamster-client/module/abi"
 	"hamster-client/module/account"
 	"hamster-client/module/application"
@@ -189,6 +188,7 @@ func NewWaitResourceJob(api *gsrpc.SubstrateAPI, accountService account.Service,
 type GraphStakingJob struct {
 	statusInfo        queue.StatusInfo
 	id                int
+	network           string
 	keyStorageService keystorage.Service
 }
 
@@ -197,9 +197,10 @@ func (g *GraphStakingJob) InitStatus() {
 	g.statusInfo.Status = queue.None
 }
 
-func NewGraphStakingJob(service keystorage.Service, applicationId int) GraphStakingJob {
+func NewGraphStakingJob(service keystorage.Service, applicationId int, network string) GraphStakingJob {
 	return GraphStakingJob{
 		id:                applicationId,
+		network:           network,
 		keyStorageService: service,
 	}
 }
@@ -234,7 +235,7 @@ func (g *GraphStakingJob) Run(sc chan queue.StatusInfo) (queue.StatusInfo, error
 	}
 	address := ethAbi.GetEthAddress(addr)
 	//Get eth client
-	client, err := ethAbi.GetEthClient(config.EndpointUrl)
+	client, err := ethAbi.GetEthClient(g.network)
 	if err != nil {
 		fmt.Println("Get eth client failed, err is :", err)
 		g.statusInfo.Status = queue.Failed

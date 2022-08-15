@@ -60,14 +60,15 @@ func (g *ServiceImpl) SaveGraphDeployParameterAndApply(addData AddParam) (AddApp
 		return applicationVo, err
 	}
 	var deploymentData deploy.DeployParameter
+	pluginDeployInfo := config.PluginMap[addData.SelectNodeType]
 	deploymentData.Initialization.AccountMnemonic = addData.ThegraphIndexer
 	deploymentData.Initialization.LeaseTerm = addData.LeaseTerm
 	deploymentData.Staking.PledgeAmount = addData.StakingAmount
-	deploymentData.Deployment.NodeEthereumUrl = config.EthMainNetwork
-	deploymentData.Deployment.EthereumUrl = config.EndpointUrl
-	deploymentData.Deployment.EthereumNetwork = config.EthereumRinkebyNetworkName
-	deploymentData.Staking.NetworkUrl = config.EndpointUrl
-	deploymentData.Staking.Address = config.TheGraphStakingAddress
+	deploymentData.Deployment.NodeEthereumUrl = pluginDeployInfo.EthNetwork
+	deploymentData.Deployment.EthereumUrl = pluginDeployInfo.EndpointUrl
+	deploymentData.Deployment.EthereumNetwork = pluginDeployInfo.EthereumNetworkName
+	deploymentData.Staking.NetworkUrl = pluginDeployInfo.EndpointUrl
+	deploymentData.Staking.Address = pluginDeployInfo.TheGraphStakingAddress
 	jsonData, err := json.Marshal(deploymentData)
 	if err != nil {
 		applicationVo.Result = false
@@ -76,7 +77,7 @@ func (g *ServiceImpl) SaveGraphDeployParameterAndApply(addData AddParam) (AddApp
 	g.keyStorageService.Set("graph_"+strconv.Itoa(int(applyData.ID)), string(jsonData))
 	applicationVo.Result = true
 	applicationVo.ID = applyData.ID
-	go g.DeployGraphJob(int(applyData.ID))
+	go g.deployGraphJob(int(applyData.ID), pluginDeployInfo.EndpointUrl)
 	return applicationVo, nil
 }
 
@@ -98,8 +99,8 @@ func (g *ServiceImpl) DeleteGraphDeployParameterAndApply(id int) (bool, error) {
 	return true, nil
 }
 
-func (g *ServiceImpl) DeployGraphJob(applicationId int) {
-	stakingJob := NewGraphStakingJob(g.keyStorageService, applicationId)
+func (g *ServiceImpl) deployGraphJob(applicationId int, networkUrl string) {
+	stakingJob := NewGraphStakingJob(g.keyStorageService, applicationId, networkUrl)
 	var accountInfo account.Account
 	accountInfo, err := g.accountService.GetAccount()
 	if err != nil {
@@ -118,4 +119,35 @@ func (g *ServiceImpl) DeployGraphJob(applicationId int) {
 	}
 	channel := make(chan struct{})
 	go queue.Start(channel)
+}
+
+func (g *ServiceImpl) DeployGraphJob(applicationId int) error {
+	var data application.Application
+	result := g.db.Where("id = ? ", applicationId).First(&data)
+	if result.Error != nil {
+		fmt.Println("query application failed,error is: ", result.Error)
+		return result.Error
+	}
+	pluginDeployInfo := config.PluginMap[data.SelectNodeType]
+	stakingJob := NewGraphStakingJob(g.keyStorageService, applicationId, pluginDeployInfo.EndpointUrl)
+	var accountInfo account.Account
+	accountInfo, err := g.accountService.GetAccount()
+	if err != nil {
+		accountInfo.WsUrl = config.DefaultPolkadotNode
+	}
+	substrateApi, _ := gsrpc.NewSubstrateAPI(accountInfo.WsUrl)
+	waitResourceJob, _ := NewWaitResourceJob(substrateApi, g.accountService, g.applicationService, g.p2pServer, applicationId)
+
+	pullJob := NewPullImageJob(g.applicationService, applicationId)
+
+	deployJob := NewServiceDeployJob(g.keyStorageService, g.deployService, applicationId)
+
+	queue, err := queue2.NewQueue(applicationId, &stakingJob, waitResourceJob, &pullJob, &deployJob)
+	if err != nil {
+		return err
+		fmt.Println("new queue failed,err is: ", err)
+	}
+	channel := make(chan struct{})
+	go queue.Start(channel)
+	return nil
 }
