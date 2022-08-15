@@ -1,11 +1,17 @@
-import { createClient, gql } from '@urql/core';
+import { createClient, gql, Client } from '@urql/core';
+// import { parseIndexingRule, setIndexingRule, indexingRules } from './rules';
+// import {
+//   processIdentifier,
+//   IndexingDecisionBasis,
+//   IndexerManagementClient,
+// } from '@graphprotocol/indexer-common';
 
 export function createSubgraphClient(url: string, options: Recordable = {}) {
   return createClient({ url, ...options });
 }
 
 // Subgraph API
-export function fetchSubgraphs(page = 1, perPage = 20) {
+export function fetchSubgraphs(client: Client, page = 1, perPage = 20) {
   const tokensQuery = gql`
     query subgraphs(
       $orderBy: Subgraph_orderBy
@@ -68,10 +74,6 @@ export function fetchSubgraphs(page = 1, perPage = 20) {
     }
   `;
 
-  // const apiURL = 'https://gateway.thegraph.com/network'
-  const apiURL = 'https://api.thegraph.com/subgraphs/name/graphprotocol/graph-network-testnet';
-  const client = createSubgraphClient(apiURL);
-
   return client
     .query(tokensQuery, {
       first: perPage,
@@ -81,3 +83,22 @@ export function fetchSubgraphs(page = 1, perPage = 20) {
     })
     .toPromise();
 }
+
+// export async function deploySubgraph(client: Client, deploymentId: string) {
+//   const [identifier, identifierType] = await processIdentifier(deploymentId, {
+//     all: false,
+//     global: true,
+//   });
+
+//   const inputRule = parseIndexingRule({
+//     identifier,
+//     identifierType,
+//     decisionBasis: IndexingDecisionBasis.ALWAYS,
+//   });
+
+//   await setIndexingRule(client as IndexerManagementClient, inputRule);
+// }
+
+// export function getDeployedSubgraphs(client: Client) {
+//   return indexingRules(client as IndexerManagementClient, false);
+// }

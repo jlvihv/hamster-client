@@ -33,11 +33,12 @@
         </div>
       </div>
     </div>
-    <div class="text-center my-[40px]" v-if="isTouchedEnd">
+    <div class="text-center my-[40px]" v-if="!isTouchedEnd">
       <Button
         class="!h-[60px] w-[200px]"
         size="large"
         type="primary"
+        shape="round"
         @click="loadApplications"
         :loading="isLoading"
       >

@@ -1,7 +1,17 @@
 export const pluginConfigs = [
-  { plugin: 'The Graph(Görli)' },
-  { plugin: 'The Graph(Ethereum)', disabled: true },
-  { plugin: 'Polygon(Ethereum)', disabled: true },
+  {
+    label: 'Thegraph(Mainnet)',
+    value: 'thegrapth_mainnet',
+    url: 'https://gateway.thegraph.com/network',
+  },
+  {
+    label: 'Thegraph(Rinkeby)',
+    value: 'thegrapth_rinkeby',
+    url: 'https://api.thegraph.com/subgraphs/name/graphprotocol/graph-network-testnet',
+  },
+  { label: 'Thegraph(Görli)', value: 'thegrapth_gorli', disabled: true },
+  { label: 'Thegraph(Ethereum)', value: 'thegrapth_ethereum', disabled: true },
+  { label: 'Polygon(Ethereum)', value: 'polygon_ethereum', disabled: true },
 ];
 
 export const deployData = {
