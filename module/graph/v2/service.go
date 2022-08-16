@@ -146,8 +146,8 @@ func (g *ServiceImpl) DeployGraphJob(applicationId int) error {
 
 	queue, err := queue2.NewQueue(applicationId, &stakingJob, waitResourceJob, &pullJob, &deployJob)
 	if err != nil {
-		return err
 		fmt.Println("new queue failed,err is: ", err)
+		return err
 	}
 	channel := make(chan struct{})
 	go queue.Start(channel)
