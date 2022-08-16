@@ -1,16 +1,16 @@
 export const pluginConfigs = [
   {
     label: 'Thegraph(Mainnet)',
-    value: 'thegrapth_mainnet',
+    value: 'thegraph_mainnet',
     url: 'https://gateway.thegraph.com/network',
   },
   {
     label: 'Thegraph(Rinkeby)',
-    value: 'thegrapth_rinkeby',
+    value: 'thegraph_rinkeby',
     url: 'https://api.thegraph.com/subgraphs/name/graphprotocol/graph-network-testnet',
   },
-  { label: 'Thegraph(Görli)', value: 'thegrapth_gorli', disabled: true },
-  { label: 'Thegraph(Ethereum)', value: 'thegrapth_ethereum', disabled: true },
+  { label: 'Thegraph(Görli)', value: 'thegraph_gorli', disabled: true },
+  { label: 'Thegraph(Ethereum)', value: 'thegraph_ethereum', disabled: true },
   { label: 'Polygon(Ethereum)', value: 'polygon_ethereum', disabled: true },
 ];
 

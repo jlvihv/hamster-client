@@ -81,7 +81,7 @@
   const nodeType = application.value.selectNodeType;
   const plugin =
     pluginConfigs.find(({ value }) => value === nodeType) ||
-    pluginConfigs.find(({ value }) => value === 'thegrapth_rinkeby');
+    pluginConfigs.find(({ value }) => value === 'thegraph_rinkeby');
   const listClient = createSubgraphClient(plugin.url);
 
   const {
