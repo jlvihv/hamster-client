@@ -33,7 +33,7 @@
             class="input-width"
             v-model:value="formData.selectNodeType"
             :placeholder="t('applications.new.selectNodeTypePlaceholder')"
-            :options="pluginOptions"
+            :options="pluginConfigs"
           />
         </FormItem>
         <FormItem :label="t('applications.new.thegraphIndexer')" name="thegraphIndexer">
@@ -54,7 +54,13 @@
           />
         </FormItem>
         <FormItem class="text-center">
-          <Button size="large" class="w-32 mt-6 ml-4" type="primary" @click="handleSubmit">
+          <Button
+            size="large"
+            class="w-32 mt-6 ml-4"
+            type="primary"
+            shape="round"
+            @click="handleSubmit"
+          >
             {{ t('common.createText') }}
           </Button>
         </FormItem>
@@ -78,12 +84,6 @@
   const { t } = useI18n();
   const router = useRouter();
   const { createErrorModal } = useMessage();
-
-  const pluginOptions = pluginConfigs.map((item) => ({
-    ...item,
-    label: item.plugin,
-    value: item.plugin,
-  }));
 
   const formRef = ref();
   const formData = reactive({

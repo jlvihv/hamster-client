@@ -53,6 +53,7 @@ export default {
     grtAccess: 'Allow GRT Access',
     endPeriod: 'End thawing period',
     thawLeft: 'Thawing time left',
+    start: 'Start',
     stop: 'Stop',
     serviceInfo: 'Service Information',
     createTime: 'Create Time',

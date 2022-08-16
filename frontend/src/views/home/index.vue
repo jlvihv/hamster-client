@@ -18,12 +18,7 @@
               v-model:value="formData.wsUrl"
             />
           </div>
-          <SvgIcon
-            @click="stepAction.setWsUrl"
-            class="text-primary cursor-pointer"
-            size="56"
-            name="next"
-          />
+          <SvgButton @click="stepAction.setWsUrl" class="text-primary" size="56" icon="next" />
         </div>
         <div v-else-if="stepVal === 1">
           <div
@@ -40,11 +35,11 @@
             <img :src="doneImage" class="w-[200px]" />
           </div>
           <div class="title-text my-[40px]">{{ t('home.complete') }}</div>
-          <SvgIcon
+          <SvgButton
             @click="stepAction.gotoApplicationsPage"
-            class="text-primary cursor-pointer"
+            class="text-primary"
             size="56"
-            name="next"
+            icon="next"
           />
         </div>
       </transition-group>
@@ -58,6 +53,7 @@
   import { useSettingStore } from '/@/store/modules/setting';
   import { useI18n } from '/@/hooks/web/useI18n';
   import { SvgIcon } from '/@/components/Icon';
+  import { SvgButton } from '/@/components/SvgButton';
   import { createRule } from '/@/utils/formUtil';
   import WalletImporter from './components/WalletImporter.vue';
   import doneImage from '/@/assets/images/suc.png';
@@ -87,8 +83,12 @@
   const isGuideVisible = ref(false);
   onMounted(async () => {
     // fetch settings from API
-    await settingStore.getWalletInfoAction();
-    await settingStore.getConfigAction();
+    try {
+      await settingStore.getWalletInfoAction();
+      await settingStore.getConfigAction();
+    } catch {
+      console.log('Failed to load wallet and config.');
+    }
 
     if (route.query.step) {
       isGuideVisible.value = true;
@@ -109,9 +109,10 @@
     next() {
       stepVal.value++;
     },
-    setWsUrl() {
+    setWsUrl(callback) {
       settingStore.saveWsUrlAction(formData.wsUrl);
       stepAction.next();
+      callback();
     },
     gotoApplicationsPage() {
       router.push('/applications/index');

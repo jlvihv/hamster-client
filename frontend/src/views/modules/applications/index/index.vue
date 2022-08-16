@@ -4,7 +4,7 @@
     <div class="grid grid-cols-3 gap-8 mt-3 mx-3 text-center">
       <router-link
         to="/applications/new"
-        class="rounded-[20px] h-full border-2 border-[#043CC1] border-dashed flex items-center justify-center cursor-pointer duration-500 hover:scale-110 min-h-[300px]"
+        class="rounded-[20px] h-full border-2 border-[#043CC1] border-dashed flex items-center justify-center cursor-pointer transition duration-500 hover:scale-110 min-h-[300px]"
       >
         <SvgIcon class="text-primary rounded-[50%]" size="60" name="add" />
       </router-link>
@@ -33,11 +33,12 @@
         </div>
       </div>
     </div>
-    <div class="text-center my-[40px]" v-if="isTouchedEnd">
+    <div class="text-center my-[40px]" v-if="!isTouchedEnd">
       <Button
         class="!h-[60px] w-[200px]"
         size="large"
         type="primary"
+        shape="round"
         @click="loadApplications"
         :loading="isLoading"
       >

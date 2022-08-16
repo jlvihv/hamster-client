@@ -45,13 +45,14 @@
         <InputPassword :placeholder="t('home.pwd')" v-model:value="formData.password" />
       </FormItem>
     </Form>
-    <SvgIcon @click="handleSubmit" class="text-primary cursor-pointer" size="56" name="next" />
+    <SvgButton @click="handleSubmit" class="text-primary" size="56" icon="next" />
   </div>
 </template>
 
 <script lang="ts" setup>
   import { ref, reactive, computed, onMounted } from 'vue';
   import { SvgIcon } from '/@/components/Icon';
+  import { SvgButton } from '/@/components/SvgButton';
   import { useI18n } from '/@/hooks/web/useI18n';
   import { useDesign } from '/@/hooks/web/useDesign';
   import { useMessage } from '/@/hooks/web/useMessage';
@@ -84,7 +85,7 @@
     password: [{ message: t('home.pleaseEnterPassword'), trigger: 'change', required: true }],
   }));
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (callback) => {
     await formRef.value?.validate();
 
     const { jsonContent, jsonString, password } = formData;
@@ -101,6 +102,7 @@
     } else {
       createErrorModal({ title: t('common.errorTip'), content: t('home.passwordError') });
     }
+    callback();
   };
 
   const beforeUpload = (file: File, fileList: Recordable[]) =>
