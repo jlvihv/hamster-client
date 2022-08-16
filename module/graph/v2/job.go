@@ -2,11 +2,15 @@ package v2
 
 import (
 	"context"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
 	gsrpc "github.com/centrifuge/go-substrate-rpc-client/v4"
+	"github.com/centrifuge/go-substrate-rpc-client/v4/signature"
 	"github.com/centrifuge/go-substrate-rpc-client/v4/types"
+	"github.com/google/uuid"
+	log "github.com/sirupsen/logrus"
 	ethAbi "hamster-client/module/abi"
 	"hamster-client/module/account"
 	"hamster-client/module/application"
@@ -46,7 +50,9 @@ func (j *PullImageJob) Run(sc chan queue.StatusInfo) (queue.StatusInfo, error) {
 
 	url := fmt.Sprintf("http://localhost:%d/api/v1/thegraph/pullImage", vo.P2pForwardPort)
 	for i := 0; i < 3; i++ {
-		response, err := utils.NewHttp().NewRequest().Post(url)
+		req := utils.NewHttp().NewRequest()
+		req.SetHeader("SS58AuthData", getSS58AuthDataWithKeyringPair(signature.TestKeyringPairAlice))
+		response, err := req.Post(url)
 		if err != nil {
 			j.statusInfo.Error = err.Error()
 			continue
@@ -374,4 +380,20 @@ func (s *ServiceDeployJob) Run(sc chan queue.StatusInfo) (queue.StatusInfo, erro
 
 func (s *ServiceDeployJob) Status() queue.StatusInfo {
 	return s.statusInfo
+}
+
+func getSS58AuthDataWithKeyringPair(keyringPair signature.KeyringPair) string {
+	ss58Address := keyringPair.Address
+	data := uuid.New().String()
+	signDataHex := hex.EncodeToString(signWithKeyringPair(keyringPair, []byte(data)))
+	return fmt.Sprintf("%s:%s:%s", ss58Address, data, signDataHex)
+}
+
+func signWithKeyringPair(keyringPair signature.KeyringPair, data []byte) []byte {
+	signData, err := signature.Sign(data, keyringPair.URI)
+	if err != nil {
+		log.Errorf("signature.Sign error: %s", err)
+		return nil
+	}
+	return signData
 }
