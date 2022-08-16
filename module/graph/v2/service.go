@@ -14,6 +14,7 @@ import (
 	"hamster-client/module/keystorage"
 	"hamster-client/module/p2p"
 	queue2 "hamster-client/module/queue"
+	"hamster-client/module/wallet"
 	"strconv"
 )
 
@@ -25,10 +26,11 @@ type ServiceImpl struct {
 	applicationService application.Service
 	p2pServer          p2p.Service
 	deployService      deploy.Service
+	walletService      wallet.Service
 }
 
-func NewServiceImpl(ctx context.Context, db *gorm.DB, keyStorageService keystorage.Service, accountService account.Service, applicationService application.Service, p2pServer p2p.Service, deployService deploy.Service) ServiceImpl {
-	return ServiceImpl{ctx, db, keyStorageService, accountService, applicationService, p2pServer, deployService}
+func NewServiceImpl(ctx context.Context, db *gorm.DB, keyStorageService keystorage.Service, accountService account.Service, applicationService application.Service, p2pServer p2p.Service, deployService deploy.Service, walletService wallet.Service) ServiceImpl {
+	return ServiceImpl{ctx, db, keyStorageService, accountService, applicationService, p2pServer, deployService, walletService}
 }
 
 func (g *ServiceImpl) SaveGraphDeployParameterAndApply(addData AddParam) (AddApplicationVo, error) {
@@ -107,7 +109,7 @@ func (g *ServiceImpl) deployGraphJob(applicationId int, networkUrl string) {
 		accountInfo.WsUrl = config.DefaultPolkadotNode
 	}
 	substrateApi, _ := gsrpc.NewSubstrateAPI(accountInfo.WsUrl)
-	waitResourceJob, _ := NewWaitResourceJob(substrateApi, g.accountService, g.applicationService, g.p2pServer, applicationId)
+	waitResourceJob, _ := NewWaitResourceJob(substrateApi, g.accountService, g.applicationService, g.p2pServer, applicationId, g.walletService)
 
 	pullJob := NewPullImageJob(g.applicationService, applicationId)
 
@@ -136,7 +138,7 @@ func (g *ServiceImpl) DeployGraphJob(applicationId int) error {
 		accountInfo.WsUrl = config.DefaultPolkadotNode
 	}
 	substrateApi, _ := gsrpc.NewSubstrateAPI(accountInfo.WsUrl)
-	waitResourceJob, _ := NewWaitResourceJob(substrateApi, g.accountService, g.applicationService, g.p2pServer, applicationId)
+	waitResourceJob, _ := NewWaitResourceJob(substrateApi, g.accountService, g.applicationService, g.p2pServer, applicationId, g.walletService)
 
 	pullJob := NewPullImageJob(g.applicationService, applicationId)
 

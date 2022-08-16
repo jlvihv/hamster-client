@@ -2,6 +2,7 @@ package wallet
 
 import (
 	"context"
+	"encoding/json"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"gorm.io/gorm"
 )
@@ -29,19 +30,18 @@ func (w *ServiceImpl) GetWallet() (WalletVo, error) {
 }
 
 // SaveWallet save wallet information
-func (w *ServiceImpl) SaveWallet(address string, json string) (bool, error) {
-	u, err := w.GetWallet()
-	if err != nil {
-		return false, err
+func (w *ServiceImpl) SaveWallet(address string, json string, passphrase string) (bool, error) {
+	var wallet Wallet
+	result := w.db.First(&wallet)
+	if result.Error != nil {
+		wallet = Wallet{}
 	}
 	//save or update account
-	u.Address = address
-	u.AddressJson = json
-	var wallet Wallet
-	wallet.Address = u.Address
-	wallet.AddressJson = u.AddressJson
-	w.db.Save(&wallet)
-	return true, nil
+	wallet.Address = address
+	wallet.AddressJson = json
+	wallet.Passphrase = passphrase
+	result = w.db.Save(&wallet)
+	return result.Error == nil, result.Error
 }
 
 // DeleteWallet delete wallet information
@@ -51,4 +51,17 @@ func (w *ServiceImpl) DeleteWallet() (bool, error) {
 		return false, err
 	}
 	return true, nil
+}
+
+func (w *ServiceImpl) GetWalletJson() (WalletJson, string, error) {
+	var wallet Wallet
+	result := w.db.First(&wallet)
+	if result.Error != nil {
+		runtime.LogError(w.ctx, "GetWallet error")
+		return WalletJson{}, "", result.Error
+	}
+
+	var walletJson WalletJson
+	err := json.Unmarshal([]byte(wallet.AddressJson), &walletJson)
+	return walletJson, wallet.Passphrase, err
 }

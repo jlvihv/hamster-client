@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"fmt"
 	"hamster-client/module/wallet"
 )
 
@@ -28,8 +29,10 @@ func (w *Wallet) GetWalletInfo() (wallet.WalletVo, error) {
 }
 
 // SaveWallet save wallet information
-func (w *Wallet) SaveWallet(address string, json string) (bool, error) {
-	return w.walletService.SaveWallet(address, json)
+func (w *Wallet) SaveWallet(address string, json string, passphrase string) (bool, error) {
+
+	fmt.Println("SaveWallet: ", passphrase)
+	return w.walletService.SaveWallet(address, json, passphrase)
 }
 
 // DeleteWallet delete wallet information

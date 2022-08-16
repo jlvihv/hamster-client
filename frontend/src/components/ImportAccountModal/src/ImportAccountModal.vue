@@ -98,7 +98,8 @@
 
     if (isMatch) {
       // call api to save wallet info
-      await settingStore.saveWalletAction(jsonContent.address, jsonString);
+      console.log('ImportAccountModal.vue:', password);
+      await settingStore.saveWalletAction(jsonContent.address, jsonString, password);
       modalVisible.value = false;
     } else {
       createErrorModal({ title: tt('common.errorTip'), content: t('passwordError') });
