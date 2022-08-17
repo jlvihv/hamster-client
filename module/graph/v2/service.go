@@ -111,15 +111,21 @@ func (g *ServiceImpl) deployGraphJob(applicationId int, networkUrl string) {
 	substrateApi, _ := gsrpc.NewSubstrateAPI(accountInfo.WsUrl)
 	waitResourceJob, _ := NewWaitResourceJob(substrateApi, g.accountService, g.applicationService, g.p2pServer, applicationId, g.walletService)
 
-	pullJob := NewPullImageJob(g.applicationService, applicationId, g.walletService)
+	pullJob := NewPullImageJob(g.applicationService, applicationId, g.p2pServer, g.accountService,g.walletService)
 
-	deployJob := NewServiceDeployJob(g.keyStorageService, g.deployService, applicationId, g.walletService)
+	deployJob := NewServiceDeployJob(g.keyStorageService, g.deployService, applicationId, g.p2pServer, g.accountService, g.applicationService,g.walletService)
 
 	queue, err := queue2.NewQueue(applicationId, &stakingJob, waitResourceJob, &pullJob, &deployJob)
 	if err != nil {
 		fmt.Println("new queue failed,err is: ", err)
 	}
 	channel := make(chan struct{})
+	defer func() {
+		err = queue.SaveStatus(g.db)
+		if err != nil {
+			fmt.Println("save status failed,err is: ", err)
+		}
+	}()
 	go queue.Start(channel)
 }
 
@@ -140,16 +146,22 @@ func (g *ServiceImpl) DeployGraphJob(applicationId int) error {
 	substrateApi, _ := gsrpc.NewSubstrateAPI(accountInfo.WsUrl)
 	waitResourceJob, _ := NewWaitResourceJob(substrateApi, g.accountService, g.applicationService, g.p2pServer, applicationId, g.walletService)
 
-	pullJob := NewPullImageJob(g.applicationService, applicationId, g.walletService)
+	pullJob := NewPullImageJob(g.applicationService, applicationId, g.p2pServer, g.accountService,g.walletService)
 
-	deployJob := NewServiceDeployJob(g.keyStorageService, g.deployService, applicationId, g.walletService)
+	deployJob := NewServiceDeployJob(g.keyStorageService, g.deployService, applicationId, g.p2pServer, g.accountService, g.applicationService,g.walletService)
 
 	queue, err := queue2.NewQueue(applicationId, &stakingJob, waitResourceJob, &pullJob, &deployJob)
 	if err != nil {
-		return err
 		fmt.Println("new queue failed,err is: ", err)
+		return err
 	}
 	channel := make(chan struct{})
+	defer func() {
+		err = queue.SaveStatus(g.db)
+		if err != nil {
+			fmt.Println("save status failed,err is: ", err)
+		}
+	}()
 	go queue.Start(channel)
 	return nil
 }
