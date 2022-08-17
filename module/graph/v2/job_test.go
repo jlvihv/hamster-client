@@ -3,7 +3,6 @@ package v2
 import (
 	"context"
 	"fmt"
-	"github.com/centrifuge/go-substrate-rpc-client/v4/signature"
 	"github.com/mitchellh/go-homedir"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
@@ -42,8 +41,8 @@ func TestDeploy(t *testing.T) {
 	applicationService := application.NewServiceImpl(ctx, db)
 	p2pService := p2p.NewServiceImpl(ctx, db)
 	keyStorageService := keystorage.NewServiceImpl(ctx, db)
-	deployService := deploy.NewServiceImpl(ctx, httpUtil, db, &keyStorageService, &accountService, &p2pService)
 	walletService := wallet.NewServiceImpl(ctx, db)
+	deployService := deploy.NewServiceImpl(ctx, httpUtil, db, &keyStorageService, &accountService, &p2pService, &walletService)
 	graphParamService := NewServiceImpl(ctx, db, keyStorageService, &accountService, &applicationService, &p2pService, &deployService, &walletService)
 	//create application
 	var addParam AddParam
@@ -83,15 +82,4 @@ func TestDeploy(t *testing.T) {
 	info, _ := queue.GetStatus()
 
 	fmt.Println(info)
-}
-
-func TestTheGraphSS58AuthWork(t *testing.T) {
-	url := fmt.Sprintf("http://localhost:%d/api/v1/thegraph/status", 34003)
-	req := utils.NewHttp().NewRequest()
-	req.SetHeader("SS58AuthData", getSS58AuthDataWithKeyringPair(signature.TestKeyringPairAlice))
-	response, err := req.Get(url)
-	if err != nil {
-		t.Error(err)
-	}
-	fmt.Println(response.String())
 }
