@@ -2,6 +2,7 @@
   <div class="relative h-full" v-if="isGuideVisible">
     <form
       class="home-bg h-full label-center text-center"
+      :style="{ backgroundImage: `url(${getImageURL('home-bg.png')})` }"
       ref="formRef"
       :model="formData"
       :rules="formRules"
@@ -52,6 +53,7 @@
   import { useRouter, useRoute } from 'vue-router';
   import { useSettingStore } from '/@/store/modules/setting';
   import { useI18n } from '/@/hooks/web/useI18n';
+  import { useAssets } from '/@/hooks/web/useAssets';
   import { SvgIcon } from '/@/components/Icon';
   import { SvgButton } from '/@/components/SvgButton';
   import { createRule } from '/@/utils/formUtil';
@@ -60,6 +62,7 @@
   import { Select } from 'ant-design-vue';
 
   const { t } = useI18n();
+  const { getImageURL } = useAssets();
   const router = useRouter();
   const route = useRoute();
   const settingStore = useSettingStore();
@@ -126,7 +129,7 @@
 
 <style lang="less" scoped>
   .home-bg {
-    background: url('src/assets/images/home-bg.png') no-repeat top;
+    background: no-repeat top;
     background-size: 100% 100%;
   }
 

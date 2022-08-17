@@ -1,5 +1,8 @@
 <template>
-  <div class="revenue-bg rounded-[20px] p-[20px] relative">
+  <div
+    class="revenue-bg rounded-[20px] p-[20px] relative"
+    :style="{ backgroundImage: `url(${getImageURL('application-bg.png')})` }"
+  >
     <div
       @click="receiveBenefits"
       class="benefit-bg cursor-pointer absolute right-0 top-10 text-white py-[16px] pl-[16px] rounded-l-[100px]"
@@ -101,6 +104,7 @@
 <script lang="ts" setup>
   import { ref, watchEffect, computed } from 'vue';
   import { useI18n } from '/@/hooks/web/useI18n';
+  import { useAssets } from '/@/hooks/web/useAssets';
   import { SvgIcon } from '/@/components/Icon';
   import StakeDrawer from './StakeDrawer.vue';
   import UnstakeDrawer from './UnstakeDrawer.vue';
@@ -115,7 +119,9 @@
   const props = defineProps({
     deployInfo: Object as PropType<Recordable>,
   });
+
   const { t } = useI18n();
+  const { getImageURL } = useAssets();
 
   const drawerVisible = ref(false);
   const stakeVisible = ref(false);
@@ -302,7 +308,7 @@
   }
 
   .revenue-bg {
-    background: url('src/assets/images/application-bg.png') no-repeat top;
+    background: no-repeat top;
     background-size: 100% 100%;
   }
 
