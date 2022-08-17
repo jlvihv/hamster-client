@@ -43,7 +43,8 @@ func TestDeploy(t *testing.T) {
 	p2pService := p2p.NewServiceImpl(ctx, db)
 	keyStorageService := keystorage.NewServiceImpl(ctx, db)
 	deployService := deploy.NewServiceImpl(ctx, httpUtil, db, &keyStorageService, &accountService, &p2pService)
-	graphParamService := NewServiceImpl(ctx, db, keyStorageService, &accountService, &applicationService, &p2pService, &deployService)
+	walletService := wallet.NewServiceImpl(ctx, db)
+	graphParamService := NewServiceImpl(ctx, db, keyStorageService, &accountService, &applicationService, &p2pService, &deployService, &walletService)
 	//create application
 	var addParam AddParam
 	addParam.Name = "Service one12"

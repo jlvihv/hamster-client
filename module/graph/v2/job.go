@@ -19,6 +19,7 @@ import (
 	"hamster-client/utils"
 	"math/big"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -27,6 +28,8 @@ type PullImageJob struct {
 	applicationId      int
 	applicationService application.Service
 	walletService      wallet.Service
+	p2pService         p2p.Service
+	accountService     account.Service
 }
 
 func (j *PullImageJob) InitStatus() {
@@ -54,6 +57,22 @@ func (j *PullImageJob) Run(sc chan queue.StatusInfo) (queue.StatusInfo, error) {
 		return j.statusInfo, err
 	}
 
+	accountInfo, err := j.accountService.GetAccount()
+	if err != nil {
+		fmt.Println("query account fail, err is :", err)
+		j.statusInfo.Status = queue.Failed
+		j.statusInfo.Error = err.Error()
+		sc <- j.statusInfo
+		return j.statusInfo, err
+	}
+	err = reForwardLink(j.p2pService, vo.P2pForwardPort, accountInfo.PeerId)
+	if err != nil {
+		fmt.Println("reconnect fail, err is :", err)
+		j.statusInfo.Status = queue.Failed
+		j.statusInfo.Error = err.Error()
+		sc <- j.statusInfo
+		return j.statusInfo, err
+	}
 	url := fmt.Sprintf("http://localhost:%d/api/v1/thegraph/pullImage", vo.P2pForwardPort)
 	for i := 0; i < 3; i++ {
 		req := utils.NewHttp().NewRequest()
@@ -84,11 +103,13 @@ func (j *PullImageJob) Status() queue.StatusInfo {
 	return j.statusInfo
 }
 
-func NewPullImageJob(service application.Service, applicationId int, walletService wallet.Service) PullImageJob {
+func NewPullImageJob(service application.Service, applicationId int, p2pService p2p.Service, accountService account.Service,walletService wallet.Service) PullImageJob {
 	return PullImageJob{
 		applicationId:      applicationId,
 		applicationService: service,
 		walletService:      walletService,
+		p2pService:         p2pService,
+		accountService:     accountService,
 	}
 }
 
@@ -345,10 +366,13 @@ func (g *GraphStakingJob) Status() queue.StatusInfo {
 }
 
 type ServiceDeployJob struct {
-	statusInfo        queue.StatusInfo
-	id                int
-	deployService     deploy.Service
-	keyStorageService keystorage.Service
+	statusInfo         queue.StatusInfo
+	id                 int
+	deployService      deploy.Service
+	keyStorageService  keystorage.Service
+	p2pService         p2p.Service
+	accountService     account.Service
+	applicationService application.Service
 	walletService     wallet.Service
 }
 
@@ -357,11 +381,14 @@ func (s *ServiceDeployJob) InitStatus() {
 	s.statusInfo.Status = queue.None
 }
 
-func NewServiceDeployJob(service keystorage.Service, deployService deploy.Service, applicationId int, walletService wallet.Service) ServiceDeployJob {
+func NewServiceDeployJob(service keystorage.Service, deployService deploy.Service, applicationId int, p2pService p2p.Service, accountService account.Service, applicationService application.Service,walletService wallet.Service) ServiceDeployJob {
 	return ServiceDeployJob{
-		id:                applicationId,
-		keyStorageService: service,
-		deployService:     deployService,
+		id:                 applicationId,
+		keyStorageService:  service,
+		deployService:      deployService,
+		p2pService:         p2pService,
+		accountService:     accountService,
+		applicationService: applicationService,
 		walletService:     walletService,
 	}
 }
@@ -383,7 +410,31 @@ func (s *ServiceDeployJob) Run(sc chan queue.StatusInfo) (queue.StatusInfo, erro
 	sendData.NodeEthereumUrl = param.Deployment.NodeEthereumUrl
 	sendData.IndexerAddress = param.Staking.AgentAddress
 	sendData.Mnemonic = param.Initialization.AccountMnemonic
-	_, err := s.deployService.DeployGraph(s.id, sendData)
+	vo, err := s.applicationService.QueryApplicationById(s.id)
+	if err != nil {
+		fmt.Println("query application fail, err is :", err)
+		s.statusInfo.Status = queue.Failed
+		s.statusInfo.Error = err.Error()
+		sc <- s.statusInfo
+		return s.statusInfo, err
+	}
+	accountInfo, err := s.accountService.GetAccount()
+	if err != nil {
+		fmt.Println("query account fail, err is :", err)
+		s.statusInfo.Status = queue.Failed
+		s.statusInfo.Error = err.Error()
+		sc <- s.statusInfo
+		return s.statusInfo, err
+	}
+	err = reForwardLink(s.p2pService, vo.P2pForwardPort, accountInfo.PeerId)
+	if err != nil {
+		fmt.Println("reconnect fail, err is :", err)
+		s.statusInfo.Status = queue.Failed
+		s.statusInfo.Error = err.Error()
+		sc <- s.statusInfo
+		return s.statusInfo, err
+	}
+	_, err = s.deployService.DeployGraph(s.id, sendData)
 	if err != nil {
 		fmt.Println("deploy service failed, err is :", err)
 		s.statusInfo.Status = queue.Failed
@@ -399,4 +450,35 @@ func (s *ServiceDeployJob) Run(sc chan queue.StatusInfo) (queue.StatusInfo, erro
 
 func (s *ServiceDeployJob) Status() queue.StatusInfo {
 	return s.statusInfo
+}
+
+func reForwardLink(p2pService p2p.Service, port int, peerId string) error {
+	protocol := "/x/provider"
+	links := p2pService.QueryLinks(protocol)
+	if len(*links) > 0 {
+		for _, value := range *links {
+			listenAddress := value.ListenAddress
+			if listenAddress != "" {
+				lastIndex := strings.LastIndex(listenAddress, "/")
+				listenPort := listenAddress[lastIndex+1 : len(listenAddress)-1]
+				listenPortInt, err := strconv.Atoi(listenPort)
+				if err != nil {
+					continue
+				}
+				if listenPortInt == port {
+					if value.Status {
+						return nil
+					}
+					_, err = p2pService.Close(value.TargetAddress)
+					if err != nil {
+						return err
+					}
+					err := p2pService.LinkByProtocol(protocol, port, peerId)
+					return err
+				}
+			}
+		}
+	}
+	err := p2pService.LinkByProtocol(protocol, port, peerId)
+	return err
 }
