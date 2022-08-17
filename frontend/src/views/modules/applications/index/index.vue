@@ -20,7 +20,7 @@
           {{ item.selectNodeType }}
         </div>
         <img
-          :src="`src/assets/images/application-bg-${(index % 4) + 1}.png`"
+          :src="getImageURL(`application-bg-${(index % 4) + 1}.png`)"
           class="w-full rounded-t-[20px]"
         />
         <div class="text-[20px] font-bold my-[10px]">{{ item.name }}</div>
@@ -57,9 +57,11 @@
   import { useLoadMore } from '/@/hooks/web/useLoadMore';
   import { ApplicationList } from '/@wails/go/app/Application';
   import { DictCodeEnum } from '/@/enums/dictCodeEnum';
+  import { useAssets } from '/@/hooks/web/useAssets';
   import { Button } from 'ant-design-vue';
 
   const { t } = useI18n();
+  const { getImageURL } = useAssets();
 
   const {
     items: applications,
