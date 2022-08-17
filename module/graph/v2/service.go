@@ -111,9 +111,9 @@ func (g *ServiceImpl) deployGraphJob(applicationId int, networkUrl string) {
 	substrateApi, _ := gsrpc.NewSubstrateAPI(accountInfo.WsUrl)
 	waitResourceJob, _ := NewWaitResourceJob(substrateApi, g.accountService, g.applicationService, g.p2pServer, applicationId, g.walletService)
 
-	pullJob := NewPullImageJob(g.applicationService, applicationId)
+	pullJob := NewPullImageJob(g.applicationService, applicationId, g.walletService)
 
-	deployJob := NewServiceDeployJob(g.keyStorageService, g.deployService, applicationId)
+	deployJob := NewServiceDeployJob(g.keyStorageService, g.deployService, applicationId, g.walletService)
 
 	queue, err := queue2.NewQueue(applicationId, &stakingJob, waitResourceJob, &pullJob, &deployJob)
 	if err != nil {
@@ -140,9 +140,9 @@ func (g *ServiceImpl) DeployGraphJob(applicationId int) error {
 	substrateApi, _ := gsrpc.NewSubstrateAPI(accountInfo.WsUrl)
 	waitResourceJob, _ := NewWaitResourceJob(substrateApi, g.accountService, g.applicationService, g.p2pServer, applicationId, g.walletService)
 
-	pullJob := NewPullImageJob(g.applicationService, applicationId)
+	pullJob := NewPullImageJob(g.applicationService, applicationId, g.walletService)
 
-	deployJob := NewServiceDeployJob(g.keyStorageService, g.deployService, applicationId)
+	deployJob := NewServiceDeployJob(g.keyStorageService, g.deployService, applicationId, g.walletService)
 
 	queue, err := queue2.NewQueue(applicationId, &stakingJob, waitResourceJob, &pullJob, &deployJob)
 	if err != nil {

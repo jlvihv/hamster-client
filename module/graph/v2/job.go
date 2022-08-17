@@ -2,15 +2,11 @@ package v2
 
 import (
 	"context"
-	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
 	gsrpc "github.com/centrifuge/go-substrate-rpc-client/v4"
-	"github.com/centrifuge/go-substrate-rpc-client/v4/signature"
 	"github.com/centrifuge/go-substrate-rpc-client/v4/types"
-	"github.com/google/uuid"
-	log "github.com/sirupsen/logrus"
 	ethAbi "hamster-client/module/abi"
 	"hamster-client/module/account"
 	"hamster-client/module/application"
@@ -30,6 +26,7 @@ type PullImageJob struct {
 	statusInfo         queue.StatusInfo
 	applicationId      int
 	applicationService application.Service
+	walletService      wallet.Service
 }
 
 func (j *PullImageJob) InitStatus() {
@@ -49,10 +46,18 @@ func (j *PullImageJob) Run(sc chan queue.StatusInfo) (queue.StatusInfo, error) {
 		return j.statusInfo, err
 	}
 
+	pair, err := j.walletService.GetWalletKeypair()
+	if err != nil {
+		j.statusInfo.Status = queue.Failed
+		j.statusInfo.Error = err.Error()
+		sc <- j.statusInfo
+		return j.statusInfo, err
+	}
+
 	url := fmt.Sprintf("http://localhost:%d/api/v1/thegraph/pullImage", vo.P2pForwardPort)
 	for i := 0; i < 3; i++ {
 		req := utils.NewHttp().NewRequest()
-		req.SetHeader("SS58AuthData", getSS58AuthDataWithKeyringPair(signature.TestKeyringPairAlice))
+		req.SetHeader("SS58AuthData", utils.GetSS58AuthDataWithKeyringPair(pair))
 		response, err := req.Post(url)
 		if err != nil {
 			j.statusInfo.Error = err.Error()
@@ -79,10 +84,11 @@ func (j *PullImageJob) Status() queue.StatusInfo {
 	return j.statusInfo
 }
 
-func NewPullImageJob(service application.Service, applicationId int) PullImageJob {
+func NewPullImageJob(service application.Service, applicationId int, walletService wallet.Service) PullImageJob {
 	return PullImageJob{
 		applicationId:      applicationId,
 		applicationService: service,
+		walletService:      walletService,
 	}
 }
 
@@ -106,14 +112,7 @@ func (j *WaitResourceJob) Run(sc chan queue.StatusInfo) (queue.StatusInfo, error
 	j.statusInfo.Status = queue.Running
 	sc <- j.statusInfo
 
-	walletJson, passphrase, err := j.walletService.GetWalletJson()
-	if err != nil {
-		j.statusInfo.Status = queue.Failed
-		j.statusInfo.Error = "WALLET_LOAD_ERROR"
-		sc <- j.statusInfo
-		return j.statusInfo, err
-	}
-	pair, err := pallet.KeyringPairFromEncoded(walletJson.Encoded, passphrase, 42)
+	pair, err := j.walletService.GetWalletKeypair()
 	if err != nil {
 		j.statusInfo.Status = queue.Failed
 		j.statusInfo.Error = "WALLET_LOAD_ERROR"
@@ -350,6 +349,7 @@ type ServiceDeployJob struct {
 	id                int
 	deployService     deploy.Service
 	keyStorageService keystorage.Service
+	walletService     wallet.Service
 }
 
 func (s *ServiceDeployJob) InitStatus() {
@@ -357,11 +357,12 @@ func (s *ServiceDeployJob) InitStatus() {
 	s.statusInfo.Status = queue.None
 }
 
-func NewServiceDeployJob(service keystorage.Service, deployService deploy.Service, applicationId int) ServiceDeployJob {
+func NewServiceDeployJob(service keystorage.Service, deployService deploy.Service, applicationId int, walletService wallet.Service) ServiceDeployJob {
 	return ServiceDeployJob{
 		id:                applicationId,
 		keyStorageService: service,
 		deployService:     deployService,
+		walletService:     walletService,
 	}
 }
 
@@ -398,20 +399,4 @@ func (s *ServiceDeployJob) Run(sc chan queue.StatusInfo) (queue.StatusInfo, erro
 
 func (s *ServiceDeployJob) Status() queue.StatusInfo {
 	return s.statusInfo
-}
-
-func getSS58AuthDataWithKeyringPair(keyringPair signature.KeyringPair) string {
-	ss58Address := keyringPair.Address
-	data := uuid.New().String()
-	signDataHex := hex.EncodeToString(signWithKeyringPair(keyringPair, []byte(data)))
-	return fmt.Sprintf("%s:%s:%s", ss58Address, data, signDataHex)
-}
-
-func signWithKeyringPair(keyringPair signature.KeyringPair, data []byte) []byte {
-	signData, err := keyringPair.Sign(data)
-	if err != nil {
-		log.Errorf("signature.Sign error: %s", err)
-		return nil
-	}
-	return signData
 }
