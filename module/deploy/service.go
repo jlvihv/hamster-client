@@ -12,6 +12,7 @@ import (
 	"hamster-client/module/application"
 	"hamster-client/module/keystorage"
 	"hamster-client/module/p2p"
+	"hamster-client/module/wallet"
 	"hamster-client/utils"
 	"net/url"
 	"strconv"
@@ -25,10 +26,11 @@ type ServiceImpl struct {
 	keyStorageService keystorage.Service
 	accountService    account.Service
 	p2pServer         p2p.Service
+	walletService     wallet.Service
 }
 
-func NewServiceImpl(ctx context.Context, httpUtil *utils.HttpUtil, db *gorm.DB, keyStorageService *keystorage.Service, accountService account.Service, p2pServer p2p.Service) ServiceImpl {
-	return ServiceImpl{ctx, httpUtil, db, *keyStorageService, accountService, p2pServer}
+func NewServiceImpl(ctx context.Context, httpUtil *utils.HttpUtil, db *gorm.DB, keyStorageService *keystorage.Service, accountService account.Service, p2pServer p2p.Service, walletService wallet.Service) ServiceImpl {
+	return ServiceImpl{ctx, httpUtil, db, *keyStorageService, accountService, p2pServer, walletService}
 }
 
 func (s *ServiceImpl) DeployTheGraph(id int, jsonData string) (bool, error) {
@@ -62,15 +64,17 @@ func (s *ServiceImpl) DeployTheGraph(id int, jsonData string) (bool, error) {
 	sendData.IndexerAddress = param.Deployment.IndexerAddress
 	sendData.NodeEthereumUrl = param.Deployment.NodeEthereumUrl
 	sendData.EthereumNetwork = param.Deployment.EthereumNetwork
-	runtime.LogInfo(s.ctx, "start Deploy the graph")
-	res, err := s.httpUtil.NewRequest().SetBody(sendData).Post(config.Httpprovider)
-	if err != nil {
-		runtime.LogError(s.ctx, "DeployTheGraph http error:"+err.Error())
-		return false, err
+
+	var data application.Application
+	queryResult := s.db.Where("id = ? ", id).First(&data)
+	if queryResult.Error != nil {
+		return false, queryResult.Error
 	}
-	if !res.IsSuccess() {
-		runtime.LogError(s.ctx, "DeployTheGraph Response error: "+res.Status())
-		return false, errors.New(res.Status())
+	providerUrl := fmt.Sprintf(config.Httpprovider, data.P2pForwardPort)
+
+	err = s.deployApi(sendData, providerUrl)
+	if err != nil {
+		return false, err
 	}
 	//Modification status is in deployment
 	result := s.db.Model(application.Application{}).Where("id = ?", id).Update("status", config.IN_DEPLOYMENT).Error
@@ -80,6 +84,25 @@ func (s *ServiceImpl) DeployTheGraph(id int, jsonData string) (bool, error) {
 	go s.queryDeployStatus(id)
 	return true, nil
 }
+
+func (s *ServiceImpl) deployApi(sendData DeployParams, url string) error {
+	runtime.LogInfo(s.ctx, "start Deploy the graph")
+	pair, err := s.walletService.GetWalletKeypair()
+	if err != nil {
+		return err
+	}
+	res, err := s.httpUtil.NewRequest().SetHeader("SS58AuthData", utils.GetSS58AuthDataWithKeyringPair(pair)).SetBody(sendData).Post(url)
+	if err != nil {
+		runtime.LogError(s.ctx, "DeployTheGraph http error:"+err.Error())
+		return err
+	}
+	if !res.IsSuccess() {
+		runtime.LogError(s.ctx, "DeployTheGraph Response error: "+res.Status())
+		return errors.New(res.Status())
+	}
+	return nil
+}
+
 func (s *ServiceImpl) DeployGraph(id int, sendData DeployParams) (bool, error) {
 	var data application.Application
 	queryResult := s.db.Where("id = ? ", id).First(&data)
@@ -88,14 +111,10 @@ func (s *ServiceImpl) DeployGraph(id int, sendData DeployParams) (bool, error) {
 	}
 	providerUrl := fmt.Sprintf(config.Httpprovider, data.P2pForwardPort)
 	fmt.Println("start Deploy the graph:")
-	res, err := s.httpUtil.NewRequest().SetBody(sendData).Post(providerUrl)
+	err := s.deployApi(sendData, providerUrl)
 	if err != nil {
 		fmt.Println("DeployTheGraph http error:", err.Error())
 		return false, err
-	}
-	if !res.IsSuccess() {
-		fmt.Println("DeployTheGraph Response error: ", res.Status())
-		return false, errors.New(res.Status())
 	}
 	//Modification status is in deployment
 	result := s.db.Model(application.Application{}).Where("id = ?", id).Update("status", config.IN_DEPLOYMENT).Error
@@ -124,26 +143,41 @@ func (s *ServiceImpl) SaveDeployInfo(id int, json string) (bool, error) {
 }
 
 func (g *ServiceImpl) QueryGraphStatus(id int, serviceName ...string) (int, error) {
-	var data Result
+
 	var application application.Application
 	queryResult := g.db.Where("id = ? ", id).First(&application)
 	if queryResult.Error != nil {
 		return config.RequestStatusFailed, queryResult.Error
 	}
 	providerUrl := fmt.Sprintf(config.HttpGraphStatus, application.P2pForwardPort)
+	data, err := g.graphStatusApi(providerUrl, serviceName...)
+	if err != nil {
+		return config.RequestStatusFailed, err
+	}
+	return data.Result, nil
+}
+
+func (g *ServiceImpl) graphStatusApi(providerUrl string, serviceName ...string) (*Result, error) {
+	// SetHeader("SS58AuthData", utils.GetSS58AuthDataWithKeyringPair(pair))).
+	pair, err := g.walletService.GetWalletKeypair()
+	if err != nil {
+		return nil, err
+	}
+	var data Result
 	res, err := g.httpUtil.NewRequest().
 		SetQueryParamsFromValues(url.Values{"serviceName": serviceName}).
+		SetHeader("SS58AuthData", utils.GetSS58AuthDataWithKeyringPair(pair)).
 		SetResult(&data).
 		Get(providerUrl)
 	if err != nil {
 		runtime.LogError(g.ctx, "DeployTheGraph http error:"+err.Error())
-		return config.RequestStatusFailed, err
+		return nil, err
 	}
 	if !res.IsSuccess() {
 		runtime.LogError(g.ctx, "DeployTheGraph Response error: "+res.Status())
-		return config.RequestStatusFailed, errors.New(fmt.Sprintf("Query status request failed. The request status is:%s", res.Status()))
+		return nil, errors.New(fmt.Sprintf("Query status request failed. The request status is:%s", res.Status()))
 	}
-	return data.Result, nil
+	return &data, nil
 }
 
 // query deploy graph status

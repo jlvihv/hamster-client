@@ -1,4 +1,4 @@
-package pallet
+package utils
 
 import (
 	"encoding/json"
@@ -11,8 +11,6 @@ import (
 	"math/big"
 	"testing"
 )
-
-const ()
 
 func TestKeyPair(t *testing.T) {
 	encoded := "cIQvvGijrfWCEF0pXvOsclvuDq+KHdIrpKsnFA0t4mwAgAAAAQAAAAgAAAAcszXmqxjls8lM/BRmBYfmhy/1niUWez0xnR7WbAqlpHETbGdxmvKUsYLlKUZTQ6pPpxVN76CZiGLON0icRbqMcesFj9GmIUtabT/Exyxg/VGzmwYT8gbdcDlyJ3fb63+6COYo1F4ObHYxDKJkSML11n1NUo6nKKH/sSBKSwXnShjUx5NWtwXzR7YVIZLFICixoK2gBLftusdYBM+V"

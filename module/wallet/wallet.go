@@ -1,6 +1,7 @@
 package wallet
 
 import (
+	"github.com/centrifuge/go-substrate-rpc-client/v4/signature"
 	"gorm.io/gorm"
 )
 
@@ -41,6 +42,6 @@ type Service interface {
 	SaveWallet(address string, json string, passphrase string) (bool, error)
 	// DeleteWallet delete wallet information
 	DeleteWallet() (bool, error)
-	// GetWalletJson get wallet json struct
-	GetWalletJson() (WalletJson, string, error)
+	// GetWalletKeypair get wallet keypair struct
+	GetWalletKeypair() (signature.KeyringPair, error)
 }

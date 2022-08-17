@@ -1,4 +1,4 @@
-package pallet
+package utils
 
 import (
 	"bytes"

@@ -113,7 +113,7 @@ func (a *App) initService() {
 	a.WalletService = &walletServiceImpl
 	keyStorageServiceImpl := keystorage.NewServiceImpl(a.ctx, a.gormDB)
 	a.KeyStorageService = &keyStorageServiceImpl
-	deployServiceImpl := deploy.NewServiceImpl(a.ctx, a.httpUtil, a.gormDB, a.KeyStorageService, a.AccountService, a.P2pService)
+	deployServiceImpl := deploy.NewServiceImpl(a.ctx, a.httpUtil, a.gormDB, a.KeyStorageService, a.AccountService, a.P2pService, a.WalletService)
 	a.DeployService = &deployServiceImpl
 	applicationServiceImpl := application.NewServiceImpl(a.ctx, a.gormDB)
 	a.ApplicationService = &applicationServiceImpl

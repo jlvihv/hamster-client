@@ -3,8 +3,10 @@ package wallet
 import (
 	"context"
 	"encoding/json"
+	"github.com/centrifuge/go-substrate-rpc-client/v4/signature"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"gorm.io/gorm"
+	"hamster-client/utils"
 )
 
 type ServiceImpl struct {
@@ -53,15 +55,20 @@ func (w *ServiceImpl) DeleteWallet() (bool, error) {
 	return true, nil
 }
 
-func (w *ServiceImpl) GetWalletJson() (WalletJson, string, error) {
+func (w *ServiceImpl) GetWalletKeypair() (signature.KeyringPair, error) {
 	var wallet Wallet
 	result := w.db.First(&wallet)
 	if result.Error != nil {
 		runtime.LogError(w.ctx, "GetWallet error")
-		return WalletJson{}, "", result.Error
+		return signature.KeyringPair{}, result.Error
 	}
 
 	var walletJson WalletJson
 	err := json.Unmarshal([]byte(wallet.AddressJson), &walletJson)
-	return walletJson, wallet.Passphrase, err
+	if err != nil {
+		runtime.LogError(w.ctx, "GetWallet error")
+		return signature.KeyringPair{}, err
+	}
+	return utils.KeyringPairFromEncoded(walletJson.Encoded, wallet.Passphrase, 42)
+
 }
