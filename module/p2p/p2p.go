@@ -219,12 +219,6 @@ func (c *P2pClient) Listen(protoOpt string, port int) error {
 // Forward connect p2p network to remote nodes / map to local port
 func (c *P2pClient) Forward(protoOpt string, port int, peerId string) error {
 
-	fmt.Println("======================")
-	fmt.Println("forward : protoOpt: ", protoOpt)
-	fmt.Println("forward : port: ", port)
-	fmt.Println("forward : peerId: ", peerId)
-	fmt.Println("======================")
-
 	if err := c.CheckForwardHealth(protoOpt, peerId); err != nil {
 		var nodes []string
 		api := CreateApi()
@@ -258,16 +252,44 @@ func (c *P2pClient) Forward(protoOpt string, port int, peerId string) error {
 		return err
 	}
 
-	targets, err := parseIpfsAddr(targetOpt)
+	targetAddrInfo, err := parseIpfsAddr(targetOpt)
 	protoId := protocol.ID(protoOpt)
 
-	err = forwardLocal(context.Background(), c.P2P, c.Host.Peerstore(), protoId, listen, targets)
+	c.P2P.ListenersP2P.Lock()
+	defer c.P2P.ListenersP2P.Unlock()
+
+	target, err := ma.NewMultiaddr(targetOpt)
+
+	listeners := c.filterListener(c.P2P.ListenersLocal, func(listener ipfsp2p.Listener) bool {
+		return listener.Protocol() == protoId && listener.ListenAddress().String() == listen.String() && listener.TargetAddress().String() == target.String()
+	})
+
+	if len(listeners) > 0 {
+		return nil
+	}
+	err = forwardLocal(context.Background(), c.P2P, c.Host.Peerstore(), protoId, listen, targetAddrInfo)
 	if err != nil {
 		log.Println(err)
 		return err
 	}
+	fmt.Println("======================")
+	fmt.Println("forward : protoOpt: ", protoOpt)
+	fmt.Println("forward : port: ", port)
+	fmt.Println("forward : peerId: ", peerId)
+	fmt.Println("======================")
 	fmt.Println("remote_node" + peerId + ",forward to" + listenOpt + "success")
 	return err
+}
+
+func (c *P2pClient) filterListener(listeners *ipfsp2p.Listeners, matchFunc func(listener ipfsp2p.Listener) bool) []ipfsp2p.Listener {
+	todo := make([]ipfsp2p.Listener, 0)
+	for _, l := range listeners.Listeners {
+		if matchFunc(l) {
+			todo = append(todo, l)
+		}
+	}
+	return todo
+
 }
 
 func (c *P2pClient) ConnectCircuit(circuitPeer, targetPeer string) error {

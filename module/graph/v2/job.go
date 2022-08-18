@@ -19,9 +19,17 @@ import (
 	"hamster-client/utils"
 	"math/big"
 	"strconv"
-	"strings"
+	"sync"
 	"time"
 )
+
+var (
+	mutex sync.RWMutex
+)
+
+func init() {
+	mutex = sync.RWMutex{}
+}
 
 type PullImageJob struct {
 	statusInfo         queue.StatusInfo
@@ -57,6 +65,7 @@ func (j *PullImageJob) Run(sc chan queue.StatusInfo) (queue.StatusInfo, error) {
 		sc <- j.statusInfo
 		return j.statusInfo, err
 	}
+	fmt.Println("pull before: reForwardLink: ", vo.PeerId)
 	err = reForwardLink(j.p2pService, vo.P2pForwardPort, vo.PeerId)
 	if err != nil {
 		fmt.Println("reconnect fail, err is :", err)
@@ -78,6 +87,7 @@ func (j *PullImageJob) Run(sc chan queue.StatusInfo) (queue.StatusInfo, error) {
 			j.statusInfo.Status = queue.Succeeded
 			j.statusInfo.Error = ""
 			sc <- j.statusInfo
+			fmt.Println("========  pull image success ===============")
 			return j.statusInfo, nil
 		} else {
 			time.Sleep(time.Second * 3)
@@ -87,6 +97,7 @@ func (j *PullImageJob) Run(sc chan queue.StatusInfo) (queue.StatusInfo, error) {
 	j.statusInfo.Status = queue.Failed
 	j.statusInfo.Error = "api response fail"
 	sc <- j.statusInfo
+
 	return j.statusInfo, errors.New("api response fail")
 
 }
@@ -410,6 +421,7 @@ func (s *ServiceDeployJob) Run(sc chan queue.StatusInfo) (queue.StatusInfo, erro
 		sc <- s.statusInfo
 		return s.statusInfo, err
 	}
+	fmt.Println("deploy before: reForwardLink")
 	err = reForwardLink(s.p2pService, vo.P2pForwardPort, vo.PeerId)
 	if err != nil {
 		fmt.Println("reconnect fail, err is :", err)
@@ -438,31 +450,6 @@ func (s *ServiceDeployJob) Status() queue.StatusInfo {
 
 func reForwardLink(p2pService p2p.Service, port int, peerId string) error {
 	protocol := "/x/provider"
-	links := p2pService.QueryLinks(protocol)
-	if len(*links) > 0 {
-		for _, value := range *links {
-			listenAddress := value.ListenAddress
-			if listenAddress != "" {
-				lastIndex := strings.LastIndex(listenAddress, "/")
-				listenPort := listenAddress[lastIndex+1 : len(listenAddress)-1]
-				listenPortInt, err := strconv.Atoi(listenPort)
-				if err != nil {
-					continue
-				}
-				if listenPortInt == port {
-					if value.Status {
-						return nil
-					}
-					_, err = p2pService.Close(value.TargetAddress)
-					if err != nil {
-						return err
-					}
-					err := p2pService.LinkByProtocol(protocol, port, peerId)
-					return err
-				}
-			}
-		}
-	}
 	err := p2pService.LinkByProtocol(protocol, port, peerId)
 	return err
 }
