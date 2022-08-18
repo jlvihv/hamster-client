@@ -70,6 +70,7 @@
 
     try {
       await GraphStart(application.value.id, deploymentId);
+      await loadDeployedSubgraphs();
     } catch (error: any) {
       console.log('Deployed Failed', deploymentId);
     } finally {
@@ -94,11 +95,14 @@
     perPage: 20,
   });
 
-  onMounted(async () => {
-    loadSubgraphList();
-
+  const loadDeployedSubgraphs = async () => {
     // Get deployed subgraphs
     const { info } = await GraphRules(application.value.id);
     deployedSubgraphs.value = info;
+  };
+
+  onMounted(() => {
+    loadSubgraphList();
+    loadDeployedSubgraphs();
   });
 </script>
