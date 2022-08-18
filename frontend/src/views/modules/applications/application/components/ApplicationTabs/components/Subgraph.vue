@@ -14,9 +14,14 @@
       <Button
         class="text-[#63A0FA] text-[14px] mt-[20px] border border-[#63A0FA] rounded-[4px] h-[30px] !min-w-[100px]"
         :loading="subgraphDeployLoading[getSubgraphIpfsHash(item)]"
+        :disabled="deployedSubgraphIdentifiers.includes(getSubgraphIpfsHash(item))"
         @click="handleDeploySubgraph(item)"
       >
-        {{ t('applications.see.start') }}
+        {{
+          deployedSubgraphIdentifiers.includes(getSubgraphIpfsHash(item))
+            ? t('applications.see.deployed')
+            : t('applications.see.start')
+        }}
       </Button>
     </div>
   </div>
@@ -35,15 +40,12 @@
 </template>
 
 <script lang="ts" setup>
-  import { onMounted, reactive, toRefs } from 'vue';
+  import { onMounted, reactive, ref, computed, toRefs } from 'vue';
   import { useI18n } from '/@/hooks/web/useI18n';
   import { useLoadMore } from '/@/hooks/web/useLoadMore';
-  import {
-    createSubgraphClient,
-    fetchSubgraphs,
-    // deploySubgraph,
-  } from '/@/utils/thegraphUtil/subgraph';
+  import { createSubgraphClient, fetchSubgraphs } from '/@/utils/thegraphUtil/subgraph';
   import { shortenAddress, pluginConfigs } from '/@/utils/thegraphUtil';
+  import { GraphStart, GraphRules } from '/@wails/go/app/Graph';
   import { formatfromWei } from '/@/utils/web3Util';
   import { Button } from 'ant-design-vue';
 
@@ -54,22 +56,21 @@
 
   const { t } = useI18n();
 
-  // client for deploy
-  // const clientUrl = `localhost://${application.value.cliForwardPort}`;
-  const clientUrl = 'http://137.184.188.49:49154';
-  const client = createSubgraphClient(clientUrl);
-
-  // const deployedSubgraphs = reactive([]);
+  const deployedSubgraphs = ref([]);
+  const deployedSubgraphIdentifiers = computed(() =>
+    deployedSubgraphs.value.map((x) => x.identifier),
+  );
   const subgraphDeployLoading = reactive<Record<string, boolean>>({});
 
   const getSubgraphIpfsHash = (item: any) => item.currentVersion.subgraphDeployment.ipfsHash;
-  const handleDeploySubgraph = (item: any) => {
+  const handleDeploySubgraph = async (item: any) => {
     const deploymentId = getSubgraphIpfsHash(item);
 
     subgraphDeployLoading[deploymentId] = true;
 
     try {
-      deploySubgraph(client, deploymentId);
+      await GraphStart(application.value.id, deploymentId);
+      await loadDeployedSubgraphs();
     } catch (error: any) {
       console.log('Deployed Failed', deploymentId);
     } finally {
@@ -94,7 +95,14 @@
     perPage: 20,
   });
 
-  onMounted(async () => {
+  const loadDeployedSubgraphs = async () => {
+    // Get deployed subgraphs
+    const { info } = await GraphRules(application.value.id);
+    deployedSubgraphs.value = info;
+  };
+
+  onMounted(() => {
     loadSubgraphList();
+    loadDeployedSubgraphs();
   });
 </script>
