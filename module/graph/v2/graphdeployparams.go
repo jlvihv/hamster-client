@@ -34,7 +34,6 @@ type Service interface {
 	SaveGraphDeployParameterAndApply(data AddParam) (AddApplicationVo, error)
 	DeleteGraphDeployParameterAndApply(id int) (bool, error)
 	DeployGraphJob(applicationId int) error
-	GraphConnect(port int) error
-	GraphStart(port int, deploymentID string) error
-	GraphRules(port int) ([]map[string]interface{}, error)
+	GraphStart(appID int, deploymentID string) error
+	GraphRules(appID int) ([]GraphRule, error)
 }

@@ -34,19 +34,15 @@ func (g *Graph) CliLink(applicationId int) (int, error) {
 	return g.cliService.CliLink(applicationId)
 }
 
-func (g *Graph) GraphConnect() error {
-	return g.graphV2Service.GraphConnect(34003)
+func (g *Graph) GraphStart(applicationId int, deploymentID string) error {
+	return g.graphV2Service.GraphStart(applicationId, deploymentID)
 }
 
-func (g *Graph) GraphStart(deploymentID string) error {
-	return g.graphV2Service.GraphStart(34003, deploymentID)
-}
-
-func (g *Graph) GraphRules() (GraphRulesInfo, error) {
-	info, err := g.graphV2Service.GraphRules(34003)
+func (g *Graph) GraphRules(applicationId int) (GraphRulesInfo, error) {
+	info, err := g.graphV2Service.GraphRules(applicationId)
 	return GraphRulesInfo{Info: info}, err
 }
 
 type GraphRulesInfo struct {
-	Info []map[string]interface{} `json:"info"`
+	Info []graphV2.GraphRule `json:"info"`
 }

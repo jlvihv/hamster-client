@@ -86,7 +86,7 @@ func TestDeploy(t *testing.T) {
 
 func TestGraphRules(t *testing.T) {
 	g := getGraphParamService()
-	rules, err := g.GraphRules(34003)
+	rules, err := g.GraphRules(4)
 	if err != nil {
 		t.Error(err)
 	}
@@ -95,17 +95,9 @@ func TestGraphRules(t *testing.T) {
 	}
 }
 
-func TestGraphConnect(t *testing.T) {
-	g := getGraphParamService()
-	err := g.GraphConnect(34003)
-	if err != nil {
-		t.Error(err)
-	}
-}
-
 func TestGraphStart(t *testing.T) {
 	g := getGraphParamService()
-	err := g.GraphStart(34003, "QmVqMeQUwvQ3XjzCYiMhRvQjRiQLGpVt8C3oHgvDi3agJ2")
+	err := g.GraphStart(4, "QmVqMeQUwvQ3XjzCYiMhRvQjRiQLGpVt8C3oHgvDi3agJ2")
 	if err != nil {
 		t.Error(err)
 	}
