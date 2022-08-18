@@ -115,10 +115,10 @@ func (a *App) initService() {
 	a.KeyStorageService = &keyStorageServiceImpl
 	deployServiceImpl := deploy.NewServiceImpl(a.ctx, a.httpUtil, a.gormDB, a.KeyStorageService, a.P2pService, a.WalletService, a.ApplicationService)
 	a.DeployService = &deployServiceImpl
-	graphDeployParamServiceImpl := param.NewServiceImpl(a.ctx, a.gormDB, *a.KeyStorageService, a.AccountService, a.ApplicationService, a.P2pService, a.DeployService, a.WalletService)
-	a.GraphDeployParamService = &graphDeployParamServiceImpl
 	queueImpl := queue.NewServiceImpl()
 	a.QueueService = queueImpl
+	graphDeployParamServiceImpl := param.NewServiceImpl(a.ctx, a.gormDB, *a.KeyStorageService, a.AccountService, a.ApplicationService, a.P2pService, a.DeployService, a.WalletService, a.QueueService)
+	a.GraphDeployParamService = &graphDeployParamServiceImpl
 	cliServiceImpl := cli.NewServiceImpl(a.ctx, a.gormDB, *a.KeyStorageService, a.AccountService, a.ApplicationService, a.P2pService, a.DeployService)
 	a.CliService = &cliServiceImpl
 }
