@@ -113,9 +113,9 @@ func (g *ServiceImpl) deployGraphJob(applicationId int, networkUrl string) {
 	substrateApi, _ := gsrpc.NewSubstrateAPI(accountInfo.WsUrl)
 	waitResourceJob, _ := NewWaitResourceJob(substrateApi, g.accountService, g.applicationService, g.p2pServer, applicationId, g.walletService)
 
-	pullJob := NewPullImageJob(g.applicationService, applicationId, g.p2pServer, g.accountService,g.walletService)
+	pullJob := NewPullImageJob(g.applicationService, applicationId, g.p2pServer, g.accountService, g.walletService)
 
-	deployJob := NewServiceDeployJob(g.keyStorageService, g.deployService, applicationId, g.p2pServer, g.accountService, g.applicationService,g.walletService)
+	deployJob := NewServiceDeployJob(g.keyStorageService, g.deployService, applicationId, g.p2pServer, g.accountService, g.applicationService, g.walletService)
 
 	queue, err := queue2.NewQueue(applicationId, &stakingJob, waitResourceJob, &pullJob, &deployJob)
 	if err != nil {
@@ -148,9 +148,9 @@ func (g *ServiceImpl) DeployGraphJob(applicationId int) error {
 	substrateApi, _ := gsrpc.NewSubstrateAPI(accountInfo.WsUrl)
 	waitResourceJob, _ := NewWaitResourceJob(substrateApi, g.accountService, g.applicationService, g.p2pServer, applicationId, g.walletService)
 
-	pullJob := NewPullImageJob(g.applicationService, applicationId, g.p2pServer, g.accountService,g.walletService)
+	pullJob := NewPullImageJob(g.applicationService, applicationId, g.p2pServer, g.accountService, g.walletService)
 
-	deployJob := NewServiceDeployJob(g.keyStorageService, g.deployService, applicationId, g.p2pServer, g.accountService, g.applicationService,g.walletService)
+	deployJob := NewServiceDeployJob(g.keyStorageService, g.deployService, applicationId, g.p2pServer, g.accountService, g.applicationService, g.walletService)
 
 	queue, err := queue2.NewQueue(applicationId, &stakingJob, waitResourceJob, &pullJob, &deployJob)
 	if err != nil {
@@ -167,25 +167,12 @@ func (g *ServiceImpl) DeployGraphJob(applicationId int) error {
 	go queue.Start(channel)
 	return nil
 }
-func (g *ServiceImpl) GraphConnect(port int) error {
-	keyringPair, err := g.walletService.GetWalletKeypair()
-	if err != nil {
-		return err
-	}
-	url := fmt.Sprintf("http://localhost:%d/api/v1/thegraph/connect", port)
-	req := utils.NewHttp().NewRequest()
-	req.SetHeader("SS58AuthData", utils.GetSS58AuthDataWithKeyringPair(keyringPair))
-	resp, err := req.Get(url)
-	if err != nil {
-		return err
-	}
-	if resp.IsSuccess() {
-		return nil
-	}
-	return parseResponseError(resp)
-}
 
-func (g *ServiceImpl) GraphStart(port int, deploymentID string) error {
+func (g *ServiceImpl) GraphStart(appID int, deploymentID string) error {
+	port, err := g.getP2pPort(appID)
+	if err != nil {
+		return err
+	}
 	keyringPair, err := g.walletService.GetWalletKeypair()
 	if err != nil {
 		return err
@@ -203,7 +190,11 @@ func (g *ServiceImpl) GraphStart(port int, deploymentID string) error {
 	return parseResponseError(resp)
 }
 
-func (g *ServiceImpl) GraphRules(port int) ([]map[string]interface{}, error) {
+func (g *ServiceImpl) GraphRules(appID int) ([]GraphRule, error) {
+	port, err := g.getP2pPort(appID)
+	if err != nil {
+		return nil, err
+	}
 	keyringPair, err := g.walletService.GetWalletKeypair()
 	if err != nil {
 		return nil, err
@@ -215,21 +206,15 @@ func (g *ServiceImpl) GraphRules(port int) ([]map[string]interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	if resp.IsSuccess() {
-		var result Result
-		err := json.Unmarshal(resp.Body(), &result)
-		if err != nil {
-			return nil, err
-		}
-		resultTmp := result.Result.([]interface{})
-		var rules []map[string]interface{}
-		for i := range resultTmp {
-			rule := resultTmp[i].(map[string]interface{})
-			rules = append(rules, rule)
-		}
-		return rules, nil
+	if !resp.IsSuccess() {
+		return nil, parseResponseError(resp)
 	}
-	return nil, parseResponseError(resp)
+	var result Result
+	err = json.Unmarshal(resp.Body(), &result)
+	if err != nil {
+		return nil, err
+	}
+	return result.Result, nil
 }
 
 func parseResponseError(resp *resty.Response) error {
@@ -245,5 +230,29 @@ type Result struct {
 	Code    uint64      `json:"code"`
 	Type    string      `json:"type"`
 	Message string      `json:"message"`
-	Result  interface{} `json:"result"`
+	Result  []GraphRule `json:"result"`
+}
+
+type GraphRule struct {
+	AllocationAmount        string `json:"allocationAmount"`
+	AllocationLifetime      string `json:"allocationLifetime"`
+	AutoRenewal             bool   `json:"autoRenewal"`
+	DecisionBasis           string `json:"decisionBasis"`
+	Identifier              string `json:"identifier"`
+	IdentifierType          string `json:"identifierType"`
+	MaxAllocationPercentage string `json:"maxAllocationPercentage"`
+	MaxSignal               string `json:"maxSignal"`
+	MinAverageQueryFees     string `json:"minAverageQueryFees"`
+	MinSignal               string `json:"minSignal"`
+	MinStake                string `json:"minStake"`
+	ParallelAllocations     string `json:"parallelAllocations"`
+	RequireSupported        bool   `json:"requireSupported"`
+}
+
+func (g *ServiceImpl) getP2pPort(appID int) (int, error) {
+	vo, err := g.applicationService.QueryApplicationById(appID)
+	if err != nil {
+		return 0, err
+	}
+	return vo.P2pForwardPort, nil
 }
