@@ -6,6 +6,18 @@ export function CliLink(arg1) {
   return window['go']['app']['Graph']['CliLink'](arg1);
 }
 
+export function GraphConnect() {
+  return window['go']['app']['Graph']['GraphConnect']();
+}
+
+export function GraphRules() {
+  return window['go']['app']['Graph']['GraphRules']();
+}
+
+export function GraphStart(arg1) {
+  return window['go']['app']['Graph']['GraphStart'](arg1);
+}
+
 export function QueryApplyAndParams(arg1) {
   return window['go']['app']['Graph']['QueryApplyAndParams'](arg1);
 }

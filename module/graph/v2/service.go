@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	gsrpc "github.com/centrifuge/go-substrate-rpc-client/v4"
+	"github.com/go-resty/resty/v2"
 	"gorm.io/gorm"
 	"hamster-client/config"
 	"hamster-client/module/account"
@@ -15,6 +16,7 @@ import (
 	"hamster-client/module/p2p"
 	queue2 "hamster-client/module/queue"
 	"hamster-client/module/wallet"
+	"hamster-client/utils"
 	"strconv"
 )
 
@@ -164,4 +166,84 @@ func (g *ServiceImpl) DeployGraphJob(applicationId int) error {
 	}()
 	go queue.Start(channel)
 	return nil
+}
+func (g *ServiceImpl) GraphConnect(port int) error {
+	keyringPair, err := g.walletService.GetWalletKeypair()
+	if err != nil {
+		return err
+	}
+	url := fmt.Sprintf("http://localhost:%d/api/v1/thegraph/connect", port)
+	req := utils.NewHttp().NewRequest()
+	req.SetHeader("SS58AuthData", utils.GetSS58AuthDataWithKeyringPair(keyringPair))
+	resp, err := req.Get(url)
+	if err != nil {
+		return err
+	}
+	if resp.IsSuccess() {
+		return nil
+	}
+	return parseResponseError(resp)
+}
+
+func (g *ServiceImpl) GraphStart(port int, deploymentID string) error {
+	keyringPair, err := g.walletService.GetWalletKeypair()
+	if err != nil {
+		return err
+	}
+	url := fmt.Sprintf("http://localhost:%d/api/v1/thegraph/start", port)
+	req := utils.NewHttp().NewRequest()
+	req.SetHeader("SS58AuthData", utils.GetSS58AuthDataWithKeyringPair(keyringPair))
+	resp, err := req.Get(fmt.Sprintf("%s?deploymentID=%s", url, deploymentID))
+	if err != nil {
+		return err
+	}
+	if resp.IsSuccess() {
+		return nil
+	}
+	return parseResponseError(resp)
+}
+
+func (g *ServiceImpl) GraphRules(port int) ([]map[string]interface{}, error) {
+	keyringPair, err := g.walletService.GetWalletKeypair()
+	if err != nil {
+		return nil, err
+	}
+	url := fmt.Sprintf("http://localhost:%d/api/v1/thegraph/rules", port)
+	req := utils.NewHttp().NewRequest()
+	req.SetHeader("SS58AuthData", utils.GetSS58AuthDataWithKeyringPair(keyringPair))
+	resp, err := req.Get(url)
+	if err != nil {
+		return nil, err
+	}
+	if resp.IsSuccess() {
+		var result Result
+		err := json.Unmarshal(resp.Body(), &result)
+		if err != nil {
+			return nil, err
+		}
+		resultTmp := result.Result.([]interface{})
+		var rules []map[string]interface{}
+		for i := range resultTmp {
+			rule := resultTmp[i].(map[string]interface{})
+			rules = append(rules, rule)
+		}
+		return rules, nil
+	}
+	return nil, parseResponseError(resp)
+}
+
+func parseResponseError(resp *resty.Response) error {
+	var result Result
+	err := json.Unmarshal(resp.Body(), &result)
+	if err != nil {
+		return fmt.Errorf("%s", resp.Body())
+	}
+	return fmt.Errorf("%s", result.Message)
+}
+
+type Result struct {
+	Code    uint64      `json:"code"`
+	Type    string      `json:"type"`
+	Message string      `json:"message"`
+	Result  interface{} `json:"result"`
 }

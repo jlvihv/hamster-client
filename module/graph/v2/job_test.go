@@ -83,3 +83,56 @@ func TestDeploy(t *testing.T) {
 
 	fmt.Println(info)
 }
+
+func TestGraphRules(t *testing.T) {
+	g := getGraphParamService()
+	rules, err := g.GraphRules(34003)
+	if err != nil {
+		t.Error(err)
+	}
+	for _, v := range rules {
+		fmt.Println(v)
+	}
+}
+
+func TestGraphConnect(t *testing.T) {
+	g := getGraphParamService()
+	err := g.GraphConnect(34003)
+	if err != nil {
+		t.Error(err)
+	}
+}
+
+func TestGraphStart(t *testing.T) {
+	g := getGraphParamService()
+	err := g.GraphStart(34003, "QmVqMeQUwvQ3XjzCYiMhRvQjRiQLGpVt8C3oHgvDi3agJ2")
+	if err != nil {
+		t.Error(err)
+	}
+}
+
+func getGraphParamService() ServiceImpl {
+	configPath, _ := homedir.Expand("~/.link/")
+	db, err := gorm.Open(sqlite.Open(filepath.Join(configPath, "link.db")), &gorm.Config{})
+	if err != nil {
+		panic("failed to connect database")
+	}
+	err = db.AutoMigrate(
+		&account.Account{},
+		&p2p.P2pConfig{},
+		&resource.Resource{},
+		&wallet.Wallet{},
+		&application.Application{},
+		&graph.GraphParameter{},
+	)
+	ctx := context.Background()
+	httpUtil := utils.NewHttp()
+	accountService := account.NewServiceImpl(ctx, db, httpUtil)
+	applicationService := application.NewServiceImpl(ctx, db)
+	p2pService := p2p.NewServiceImpl(ctx, db)
+	keyStorageService := keystorage.NewServiceImpl(ctx, db)
+	walletService := wallet.NewServiceImpl(ctx, db)
+	deployService := deploy.NewServiceImpl(ctx, httpUtil, db, &keyStorageService, &accountService, &p2pService, &walletService)
+	graphParamService := NewServiceImpl(ctx, db, keyStorageService, &accountService, &applicationService, &p2pService, &deployService, &walletService)
+	return graphParamService
+}
