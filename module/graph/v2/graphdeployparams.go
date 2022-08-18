@@ -2,6 +2,7 @@ package v2
 
 import (
 	"hamster-client/module/application"
+	"hamster-client/module/queue"
 	"time"
 )
 
@@ -30,10 +31,15 @@ type AddApplicationVo struct {
 	Result bool `json:"result"`
 }
 
+type QueueInfo struct {
+	Info []queue.StatusInfo `json:"info"`
+}
+
 type Service interface {
 	SaveGraphDeployParameterAndApply(data AddParam) (AddApplicationVo, error)
 	DeleteGraphDeployParameterAndApply(id int) (bool, error)
 	DeployGraphJob(applicationId int) error
+	GetQueueInfo(applicationId int) (QueueInfo, error)
 	GraphStart(appID int, deploymentID string) error
 	GraphRules(appID int) ([]GraphRule, error)
 }

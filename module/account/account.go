@@ -6,14 +6,11 @@ import (
 
 type Account struct {
 	gorm.Model
-	PublicKey  string `json:"publicKey"`
-	WsUrl      string `json:"wsUrl"`
-	OrderIndex int    `json:"orderIndex"`
-	PeerId     string `json:"peerId"`
+	PublicKey string `json:"publicKey"`
+	WsUrl     string `json:"wsUrl"`
 }
 
 type Service interface {
 	GetAccount() (Account, error)
 	SaveAccount(account *Account)
-	SaveOrderIndex(orderIndex int)
 }

@@ -168,6 +168,43 @@ func (g *ServiceImpl) DeployGraphJob(applicationId int) error {
 	return nil
 }
 
+func (g *ServiceImpl) GetQueueInfo(applicationId int) (QueueInfo, error) {
+	var data application.Application
+	result := g.db.Where("id = ? ", applicationId).First(&data)
+	if result.Error != nil {
+		fmt.Println("query application failed,error is: ", result.Error)
+		return QueueInfo{}, result.Error
+	}
+	pluginDeployInfo := config.PluginMap[data.SelectNodeType]
+	stakingJob := NewGraphStakingJob(g.keyStorageService, applicationId, pluginDeployInfo.EndpointUrl)
+	var accountInfo account.Account
+	accountInfo, err := g.accountService.GetAccount()
+	if err != nil {
+		accountInfo.WsUrl = config.DefaultPolkadotNode
+	}
+	substrateApi, _ := gsrpc.NewSubstrateAPI(accountInfo.WsUrl)
+	waitResourceJob, _ := NewWaitResourceJob(substrateApi, g.accountService, g.applicationService, g.p2pServer, applicationId, g.walletService)
+
+	pullJob := NewPullImageJob(g.applicationService, applicationId, g.p2pServer, g.accountService, g.walletService)
+
+	deployJob := NewServiceDeployJob(g.keyStorageService, g.deployService, applicationId, g.p2pServer, g.accountService, g.applicationService, g.walletService)
+
+	queue, err := queue2.NewQueue(applicationId, &stakingJob, waitResourceJob, &pullJob, &deployJob)
+	if err != nil {
+		fmt.Println("new queue failed,err is: ", err)
+		return QueueInfo{}, err
+	}
+	err = queue.LoadStatus(g.db)
+	if err != nil {
+		return QueueInfo{}, err
+	}
+	info, err := queue.GetStatus()
+	if err != nil {
+		return QueueInfo{}, err
+	}
+	return QueueInfo{Info: info}, nil
+}
+
 func (g *ServiceImpl) GraphStart(appID int, deploymentID string) error {
 	port, err := g.getP2pPort(appID)
 	if err != nil {

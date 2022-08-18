@@ -151,3 +151,12 @@ func (a *ServiceImpl) QueryNextCliP2pPort() int {
 	}
 	return data.P2pForwardPort + 1
 }
+
+func (a *ServiceImpl) UpdatePeerIdAndOrderIndex(id, orderIndex int, peerId string) error {
+	var applyData Application
+	result := a.db.Model(applyData).Where("id = ?", id).Updates(Application{OrderIndex: orderIndex, PeerId: peerId})
+	if result.Error != nil {
+		return result.Error
+	}
+	return nil
+}

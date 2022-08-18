@@ -39,13 +39,6 @@ func (a *ServiceImpl) SaveAccount(account *Account) {
 	a.db.Save(&u)
 }
 
-func (a *ServiceImpl) SaveOrderIndex(orderIndex int) {
-	u, _ := a.GetAccount()
-	//save or update account
-	u.OrderIndex = orderIndex
-	a.db.Save(&u)
-}
-
 func (a *ServiceImpl) getUserIdFromToken(accessToken string) (string, error) {
 	token, _, err := new(jwt.Parser).ParseUnverified(accessToken, jwt.MapClaims{})
 	if err != nil {
