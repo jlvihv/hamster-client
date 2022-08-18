@@ -28,7 +28,11 @@
 
             <div
               class="!bg-[#E70000] ant-timeline-item-icon"
-              v-else-if="DictCodeEnum.ApplicationQueueStatus_Failed.is(item.status)"
+              v-else-if="
+                DictCodeEnum.ApplicationQueueStatus_Failed.is(
+                  item.status == undefined ? 3 : item.status,
+                )
+              "
             >
               <SvgIcon class="text-white rounded-[50%]" size="20" name="no" />
             </div>
@@ -50,7 +54,11 @@
           <div
             class="ant-timeline-fail-realod cursor-pointer"
             @click="handleQueueFailed"
-            v-if="DictCodeEnum.ApplicationQueueStatus_Failed.is(item.status)"
+            v-if="
+              DictCodeEnum.ApplicationQueueStatus_Failed.is(
+                item.status == undefined ? 3 : item.status,
+              )
+            "
           >
             <SvgIcon class="text-[#E70000]" size="40" name="reload" />
           </div>

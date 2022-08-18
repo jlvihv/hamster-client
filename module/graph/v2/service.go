@@ -29,10 +29,11 @@ type ServiceImpl struct {
 	p2pServer          p2p.Service
 	deployService      deploy.Service
 	walletService      wallet.Service
+	queueService       queue2.Service
 }
 
-func NewServiceImpl(ctx context.Context, db *gorm.DB, keyStorageService keystorage.Service, accountService account.Service, applicationService application.Service, p2pServer p2p.Service, deployService deploy.Service, walletService wallet.Service) ServiceImpl {
-	return ServiceImpl{ctx, db, keyStorageService, accountService, applicationService, p2pServer, deployService, walletService}
+func NewServiceImpl(ctx context.Context, db *gorm.DB, keyStorageService keystorage.Service, accountService account.Service, applicationService application.Service, p2pServer p2p.Service, deployService deploy.Service, walletService wallet.Service, queueService queue2.Service) ServiceImpl {
+	return ServiceImpl{ctx, db, keyStorageService, accountService, applicationService, p2pServer, deployService, walletService, queueService}
 }
 
 func (g *ServiceImpl) SaveGraphDeployParameterAndApply(addData AddParam) (AddApplicationVo, error) {
@@ -198,9 +199,9 @@ func (g *ServiceImpl) GetQueueInfo(applicationId int) (QueueInfo, error) {
 	if err != nil {
 		return QueueInfo{}, err
 	}
-	info, err := queue.GetStatus()
+	info, err := g.queueService.GetStatusInfo(applicationId)
 	if err != nil {
-		return QueueInfo{}, err
+		return QueueInfo{Info: info}, err
 	}
 	return QueueInfo{Info: info}, nil
 }

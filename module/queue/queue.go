@@ -171,6 +171,10 @@ func (q *queue) LoadStatus(db *gorm.DB) error {
 	statusStorageJson := keystorage.NewServiceImpl(context.Background(), db).Get(DB_KEY_PREFIX + strconv.Itoa(q.id))
 	if statusStorageJson == "" {
 		log.Debugf("status storage not found for queue %d, skip", q.id)
+		for _, j := range q.jobs {
+			statusInfo := j.Status()
+			q.statusInfoMap.Store(statusInfo.Name, statusInfo)
+		}
 		return nil
 	}
 	log.Debugf("load status info from db: %s", statusStorageJson)
