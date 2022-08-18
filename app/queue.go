@@ -1,25 +1,23 @@
 package app
 
-import "hamster-client/module/queue"
+import (
+	graphV2 "hamster-client/module/graph/v2"
+)
 
 type Queue struct {
-	service queue.Service
+	graphV2Service graphV2.Service
 }
 
-func NewQueueApp(service queue.Service) Queue {
+func NewQueueApp(service graphV2.Service) Queue {
 	return Queue{
-		service: service,
+		graphV2Service: service,
 	}
 }
 
-type QueueInfo struct {
-	Info []queue.StatusInfo `json:"info"`
-}
-
-func (q *Queue) GetQueueInfo(id int) (QueueInfo, error) {
-	info, err := q.service.GetStatusInfo(id)
+func (q *Queue) GetQueueInfo(id int) (graphV2.QueueInfo, error) {
+	info, err := q.graphV2Service.GetQueueInfo(id)
 	if err != nil {
-		return QueueInfo{}, err
+		return graphV2.QueueInfo{}, err
 	}
-	return QueueInfo{Info: info}, nil
+	return info, nil
 }

@@ -7,18 +7,19 @@ import (
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"gorm.io/gorm"
 	"hamster-client/config"
-	"hamster-client/module/account"
+	"hamster-client/module/application"
 	"os/exec"
 )
 
 type ServiceImpl struct {
-	ctx       context.Context
-	db        *gorm.DB
-	p2pClient *P2pClient
+	ctx                context.Context
+	db                 *gorm.DB
+	p2pClient          *P2pClient
+	applicationService application.Service
 }
 
-func NewServiceImpl(ctx context.Context, db *gorm.DB) ServiceImpl {
-	return ServiceImpl{ctx: ctx, db: db}
+func NewServiceImpl(ctx context.Context, db *gorm.DB, applicationService application.Service) ServiceImpl {
+	return ServiceImpl{ctx: ctx, db: db, applicationService: applicationService}
 }
 
 // initialize p2p link
@@ -231,15 +232,14 @@ func (s *ServiceImpl) JudgeP2pReconnection() bool {
 	return true
 }
 
-func (s *ServiceImpl) ReconnectionProLink() (bool, error) {
-	var account account.Account
-	result := s.db.First(&account)
-	if result.Error != nil {
-		runtime.LogError(s.ctx, "GetAccount error")
-		return false, result.Error
+func (s *ServiceImpl) ReconnectionProLink(applicationId int) (bool, error) {
+	applicationInfo, err := s.applicationService.QueryApplicationById(applicationId)
+	if err != nil {
+		runtime.LogError(s.ctx, "Get application error")
+		return false, err
 	}
-	if account.PeerId != "" {
-		err := s.ProLink(account.PeerId)
+	if applicationInfo.PeerId != "" {
+		err := s.ProLink(applicationInfo.PeerId)
 		if err != nil {
 			return false, err
 		}

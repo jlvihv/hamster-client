@@ -51,21 +51,13 @@ func (j *PullImageJob) Run(sc chan queue.StatusInfo) (queue.StatusInfo, error) {
 
 	pair, err := j.walletService.GetWalletKeypair()
 	if err != nil {
+		fmt.Println("query wallet fail, err is :", err)
 		j.statusInfo.Status = queue.Failed
 		j.statusInfo.Error = err.Error()
 		sc <- j.statusInfo
 		return j.statusInfo, err
 	}
-
-	accountInfo, err := j.accountService.GetAccount()
-	if err != nil {
-		fmt.Println("query account fail, err is :", err)
-		j.statusInfo.Status = queue.Failed
-		j.statusInfo.Error = err.Error()
-		sc <- j.statusInfo
-		return j.statusInfo, err
-	}
-	err = reForwardLink(j.p2pService, vo.P2pForwardPort, accountInfo.PeerId)
+	err = reForwardLink(j.p2pService, vo.P2pForwardPort, vo.PeerId)
 	if err != nil {
 		fmt.Println("reconnect fail, err is :", err)
 		j.statusInfo.Status = queue.Failed
@@ -103,7 +95,7 @@ func (j *PullImageJob) Status() queue.StatusInfo {
 	return j.statusInfo
 }
 
-func NewPullImageJob(service application.Service, applicationId int, p2pService p2p.Service, accountService account.Service,walletService wallet.Service) PullImageJob {
+func NewPullImageJob(service application.Service, applicationId int, p2pService p2p.Service, accountService account.Service, walletService wallet.Service) PullImageJob {
 	return PullImageJob{
 		applicationId:      applicationId,
 		applicationService: service,
@@ -175,10 +167,10 @@ func (j *WaitResourceJob) Run(sc chan queue.StatusInfo) (queue.StatusInfo, error
 				if err != nil {
 					continue
 				}
-
-				ac, _ := j.accountService.GetAccount()
-				ac.PeerId = string(val.PeerId)
-				j.accountService.SaveAccount(&ac)
+				j.applicationService.UpdatePeerIdAndOrderIndex(j.applicationId, int(val.Index), string(val.PeerId))
+				//ac, _ := j.accountService.GetAccount()
+				//ac.PeerId = string(val.PeerId)
+				//j.accountService.SaveAccount(&ac)
 
 				port := j.applicationService.QueryNextP2pPort()
 
@@ -186,7 +178,7 @@ func (j *WaitResourceJob) Run(sc chan queue.StatusInfo) (queue.StatusInfo, error
 				if err != nil {
 					fmt.Println("query p2p max port fail")
 				}
-				err = j.p2pService.LinkByProtocol("/x/provider", port, ac.PeerId)
+				err = j.p2pService.LinkByProtocol("/x/provider", port, string(val.PeerId))
 
 				if err != nil {
 					fmt.Println("create p2p network forward fail")
@@ -373,7 +365,7 @@ type ServiceDeployJob struct {
 	p2pService         p2p.Service
 	accountService     account.Service
 	applicationService application.Service
-	walletService     wallet.Service
+	walletService      wallet.Service
 }
 
 func (s *ServiceDeployJob) InitStatus() {
@@ -381,7 +373,7 @@ func (s *ServiceDeployJob) InitStatus() {
 	s.statusInfo.Status = queue.None
 }
 
-func NewServiceDeployJob(service keystorage.Service, deployService deploy.Service, applicationId int, p2pService p2p.Service, accountService account.Service, applicationService application.Service,walletService wallet.Service) ServiceDeployJob {
+func NewServiceDeployJob(service keystorage.Service, deployService deploy.Service, applicationId int, p2pService p2p.Service, accountService account.Service, applicationService application.Service, walletService wallet.Service) ServiceDeployJob {
 	return ServiceDeployJob{
 		id:                 applicationId,
 		keyStorageService:  service,
@@ -389,7 +381,7 @@ func NewServiceDeployJob(service keystorage.Service, deployService deploy.Servic
 		p2pService:         p2pService,
 		accountService:     accountService,
 		applicationService: applicationService,
-		walletService:     walletService,
+		walletService:      walletService,
 	}
 }
 
@@ -418,15 +410,7 @@ func (s *ServiceDeployJob) Run(sc chan queue.StatusInfo) (queue.StatusInfo, erro
 		sc <- s.statusInfo
 		return s.statusInfo, err
 	}
-	accountInfo, err := s.accountService.GetAccount()
-	if err != nil {
-		fmt.Println("query account fail, err is :", err)
-		s.statusInfo.Status = queue.Failed
-		s.statusInfo.Error = err.Error()
-		sc <- s.statusInfo
-		return s.statusInfo, err
-	}
-	err = reForwardLink(s.p2pService, vo.P2pForwardPort, accountInfo.PeerId)
+	err = reForwardLink(s.p2pService, vo.P2pForwardPort, vo.PeerId)
 	if err != nil {
 		fmt.Println("reconnect fail, err is :", err)
 		s.statusInfo.Status = queue.Failed

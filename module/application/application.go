@@ -14,6 +14,8 @@ type Application struct {
 	CliForwardPort int            `json:"cliForwardPort"`
 	GrtIncome      int64          `json:"grtIncome"`
 	LeaseTerm      int            `json:"leaseTerm"`
+	PeerId         string         `json:"peerId"`
+	OrderIndex     int            `json:"orderIndex"`
 	CreatedAt      time.Time      `json:"createdAt"`
 	UpdatedAt      time.Time      `json:"updatedAt"`
 	DeletedAt      gorm.DeletedAt `json:"deletedAt" gorm:"index"`
@@ -44,6 +46,7 @@ type ApplyVo struct {
 	LeaseTerm      int       `json:"leaseTerm"`
 	P2pForwardPort int       `json:"p2pForwardPort"`
 	CliForwardPort int       `json:"cliForwardPort"`
+	PeerId         string    `json:"peerId"`
 }
 
 type ListVo struct {
@@ -66,4 +69,5 @@ type Service interface {
 	QueryCliP2pPort(id int) (int, error)
 	QueryNextCliP2pPort() int
 	UpdateApplicationCliForwardPort(id, port int) error
+	UpdatePeerIdAndOrderIndex(id, orderIndex int, peerId string) error
 }

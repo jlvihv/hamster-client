@@ -16,7 +16,6 @@ import (
 	param "hamster-client/module/graph/v2"
 	"hamster-client/module/keystorage"
 	"hamster-client/module/p2p"
-	"hamster-client/module/pallet"
 	"hamster-client/module/queue"
 	"hamster-client/module/resource"
 	"hamster-client/module/wallet"
@@ -36,7 +35,6 @@ type App struct {
 	WalletService           wallet.Service
 	DeployService           deploy.Service
 	ApplicationService      application.Service
-	ChainListener           *pallet.ChainListener
 	GraphParamsService      graph.Service
 	KeyStorageService       *keystorage.Service
 	QueueService            queue.Service
@@ -105,7 +103,9 @@ func (a *App) initService() {
 	a.GraphParamsService = &graphParamServiceImpl
 	accountServiceImpl := account.NewServiceImpl(a.ctx, a.gormDB, a.httpUtil)
 	a.AccountService = &accountServiceImpl
-	p2pServiceImpl := p2p.NewServiceImpl(a.ctx, a.gormDB)
+	applicationServiceImpl := application.NewServiceImpl(a.ctx, a.gormDB)
+	a.ApplicationService = &applicationServiceImpl
+	p2pServiceImpl := p2p.NewServiceImpl(a.ctx, a.gormDB, a.ApplicationService)
 	a.P2pService = &p2pServiceImpl
 	resourceServiceImpl := resource.NewServiceImpl(a.ctx, a.gormDB, a.httpUtil)
 	a.ResourceService = &resourceServiceImpl
@@ -113,16 +113,12 @@ func (a *App) initService() {
 	a.WalletService = &walletServiceImpl
 	keyStorageServiceImpl := keystorage.NewServiceImpl(a.ctx, a.gormDB)
 	a.KeyStorageService = &keyStorageServiceImpl
-	deployServiceImpl := deploy.NewServiceImpl(a.ctx, a.httpUtil, a.gormDB, a.KeyStorageService, a.AccountService, a.P2pService, a.WalletService)
+	deployServiceImpl := deploy.NewServiceImpl(a.ctx, a.httpUtil, a.gormDB, a.KeyStorageService, a.P2pService, a.WalletService, a.ApplicationService)
 	a.DeployService = &deployServiceImpl
-	applicationServiceImpl := application.NewServiceImpl(a.ctx, a.gormDB)
-	a.ApplicationService = &applicationServiceImpl
-	chainListener := pallet.NewChainListener()
-	a.ChainListener = chainListener
-	queueImpl := queue.NewServiceImpl()
-	a.QueueService = queueImpl
 	graphDeployParamServiceImpl := param.NewServiceImpl(a.ctx, a.gormDB, *a.KeyStorageService, a.AccountService, a.ApplicationService, a.P2pService, a.DeployService, a.WalletService)
 	a.GraphDeployParamService = &graphDeployParamServiceImpl
+	queueImpl := queue.NewServiceImpl()
+	a.QueueService = queueImpl
 	cliServiceImpl := cli.NewServiceImpl(a.ctx, a.gormDB, *a.KeyStorageService, a.AccountService, a.ApplicationService, a.P2pService, a.DeployService)
 	a.CliService = &cliServiceImpl
 }
@@ -137,7 +133,7 @@ func (a *App) initApp() {
 	a.ApplicationApp = app.NewApplicationApp(a.ApplicationService, a.GraphDeployParamService)
 	a.GraphApp = app.NewGraphApp(a.GraphParamsService, a.CliService)
 	a.KeyStorageApp = app.NewKeyStorageApp(a.KeyStorageService)
-	a.QueueApp = app.NewQueueApp(a.QueueService)
+	a.QueueApp = app.NewQueueApp(a.GraphDeployParamService)
 }
 
 func initConfigPath() string {
@@ -167,8 +163,6 @@ func (a *App) Startup(context context.Context) {
 	a.initService()
 	//initialize app
 	a.initApp()
-	//a.ChainListener.CancelListen()
-	//a.ChainListener.StartListen(a.gormDB, *a.KeyStorageService, a.DeployService)
 }
 
 // DomReady is called after the front-end dom has been loaded

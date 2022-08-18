@@ -34,7 +34,7 @@ func (c *ServiceImpl) CliLink(applicationId int) (int, error) {
 	if err != nil {
 		return data, err
 	}
-	info, err := c.accountService.GetAccount()
+	info, err := c.applicationService.QueryApplicationById(applicationId)
 	if err != nil {
 		return port, err
 	}

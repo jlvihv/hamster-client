@@ -8,7 +8,6 @@ import (
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"gorm.io/gorm"
 	"hamster-client/config"
-	"hamster-client/module/account"
 	"hamster-client/module/application"
 	"hamster-client/module/keystorage"
 	"hamster-client/module/p2p"
@@ -20,22 +19,22 @@ import (
 )
 
 type ServiceImpl struct {
-	ctx               context.Context
-	httpUtil          *utils.HttpUtil
-	db                *gorm.DB
-	keyStorageService keystorage.Service
-	accountService    account.Service
-	p2pServer         p2p.Service
-	walletService     wallet.Service
+	ctx                context.Context
+	httpUtil           *utils.HttpUtil
+	db                 *gorm.DB
+	keyStorageService  keystorage.Service
+	p2pServer          p2p.Service
+	walletService      wallet.Service
+	applicationService application.Service
 }
 
-func NewServiceImpl(ctx context.Context, httpUtil *utils.HttpUtil, db *gorm.DB, keyStorageService *keystorage.Service, accountService account.Service, p2pServer p2p.Service, walletService wallet.Service) ServiceImpl {
-	return ServiceImpl{ctx, httpUtil, db, *keyStorageService, accountService, p2pServer, walletService}
+func NewServiceImpl(ctx context.Context, httpUtil *utils.HttpUtil, db *gorm.DB, keyStorageService *keystorage.Service, p2pServer p2p.Service, walletService wallet.Service, applicationService application.Service) ServiceImpl {
+	return ServiceImpl{ctx, httpUtil, db, *keyStorageService, p2pServer, walletService, applicationService}
 }
 
 func (s *ServiceImpl) DeployTheGraph(id int, jsonData string) (bool, error) {
 	//Judge whether the account has peerId
-	info, err := s.accountService.GetAccount()
+	info, err := s.applicationService.QueryApplicationById(id)
 	if err != nil {
 		return false, err
 	}
@@ -47,7 +46,7 @@ func (s *ServiceImpl) DeployTheGraph(id int, jsonData string) (bool, error) {
 		}
 		return true, nil
 	}
-	err = s.setupP2p()
+	err = s.setupP2p(info.PeerId)
 	//Determine whether to initialize configuration
 	if err != nil {
 		return false, err
@@ -215,15 +214,7 @@ func (s *ServiceImpl) closeP2p() {
 	}
 }
 
-func (s *ServiceImpl) setupP2p() error {
-
-	info, err := s.accountService.GetAccount()
-	if err != nil {
-		return err
-	}
-
-	peerId := info.PeerId
-
+func (s *ServiceImpl) setupP2p(peerId string) error {
 	_, resultErr := s.p2pServer.GetSetting()
 	if resultErr != nil {
 		err := s.p2pServer.InitSetting()
