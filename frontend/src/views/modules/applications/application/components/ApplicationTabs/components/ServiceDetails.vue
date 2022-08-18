@@ -13,7 +13,11 @@
         {{ DictCodeEnum.ApplicationDeployStatus.getOptionLabel(application.status) }}
       </Col>
       <Col :span="5">{{ deployInfo.initialization?.leaseTerm }}</Col>
-      <Col :span="5">{{ application.selectNodeType || application.plugin }}</Col>
+      <Col :span="5">{{
+        pluginConfigs.find((x) => x.value === application.selectNodeType).label ||
+        application.selectNodeType ||
+        application.plugin
+      }}</Col>
     </Row>
   </div>
   <div class="left-line line-color div-card">
@@ -66,6 +70,7 @@
   import { useRouter } from 'vue-router';
   import { useI18n } from '/@/hooks/web/useI18n';
   import { formatToDateTime } from '/@/utils/dateUtil';
+  import { pluginConfigs } from '/@/utils/thegraphUtil';
   import { DictCodeEnum } from '/@/enums/dictCodeEnum';
   import { DeleteApplication } from '/@wails/go/app/Application';
   import { Button, Row, Col, Modal } from 'ant-design-vue';

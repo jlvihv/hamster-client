@@ -55,6 +55,7 @@ export default {
     thawLeft: 'Thawing time left',
     start: 'Start',
     stop: 'Stop',
+    deployed: 'Deployed',
     serviceInfo: 'Service Information',
     createTime: 'Create Time',
     nodeType: 'Node Type',
