@@ -76,6 +76,7 @@
   import { GetQueueInfo } from '/@wails/go/app/Queue';
   import { DictCodeEnum } from '/@/enums/dictCodeEnum';
   import { Timeline, TimelineItem, Button } from 'ant-design-vue';
+  import { RefreshGraphDeployJob } from '/@wails/go/app/Application';
 
   const props = defineProps({
     applicationId: Number,
@@ -103,8 +104,9 @@
     }[status];
   };
 
-  const handleQueueFailed = () => {
-    console.log('Rerun!');
+  const handleQueueFailed = async () => {
+    const data = await RefreshGraphDeployJob(props.applicationId);
+    console.info(data);
   };
 </script>
 
