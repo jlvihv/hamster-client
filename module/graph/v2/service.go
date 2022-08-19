@@ -166,6 +166,7 @@ func (g *ServiceImpl) DeployGraphJob(applicationId int) error {
 		}
 	}()
 	go queue.Start(channel)
+	<-channel
 	return nil
 }
 

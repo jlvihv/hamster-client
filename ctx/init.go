@@ -8,6 +8,7 @@ import (
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"hamster-client/app"
+	"hamster-client/config"
 	"hamster-client/module/account"
 	"hamster-client/module/application"
 	"hamster-client/module/deploy"
@@ -133,7 +134,7 @@ func (a *App) initApp() {
 	a.ApplicationApp = app.NewApplicationApp(a.ApplicationService, a.GraphDeployParamService)
 	a.GraphApp = app.NewGraphApp(a.GraphParamsService, a.CliService)
 	a.KeyStorageApp = app.NewKeyStorageApp(a.KeyStorageService)
-	a.QueueApp = app.NewQueueApp(a.GraphDeployParamService)
+	a.QueueApp = app.NewQueueApp(a.QueueService)
 }
 
 func initConfigPath() string {
@@ -163,6 +164,7 @@ func (a *App) Startup(context context.Context) {
 	a.initService()
 	//initialize app
 	a.initApp()
+	a.startAllQueue()
 }
 
 // DomReady is called after the front-end dom has been loaded
@@ -173,4 +175,20 @@ func (a *App) DomReady(ctx context.Context) {
 // Shutdown is called at application termination
 func (a *App) Shutdown(ctx context.Context) {
 	// Perform your teardown here
+}
+
+func (a *App) startAllQueue() {
+	fmt.Println("start all queue")
+	list, err := a.ApplicationService.ApplicationList(0, 1000, "", config.ALL)
+	if err != nil {
+		fmt.Println("get ApplicationList error:", err)
+		return
+	}
+	for _, app := range list.Items {
+		err := a.GraphDeployParamService.DeployGraphJob(int(app.ID))
+		if err != nil {
+			fmt.Printf("start queue error: %s, app id: %d", err, app.ID)
+			continue
+		}
+	}
 }
