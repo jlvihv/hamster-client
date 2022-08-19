@@ -91,7 +91,7 @@ func (g *ServiceImpl) DeleteGraphDeployParameterAndApply(id int) (bool, error) {
 		if err := tx.Debug().Where("id = ?", id).Delete(&application.Application{}).Error; err != nil {
 			return err
 		}
-		if err := tx.Debug().Where("applicationId = ?", id).Delete(GraphDeployParameter{}).Error; err != nil {
+		if err := tx.Debug().Where("application_id = ?", id).Delete(GraphDeployParameter{}).Error; err != nil {
 			return err
 		}
 		return nil

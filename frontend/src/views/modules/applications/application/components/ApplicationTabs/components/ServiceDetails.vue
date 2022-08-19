@@ -81,7 +81,7 @@
   });
 
   const { t } = useI18n();
-  const { router } = useRouter();
+  const router = useRouter();
 
   const isLoading = ref(false);
 
