@@ -114,7 +114,7 @@ func (q *queue) Start(done chan struct{}) {
 }
 
 func (q *queue) init() {
-	log.Debugf("init queue %d", q.id)
+	log.Infof("init queue %d", q.id)
 	for _, j := range q.jobs {
 		q.statusInfoMap.Store(j.Status().Name, j.Status())
 	}
@@ -147,7 +147,7 @@ type StatusStorage struct {
 }
 
 func (q *queue) SaveStatus(db *gorm.DB) error {
-	log.Debugf("save status to db for queue %d", q.id)
+	log.Infof("save status to db for queue %d", q.id)
 	info, err := q.GetStatus()
 	if err != nil {
 		log.Errorf("get status failed: %s", err)
@@ -167,17 +167,17 @@ func (q *queue) SaveStatus(db *gorm.DB) error {
 }
 
 func (q *queue) LoadStatus(db *gorm.DB) error {
-	log.Debugf("load status from db for queue %d", q.id)
+	log.Infof("load status from db for queue %d", q.id)
 	statusStorageJson := keystorage.NewServiceImpl(context.Background(), db).Get(DB_KEY_PREFIX + strconv.Itoa(q.id))
 	if statusStorageJson == "" {
-		log.Debugf("status storage not found for queue %d, skip", q.id)
+		log.Infof("status storage not found for queue %d, init", q.id)
 		for _, j := range q.jobs {
 			statusInfo := j.Status()
 			q.statusInfoMap.Store(statusInfo.Name, statusInfo)
 		}
 		return nil
 	}
-	log.Debugf("load status info from db: %s", statusStorageJson)
+	log.Infof("load status info from db: %s", statusStorageJson)
 	statusStorage := new(StatusStorage)
 	err := json.Unmarshal([]byte(statusStorageJson), statusStorage)
 	if err != nil {

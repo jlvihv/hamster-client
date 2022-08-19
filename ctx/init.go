@@ -134,7 +134,7 @@ func (a *App) initApp() {
 	a.ApplicationApp = app.NewApplicationApp(a.ApplicationService, a.GraphDeployParamService)
 	a.GraphApp = app.NewGraphApp(a.GraphParamsService, a.CliService)
 	a.KeyStorageApp = app.NewKeyStorageApp(a.KeyStorageService)
-	a.QueueApp = app.NewQueueApp(a.GraphDeployParamService)
+	a.QueueApp = app.NewQueueApp(a.QueueService)
 }
 
 func initConfigPath() string {
