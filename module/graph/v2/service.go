@@ -245,7 +245,8 @@ func (g *ServiceImpl) GetQueueInfo(applicationId int) (QueueInfo, error) {
 }
 
 func (g *ServiceImpl) GraphStart(appID int, deploymentID string) error {
-	port, err := g.getP2pPort(appID)
+	port, peerId, err := g.getP2pPort(appID)
+	_ = g.p2pServer.LinkByProtocol("/x/provider", port, peerId)
 	if err != nil {
 		return err
 	}
@@ -267,7 +268,10 @@ func (g *ServiceImpl) GraphStart(appID int, deploymentID string) error {
 }
 
 func (g *ServiceImpl) GraphRules(appID int) ([]GraphRule, error) {
-	port, err := g.getP2pPort(appID)
+	port, peerId, err := g.getP2pPort(appID)
+	_ = g.p2pServer.LinkByProtocol("/x/provider", port, peerId)
+
+	fmt.Println("#### p2p port : ", port)
 	if err != nil {
 		return nil, err
 	}
@@ -325,10 +329,10 @@ type GraphRule struct {
 	RequireSupported        bool   `json:"requireSupported"`
 }
 
-func (g *ServiceImpl) getP2pPort(appID int) (int, error) {
+func (g *ServiceImpl) getP2pPort(appID int) (int, string, error) {
 	vo, err := g.applicationService.QueryApplicationById(appID)
 	if err != nil {
-		return 0, err
+		return 0, "", err
 	}
-	return vo.P2pForwardPort, nil
+	return vo.P2pForwardPort, vo.PeerId, nil
 }

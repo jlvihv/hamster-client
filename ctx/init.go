@@ -132,7 +132,7 @@ func (a *App) initApp() {
 	a.WalletApp = app.NewWalletApp(a.WalletService)
 	a.DeployApp = app.NewDeployApp(a.DeployService, a.AccountService, a.P2pService)
 	a.ApplicationApp = app.NewApplicationApp(a.ApplicationService, a.GraphDeployParamService)
-	a.GraphApp = app.NewGraphApp(a.GraphParamsService, a.CliService)
+	a.GraphApp = app.NewGraphApp(a.GraphParamsService, a.CliService, a.GraphDeployParamService)
 	a.KeyStorageApp = app.NewKeyStorageApp(a.KeyStorageService)
 	a.QueueApp = app.NewQueueApp(a.QueueService)
 }
