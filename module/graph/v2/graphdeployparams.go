@@ -38,7 +38,7 @@ type QueueInfo struct {
 type Service interface {
 	SaveGraphDeployParameterAndApply(data AddParam) (AddApplicationVo, error)
 	DeleteGraphDeployParameterAndApply(id int) (bool, error)
-	DeployGraphJob(applicationId int) error
+	RetryDeployGraphJob(applicationId int, runNow bool) error
 	GetQueueInfo(applicationId int) (QueueInfo, error)
 	GraphStart(appID int, deploymentID string) error
 	GraphRules(appID int) ([]GraphRule, error)

@@ -130,33 +130,44 @@ func (g *ServiceImpl) deployGraphJob(applicationId int, networkUrl string) {
 		}
 	}()
 	go queue.Start(channel)
+	<-channel
 }
 
-func (g *ServiceImpl) DeployGraphJob(applicationId int) error {
-	var data application.Application
-	result := g.db.Where("id = ? ", applicationId).First(&data)
-	if result.Error != nil {
-		fmt.Println("query application failed,error is: ", result.Error)
-		return result.Error
-	}
-	pluginDeployInfo := config.PluginMap[data.SelectNodeType]
-	stakingJob := NewGraphStakingJob(g.keyStorageService, applicationId, pluginDeployInfo.EndpointUrl)
-	var accountInfo account.Account
-	accountInfo, err := g.accountService.GetAccount()
+func (g *ServiceImpl) RetryDeployGraphJob(applicationId int, runNow bool) error {
+	var queue queue2.Queue
+	queue, err := queue2.GetQueue(applicationId)
 	if err != nil {
-		accountInfo.WsUrl = config.DefaultPolkadotNode
+		var data application.Application
+		result := g.db.Where("id = ? ", applicationId).First(&data)
+		if result.Error != nil {
+			fmt.Println("query application failed,error is: ", result.Error)
+			return result.Error
+		}
+		pluginDeployInfo := config.PluginMap[data.SelectNodeType]
+		stakingJob := NewGraphStakingJob(g.keyStorageService, applicationId, pluginDeployInfo.EndpointUrl)
+		var accountInfo account.Account
+		accountInfo, err := g.accountService.GetAccount()
+		if err != nil {
+			accountInfo.WsUrl = config.DefaultPolkadotNode
+		}
+		substrateApi, _ := gsrpc.NewSubstrateAPI(accountInfo.WsUrl)
+		waitResourceJob, _ := NewWaitResourceJob(substrateApi, g.accountService, g.applicationService, g.p2pServer, applicationId, g.walletService)
+
+		pullJob := NewPullImageJob(g.applicationService, applicationId, g.p2pServer, g.accountService, g.walletService)
+
+		deployJob := NewServiceDeployJob(g.keyStorageService, g.deployService, applicationId, g.p2pServer, g.accountService, g.applicationService, g.walletService)
+
+		queue, err = queue2.NewQueue(applicationId, &stakingJob, waitResourceJob, &pullJob, &deployJob)
+		if err != nil {
+			fmt.Println("new queue failed, err is: ", err)
+			return err
+		}
 	}
-	substrateApi, _ := gsrpc.NewSubstrateAPI(accountInfo.WsUrl)
-	waitResourceJob, _ := NewWaitResourceJob(substrateApi, g.accountService, g.applicationService, g.p2pServer, applicationId, g.walletService)
 
-	pullJob := NewPullImageJob(g.applicationService, applicationId, g.p2pServer, g.accountService, g.walletService)
-
-	deployJob := NewServiceDeployJob(g.keyStorageService, g.deployService, applicationId, g.p2pServer, g.accountService, g.applicationService, g.walletService)
-
-	queue, err := queue2.NewQueue(applicationId, &stakingJob, waitResourceJob, &pullJob, &deployJob)
+	err = queue.LoadStatus(g.db)
 	if err != nil {
-		fmt.Println("new queue failed,err is: ", err)
-		return err
+		fmt.Println("queue LoadStatus error, init queue")
+		queue.InitStatus()
 	}
 	channel := make(chan struct{})
 	defer func() {
@@ -165,9 +176,18 @@ func (g *ServiceImpl) DeployGraphJob(applicationId int) error {
 			fmt.Println("save status failed,err is: ", err)
 		}
 	}()
-	go queue.Start(channel)
-	<-channel
+
+	if runNow {
+		go queue.Start(channel)
+		<-channel
+	}
+
 	return nil
+}
+
+// FakeQueue 创建一个虚假的队列，用来在重新启动后，展示给前端页面
+func (g *ServiceImpl) FakeQueue(applicationId int) {
+
 }
 
 func (g *ServiceImpl) GetQueueInfo(applicationId int) (QueueInfo, error) {

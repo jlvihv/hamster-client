@@ -164,7 +164,7 @@ func (a *App) Startup(context context.Context) {
 	a.initService()
 	//initialize app
 	a.initApp()
-	a.startAllQueue()
+	a.initAllQueue()
 }
 
 // DomReady is called after the front-end dom has been loaded
@@ -177,7 +177,7 @@ func (a *App) Shutdown(ctx context.Context) {
 	// Perform your teardown here
 }
 
-func (a *App) startAllQueue() {
+func (a *App) initAllQueue() {
 	fmt.Println("start all queue")
 	list, err := a.ApplicationService.ApplicationList(0, 1000, "", config.ALL)
 	if err != nil {
@@ -185,9 +185,9 @@ func (a *App) startAllQueue() {
 		return
 	}
 	for _, app := range list.Items {
-		err := a.GraphDeployParamService.DeployGraphJob(int(app.ID))
+		err := a.GraphDeployParamService.RetryDeployGraphJob(int(app.ID), false)
 		if err != nil {
-			fmt.Printf("start queue error: %s, app id: %d", err, app.ID)
+			fmt.Printf("init queue error: %s, app id: %d", err, app.ID)
 			continue
 		}
 	}

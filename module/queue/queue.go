@@ -38,6 +38,7 @@ type Queue interface {
 	Reset()
 	SaveStatus(db *gorm.DB) error
 	LoadStatus(db *gorm.DB) error
+	InitStatus()
 }
 
 type queue struct {
@@ -78,7 +79,7 @@ func (q *queue) ID() int {
 
 func (q *queue) Start(done chan struct{}) {
 	if q.index == 0 {
-		q.init()
+		q.InitStatus()
 	}
 	statusInfo := make(chan StatusInfo)
 
@@ -113,13 +114,6 @@ func (q *queue) Start(done chan struct{}) {
 	done <- struct{}{}
 }
 
-func (q *queue) init() {
-	log.Infof("init queue %d", q.id)
-	for _, j := range q.jobs {
-		q.statusInfoMap.Store(j.Status().Name, j.Status())
-	}
-}
-
 func (q *queue) GetStatus() (info []StatusInfo, err error) {
 	for _, j := range q.jobs {
 		statusInfo, ok := q.statusInfoMap.Load(j.Status().Name)
@@ -147,7 +141,6 @@ type StatusStorage struct {
 }
 
 func (q *queue) SaveStatus(db *gorm.DB) error {
-	log.Infof("save status to db for queue %d", q.id)
 	info, err := q.GetStatus()
 	if err != nil {
 		log.Errorf("get status failed: %s", err)
@@ -162,8 +155,18 @@ func (q *queue) SaveStatus(db *gorm.DB) error {
 		log.Errorf("marshal status storage failed: %s", err)
 		return err
 	}
+	log.Infof("save status to db for queue %d", q.id)
+	log.Infof("save status info to db: %s", statusStorageJson)
 	keystorage.NewServiceImpl(context.Background(), db).Set(DB_KEY_PREFIX+strconv.Itoa(q.id), string(statusStorageJson))
 	return nil
+}
+
+func (q *queue) InitStatus() {
+	log.Infof("init queue %d", q.id)
+	q.index = 0
+	for _, j := range q.jobs {
+		q.statusInfoMap.Store(j.Status().Name, j.Status())
+	}
 }
 
 func (q *queue) LoadStatus(db *gorm.DB) error {
@@ -171,10 +174,7 @@ func (q *queue) LoadStatus(db *gorm.DB) error {
 	statusStorageJson := keystorage.NewServiceImpl(context.Background(), db).Get(DB_KEY_PREFIX + strconv.Itoa(q.id))
 	if statusStorageJson == "" {
 		log.Infof("status storage not found for queue %d, init", q.id)
-		for _, j := range q.jobs {
-			statusInfo := j.Status()
-			q.statusInfoMap.Store(statusInfo.Name, statusInfo)
-		}
+		q.InitStatus()
 		return nil
 	}
 	log.Infof("load status info from db: %s", statusStorageJson)
@@ -196,7 +196,7 @@ func (q *queue) Reset() {
 	for _, j := range q.jobs {
 		j.InitStatus()
 	}
-	q.init()
+	q.InitStatus()
 }
 
 func isJobDuplicate(jobs ...Job) bool {
