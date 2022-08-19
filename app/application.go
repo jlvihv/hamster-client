@@ -49,5 +49,5 @@ func (a *Application) QueryApplicationById(id int) (application.ApplyVo, error) 
 }
 
 func (a *Application) RefreshGraphDeployJob(applicationId int) error {
-	return a.graphDeployParamService.DeployGraphJob(applicationId)
+	return a.graphDeployParamService.RetryDeployGraphJob(applicationId, true)
 }
