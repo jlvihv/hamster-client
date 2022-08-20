@@ -6,10 +6,12 @@
       :key="item.id"
     >
       <img :src="item.image" class="w-full rounded-[8px]" />
-      <div class="text-[14px] text-[#BFC6D4] mt-[6px]">{{ shortenAddress(item.owner.id) }}</div>
+      <div class="text-[14px] text-[#BFC6D4] mt-[6px]" :title="item.owner.id">
+        {{ shortenAddress(item.owner.id) }}
+      </div>
       <div class="text-[#222222] mt-[6px] font-bold truncate">{{ item.displayName }}</div>
       <div class="text-[14px] text-[#BFC6D4] mt-[6px]">
-        Signal: {{ formatfromWei(item.currentSignalledTokens) }} GRT
+        Signal: {{ formatGRT(item.currentSignalledTokens, { humanize: true }) }} GRT
       </div>
       <Button
         class="text-[#63A0FA] text-[14px] mt-[20px] border border-[#63A0FA] rounded-[4px] h-[30px] !min-w-[100px]"
@@ -46,7 +48,7 @@
   import { createSubgraphClient, fetchSubgraphs } from '/@/utils/thegraphUtil/subgraph';
   import { shortenAddress, pluginConfigs } from '/@/utils/thegraphUtil';
   import { GraphStart, GraphRules } from '/@wails/go/app/Graph';
-  import { formatfromWei } from '/@/utils/web3Util';
+  import { formatGRT } from '/@/utils/thegraphUtil/grt';
   import { Button } from 'ant-design-vue';
 
   const props = defineProps({
