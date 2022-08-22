@@ -49,24 +49,6 @@ export namespace resource {
 }
 
 export namespace app {
-  export class Config {
-    publicKey: string;
-    port: number;
-    peerId: string;
-    wsUrl: string;
-
-    static createFrom(source: any = {}) {
-      return new Config(source);
-    }
-
-    constructor(source: any = {}) {
-      if ('string' === typeof source) source = JSON.parse(source);
-      this.publicKey = source['publicKey'];
-      this.port = source['port'];
-      this.peerId = source['peerId'];
-      this.wsUrl = source['wsUrl'];
-    }
-  }
   export class GraphRulesInfo {
     info: GraphRule[];
 
@@ -125,6 +107,24 @@ export namespace app {
         return new classs(a);
       }
       return a;
+    }
+  }
+  export class Config {
+    publicKey: string;
+    port: number;
+    peerId: string;
+    wsUrl: string;
+
+    static createFrom(source: any = {}) {
+      return new Config(source);
+    }
+
+    constructor(source: any = {}) {
+      if ('string' === typeof source) source = JSON.parse(source);
+      this.publicKey = source['publicKey'];
+      this.port = source['port'];
+      this.peerId = source['peerId'];
+      this.wsUrl = source['wsUrl'];
     }
   }
 }
@@ -276,22 +276,6 @@ export namespace v2 {
 }
 
 export namespace application {
-  export class UpdateApplicationParam {
-    id: number;
-    name: string;
-    selectNodeType: string;
-
-    static createFrom(source: any = {}) {
-      return new UpdateApplicationParam(source);
-    }
-
-    constructor(source: any = {}) {
-      if ('string' === typeof source) source = JSON.parse(source);
-      this.id = source['id'];
-      this.name = source['name'];
-      this.selectNodeType = source['selectNodeType'];
-    }
-  }
   export class ListVo {
     id: number;
     name: string;
@@ -389,6 +373,22 @@ export namespace application {
         return new classs(a);
       }
       return a;
+    }
+  }
+  export class UpdateApplicationParam {
+    id: number;
+    name: string;
+    selectNodeType: string;
+
+    static createFrom(source: any = {}) {
+      return new UpdateApplicationParam(source);
+    }
+
+    constructor(source: any = {}) {
+      if ('string' === typeof source) source = JSON.parse(source);
+      this.id = source['id'];
+      this.name = source['name'];
+      this.selectNodeType = source['selectNodeType'];
     }
   }
 }
