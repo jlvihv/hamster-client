@@ -39,6 +39,7 @@ type Queue interface {
 	SaveStatus(db *gorm.DB) error
 	LoadStatus(db *gorm.DB) error
 	InitStatus()
+	SetJobStatus(jobName string, statusInfo StatusInfo)
 }
 
 type queue struct {
@@ -133,6 +134,10 @@ func (q *queue) GetStatus() (info []StatusInfo, err error) {
 		info = append(info, si)
 	}
 	return
+}
+
+func (q *queue) SetJobStatus(jobName string, statusInfo StatusInfo) {
+	q.statusInfoMap.Store(jobName, statusInfo)
 }
 
 type StatusStorage struct {

@@ -7,6 +7,7 @@ import (
 	"fmt"
 	gsrpc "github.com/centrifuge/go-substrate-rpc-client/v4"
 	"github.com/go-resty/resty/v2"
+	log "github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 	"hamster-client/config"
 	"hamster-client/module/account"
@@ -180,6 +181,22 @@ func (g *ServiceImpl) RetryDeployGraphJob(applicationId int, runNow bool) error 
 	if runNow {
 		go queue.Start(channel)
 		<-channel
+	} else {
+		statusInfo, err := queue.GetStatus()
+		if err != nil {
+			log.Errorf("get status failed, error: %v", err)
+			return nil
+		}
+		for _, job := range statusInfo {
+			if job.Status == queue2.Running {
+				log.Infof("job %s status is running, set to failed", job.Name)
+				queue.SetJobStatus(job.Name, queue2.StatusInfo{
+					Name:   job.Name,
+					Status: queue2.Failed,
+					Error:  "Abnormal exit",
+				})
+			}
+		}
 	}
 
 	return nil
