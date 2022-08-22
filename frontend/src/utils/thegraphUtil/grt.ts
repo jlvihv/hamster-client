@@ -19,8 +19,8 @@ export function formatGRT(
   }
 }
 
-export function humanizeNumber(num: number, options: { precision?: number } = {}): string {
-  const precision = options.precision || 2;
+function humanizeNumber(num: number, options: { precision?: number } = {}): string {
+  const precision = options.precision || 0;
   const units = ['', 'K', 'M', 'B'];
 
   const tier = (Math.log10(Math.abs(num)) / 3) | 0;
