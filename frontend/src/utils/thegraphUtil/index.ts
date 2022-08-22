@@ -5,12 +5,16 @@ export const pluginConfigs = [
     url: 'https://gateway.thegraph.com/network',
   },
   {
+    label: 'Thegraph(Görli)',
+    value: 'thegraph_gorli',
+    url: 'https://api.thegraph.com/subgraphs/name/graphprotocol/graph-network-goerli',
+  },
+  {
     label: 'Thegraph(Rinkeby)',
     value: 'thegraph_rinkeby',
     url: 'https://api.thegraph.com/subgraphs/name/graphprotocol/graph-network-testnet',
+    disabled: true,
   },
-  { label: 'Thegraph(Görli)', value: 'thegraph_gorli', disabled: true },
-  { label: 'Thegraph(Ethereum)', value: 'thegraph_ethereum', disabled: true },
   { label: 'Polygon(Ethereum)', value: 'polygon_ethereum', disabled: true },
 ];
 

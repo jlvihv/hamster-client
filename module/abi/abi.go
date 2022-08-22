@@ -17,9 +17,9 @@ import (
 )
 
 const (
-	ecr20ContractAddress                  = "0x54Fe55d5d255b8460fB3Bc52D5D676F9AE5697CD"
+	ecr20ContractAddress                  = "0x5c946740441C12510a167B447B7dE565C20b9E3C"
 	stakeDistributionProxyContractAddress = "0x2d44C0e097F6cD0f514edAC633d82E01280B4A5c"
-	stakeProxyFactoryContractAddress      = "0xeFF0ed9Fc8276Fcf4eda2e012dD065A3DC18591D"
+	stakeProxyFactoryContractAddress      = "0x1625649b8Fa14A17F93CfEFA6E9285b206a2243A"
 )
 
 func GetEthClient(url string) (*ethclient.Client, error) {
