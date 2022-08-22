@@ -6,6 +6,7 @@ import (
 	gsrpc "github.com/centrifuge/go-substrate-rpc-client/v4"
 	"github.com/centrifuge/go-substrate-rpc-client/v4/signature"
 	"github.com/centrifuge/go-substrate-rpc-client/v4/types"
+	"math/big"
 )
 
 func GetResourceList(meta *types.Metadata, api *gsrpc.SubstrateAPI, filter func(resource *ComputingResource) bool) (map[types.U64]*ComputingResource, error) {
@@ -30,7 +31,7 @@ func GetResourceList(meta *types.Metadata, api *gsrpc.SubstrateAPI, filter func(
 
 	for _, account := range onlineList {
 		publicKey, _ := AddressToPublicKey(AccountIdToAddress(account))
-		key, err := types.CreateStorageKey(meta, "Provider", "Provider", publicKey)
+		key, err := types.CreateStorageKey(meta, "Provider", "Providers", publicKey)
 		if err != nil {
 			return nil, err
 		}
@@ -154,4 +155,16 @@ func CallAndWatch(api *gsrpc.SubstrateAPI, c types.Call, meta *types.Metadata, h
 			return errors.New("submit tx fail")
 		}
 	}
+}
+
+func Bond(api *gsrpc.SubstrateAPI, meta *types.Metadata, amount int64, pair signature.KeyringPair) error {
+	c, err := types.NewCall(meta, "Market.bond", types.NewU128(*big.NewInt(amount)))
+	if err != nil {
+		fmt.Println(err.Error())
+		return err
+	}
+	return CallAndWatch(api, c, meta, func(header *types.Header) error {
+		fmt.Println(header.Digest)
+		return err
+	}, pair)
 }

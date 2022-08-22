@@ -125,11 +125,13 @@ type WaitResourceJob struct {
 	p2pService         p2p.Service
 	applicationId      int
 	walletService      wallet.Service
+	bond               bool
 }
 
 func (j *WaitResourceJob) InitStatus() {
 	j.statusInfo.Name = "Resource Waiting"
 	j.statusInfo.Status = queue.None
+	j.bond = false
 }
 
 func (j *WaitResourceJob) Run(sc chan queue.StatusInfo) (queue.StatusInfo, error) {
@@ -142,6 +144,17 @@ func (j *WaitResourceJob) Run(sc chan queue.StatusInfo) (queue.StatusInfo, error
 		j.statusInfo.Error = "WALLET_LOAD_ERROR"
 		sc <- j.statusInfo
 		return j.statusInfo, err
+	}
+
+	if !j.bond {
+		// 100 unit
+		err = pallet.Bond(j.api, j.meta, 100000000000000, pair)
+		if err != nil {
+			j.statusInfo.Status = queue.Failed
+			j.statusInfo.Error = "WALLET_LOAD_ERROR"
+			sc <- j.statusInfo
+			return j.statusInfo, err
+		}
 	}
 
 	for i := 0; i < 60; i++ {
@@ -169,6 +182,7 @@ func (j *WaitResourceJob) Run(sc chan queue.StatusInfo) (queue.StatusInfo, error
 				}
 				c, err := types.NewCall(j.meta, "ResourceOrder.create_order_info", val.Index, types.NewU32(uint32(data.LeaseTerm)), "")
 				if err != nil {
+					fmt.Println(err.Error())
 					continue
 				}
 				err = pallet.CallAndWatch(j.api, c, j.meta, func(header *types.Header) error {
