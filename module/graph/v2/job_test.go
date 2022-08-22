@@ -42,8 +42,9 @@ func TestDeploy(t *testing.T) {
 	p2pService := p2p.NewServiceImpl(ctx, db, &applicationService)
 	keyStorageService := keystorage.NewServiceImpl(ctx, db)
 	walletService := wallet.NewServiceImpl(ctx, db)
-	deployService := deploy.NewServiceImpl(ctx, httpUtil, db, &keyStorageService, &accountService, &p2pService, &walletService)
-	graphParamService := NewServiceImpl(ctx, db, keyStorageService, &accountService, &applicationService, &p2pService, &deployService, &walletService)
+	deployService := deploy.NewServiceImpl(ctx, httpUtil, db, &keyStorageService, &p2pService, &walletService, &applicationService)
+	queueService := queue2.NewServiceImpl()
+	graphParamService := NewServiceImpl(ctx, db, keyStorageService, &accountService, &applicationService, &p2pService, &deployService, &walletService, queueService)
 	//create application
 	var addParam AddParam
 	addParam.Name = "Service one12"
@@ -124,7 +125,8 @@ func getGraphParamService() ServiceImpl {
 	p2pService := p2p.NewServiceImpl(ctx, db, &applicationService)
 	keyStorageService := keystorage.NewServiceImpl(ctx, db)
 	walletService := wallet.NewServiceImpl(ctx, db)
-	deployService := deploy.NewServiceImpl(ctx, httpUtil, db, &keyStorageService, &accountService, &p2pService, &walletService)
-	graphParamService := NewServiceImpl(ctx, db, keyStorageService, &accountService, &applicationService, &p2pService, &deployService, &walletService)
+	deployService := deploy.NewServiceImpl(ctx, httpUtil, db, &keyStorageService, &p2pService, &walletService, &applicationService)
+	queueService := queue2.NewServiceImpl()
+	graphParamService := NewServiceImpl(ctx, db, keyStorageService, &accountService, &applicationService, &p2pService, &deployService, &walletService, queueService)
 	return graphParamService
 }

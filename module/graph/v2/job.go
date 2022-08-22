@@ -66,6 +66,9 @@ func (j *PullImageJob) Run(sc chan queue.StatusInfo) (queue.StatusInfo, error) {
 		return j.statusInfo, err
 	}
 	fmt.Println("pull before: reForwardLink: ", vo.PeerId)
+	if _, err := j.p2pService.GetSetting(); err != nil {
+		_ = j.p2pService.InitSetting()
+	}
 	err = reForwardLink(j.p2pService, vo.P2pForwardPort, vo.PeerId)
 	if err != nil {
 		fmt.Println("reconnect fail, err is :", err)
@@ -324,7 +327,7 @@ func (g *GraphStakingJob) Run(sc chan queue.StatusInfo) (queue.StatusInfo, error
 	}
 	if stakingAddress == ethAbi.GetEthAddress("0") {
 		//Create agent pledge address
-		err = ethAbi.StakeProxyFactoryAbiCreateStakingContract(address, client, big.NewInt(4), privateKey)
+		err = ethAbi.StakeProxyFactoryAbiCreateStakingContract(address, client, big.NewInt(5), privateKey)
 		if err != nil {
 			fmt.Println("Create agent pledge address failed, err is :", err)
 			g.statusInfo.Status = queue.Failed
@@ -344,7 +347,7 @@ func (g *GraphStakingJob) Run(sc chan queue.StatusInfo) (queue.StatusInfo, error
 		//Convert the pledged amount into Wei
 		stakingAmount := utils.ToWei18(int64(param.Staking.PledgeAmount))
 		// Authorize the agency pledge address
-		err = ethAbi.Ecr20AbiApprove(stakingAddress, client, big.NewInt(4), stakingAmount, privateKey)
+		err = ethAbi.Ecr20AbiApprove(stakingAddress, client, big.NewInt(5), stakingAmount, privateKey)
 		if err != nil {
 			fmt.Println("approve failed, err is :", err)
 			g.statusInfo.Status = queue.Failed
@@ -353,7 +356,7 @@ func (g *GraphStakingJob) Run(sc chan queue.StatusInfo) (queue.StatusInfo, error
 			return g.statusInfo, err
 		}
 		//GRT pledge
-		err = ethAbi.StakeDistributionProxyAbiStaking(stakingAddress, client, big.NewInt(4), stakingAmount, privateKey)
+		err = ethAbi.StakeDistributionProxyAbiStaking(stakingAddress, client, big.NewInt(5), stakingAmount, privateKey)
 		if err != nil {
 			fmt.Println("staking failed, err is :", err)
 			g.statusInfo.Status = queue.Failed
