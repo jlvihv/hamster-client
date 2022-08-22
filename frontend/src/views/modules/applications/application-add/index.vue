@@ -60,6 +60,7 @@
             type="primary"
             shape="round"
             @click="handleSubmit"
+            :loading="createLoading"
           >
             {{ t('common.createText') }}
           </Button>
@@ -86,6 +87,7 @@
   const { createErrorModal } = useMessage();
 
   const formRef = ref();
+  const createLoading = ref(false);
   const formData = reactive({
     name: '',
   });
@@ -98,12 +100,15 @@
     await formRef.value?.validate();
 
     try {
+      createLoading.value = true;
       const params = toRaw(formData);
       params['leaseTerm'] = parseInt(params['leaseTerm']);
       params['stakingAmount'] = parseInt(params['leaseTerm']);
       const { id } = await AddApplication(params);
       router.push(`/applications/${id}`);
+      createLoading.value = false;
     } catch (e: any) {
+      createLoading.value = false;
       createErrorModal({
         title: t('common.errorTip'),
         content: t('applications.new.createFailed'),
