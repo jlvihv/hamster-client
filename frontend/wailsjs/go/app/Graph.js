@@ -14,6 +14,10 @@ export function GraphStart(arg1, arg2) {
   return window['go']['app']['Graph']['GraphStart'](arg1, arg2);
 }
 
+export function GraphStop(arg1, arg2) {
+  return window['go']['app']['Graph']['GraphStop'](arg1, arg2);
+}
+
 export function QueryApplyAndParams(arg1) {
   return window['go']['app']['Graph']['QueryApplyAndParams'](arg1);
 }
