@@ -120,7 +120,10 @@ func (s *ServiceImpl) DeployGraph(id int, sendData DeployParams) (bool, error) {
 	if result != nil {
 		return false, result
 	}
-	go s.queryDeployStatus(id)
+	err = s.queryDeployStatus(id)
+	if err != nil {
+		return false, err
+	}
 	return true, nil
 }
 func (s *ServiceImpl) GetDeployInfo(id int) (DeployParameter, error) {
@@ -180,24 +183,36 @@ func (g *ServiceImpl) graphStatusApi(providerUrl string, serviceName ...string) 
 }
 
 // query deploy graph status
-func (s *ServiceImpl) queryDeployStatus(id int) {
+func (s *ServiceImpl) queryDeployStatus(id int) error {
 	containerIds := []string{"graph-node", "postgres", "index-service", "index-agent", "index-cli"}
 	numbers := 0
 	for {
 		time.Sleep(time.Duration(10) * time.Second)
-		res, _ := s.QueryGraphStatus(id, containerIds...)
+		res, err := s.QueryGraphStatus(id, containerIds...)
+		if err != nil {
+			fmt.Println("docker status :", res)
+			if numbers >= 4 {
+				return err
+			}
+			continue
+		}
 		fmt.Println("docker status :", res)
 		if res == 1 {
 			result := s.db.Model(application.Application{}).Where("status = ?", config.IN_DEPLOYMENT).Update("status", config.DEPLOYED).Error
-			if result == nil {
-				return
+			if result != nil {
+				fmt.Println("save  status :", result.Error())
+				if numbers >= 4 {
+					return result
+				}
+				continue
 			}
+			return nil
 		} else if res == config.RequestStatusFailed {
 			continue
 		} else {
-			if numbers >= 3 {
+			if numbers >= 4 {
 				s.db.Model(application.Application{}).Where("status = ?", config.IN_DEPLOYMENT).Update("status", config.DEPLOY_FAILED)
-				return
+				return errors.New("deploy failed")
 			}
 		}
 		numbers = numbers + 1

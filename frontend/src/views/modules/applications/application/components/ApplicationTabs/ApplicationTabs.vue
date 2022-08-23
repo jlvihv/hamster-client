@@ -1,8 +1,8 @@
 <template>
   <div class="mx-[10px] mb-[100px]">
-    <Tabs v-model:activeKey="activeKey">
+    <Tabs v-model:activeKey="activeKey" @change="tabChange">
       <TabPane key="1" :tab="t('applications.see.revenueInfo')">
-        <RevenueInfo :deployInfo="deployInfo" />
+        <RevenueInfo :deployInfo="deployInfo" ref="revenueInfoRef" />
       </TabPane>
       <TabPane key="2" :tab="t('applications.see.subgraph')">
         <Subgraph :application="application" />
@@ -30,6 +30,7 @@
   const { t } = useI18n();
 
   const activeKey = ref('1');
+  const revenueInfoRef = ref();
   const application = reactive({});
   const deployInfo = ref<{
     initialization: Recordable;
@@ -40,6 +41,11 @@
     staking: {},
     deployment: {},
   });
+  const tabChange = (key) => {
+    if (key == '1') {
+      revenueInfoRef.value.initData();
+    }
+  };
   onMounted(() => {
     QueryApplicationById(props.applicationId).then((app) => {
       console.log(app);

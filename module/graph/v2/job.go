@@ -367,7 +367,7 @@ func (g *GraphStakingJob) Run(sc chan queue.StatusInfo) (queue.StatusInfo, error
 			return g.statusInfo, err
 		}
 	} else {
-		// 从质押地址获取质押金额
+		// get staking amount
 		amount, err := ethAbi.StakeDistributionProxyAbiGetStakingAmount(context.Background(), stakingAddress, client)
 		if err != nil {
 			fmt.Println("get stake amount failed, err is :", err)
