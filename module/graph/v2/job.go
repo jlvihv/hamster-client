@@ -327,6 +327,8 @@ func (g *GraphStakingJob) Run(sc chan queue.StatusInfo) (queue.StatusInfo, error
 		sc <- g.statusInfo
 		return g.statusInfo, err
 	}
+	//Convert the pledged amount into Wei
+	stakingAmount := utils.ToWei18(int64(param.Staking.PledgeAmount))
 	if stakingAddress == ethAbi.GetEthAddress("0") {
 		//Create agent pledge address
 		err = ethAbi.StakeProxyFactoryAbiCreateStakingContract(address, client, big.NewInt(g.chainId), privateKey)
@@ -346,8 +348,6 @@ func (g *GraphStakingJob) Run(sc chan queue.StatusInfo) (queue.StatusInfo, error
 			sc <- g.statusInfo
 			return g.statusInfo, err
 		}
-		//Convert the pledged amount into Wei
-		stakingAmount := utils.ToWei18(int64(param.Staking.PledgeAmount))
 		// Authorize the agency pledge address
 		err = ethAbi.Ecr20AbiApprove(stakingAddress, client, big.NewInt(g.chainId), stakingAmount, privateKey)
 		if err != nil {
@@ -365,6 +365,36 @@ func (g *GraphStakingJob) Run(sc chan queue.StatusInfo) (queue.StatusInfo, error
 			g.statusInfo.Error = err.Error()
 			sc <- g.statusInfo
 			return g.statusInfo, err
+		}
+	} else {
+		// 从质押地址获取质押金额
+		amount, err := ethAbi.StakeDistributionProxyAbiGetStakingAmount(context.Background(), stakingAddress, client)
+		if err != nil {
+			fmt.Println("get stake amount failed, err is :", err)
+			g.statusInfo.Status = queue.Failed
+			g.statusInfo.Error = err.Error()
+			sc <- g.statusInfo
+			return g.statusInfo, err
+		}
+		if amount.Cmp(big.NewInt(0)) == 0 {
+			// Authorize the agency pledge address
+			err = ethAbi.Ecr20AbiApprove(stakingAddress, client, big.NewInt(g.chainId), stakingAmount, privateKey)
+			if err != nil {
+				fmt.Println("approve failed, err is :", err)
+				g.statusInfo.Status = queue.Failed
+				g.statusInfo.Error = err.Error()
+				sc <- g.statusInfo
+				return g.statusInfo, err
+			}
+			//GRT pledge
+			err = ethAbi.StakeDistributionProxyAbiStaking(stakingAddress, client, big.NewInt(g.chainId), stakingAmount, privateKey)
+			if err != nil {
+				fmt.Println("staking failed, err is :", err)
+				g.statusInfo.Status = queue.Failed
+				g.statusInfo.Error = err.Error()
+				sc <- g.statusInfo
+				return g.statusInfo, err
+			}
 		}
 	}
 	param.Deployment.IndexerAddress = addr
