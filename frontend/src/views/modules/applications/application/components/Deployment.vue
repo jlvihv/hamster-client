@@ -70,7 +70,7 @@
 </template>
 
 <script lang="ts" setup>
-  import { ref, watchEffect } from 'vue';
+  import { ref, watchEffect, onMounted } from 'vue';
   import { useI18n } from '/@/hooks/web/useI18n';
   import { SvgIcon } from '/@/components/Icon';
   import { GetQueueInfo } from '/@wails/go/app/Queue';
@@ -108,6 +108,9 @@
     const data = await RefreshGraphDeployJob(props.applicationId);
     console.info(data);
   };
+
+  // Load info when entering page
+  onMounted(fetchQueueInfo);
 </script>
 
 <style lang="less" scoped>

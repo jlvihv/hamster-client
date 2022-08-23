@@ -38,7 +38,6 @@
         </FormItem>
         <FormItem :label="t('applications.new.thegraphIndexer')" name="thegraphIndexer">
           <Input
-            s
             :allowClear="true"
             class="input-width"
             v-model:value="formData.thegraphIndexer"
@@ -107,11 +106,12 @@
       const { id } = await AddApplication(params);
       router.push(`/applications/${id}`);
       createLoading.value = false;
-    } catch (e: any) {
+    } catch (error: any) {
+      const errorMessage = typeof error === 'string' ? error : error?.message;
       createLoading.value = false;
       createErrorModal({
         title: t('common.errorTip'),
-        content: t('applications.new.createFailed'),
+        content: errorMessage || t('applications.new.createFailed'),
       });
     }
   };

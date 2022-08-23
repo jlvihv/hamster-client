@@ -21,7 +21,8 @@ export function useLoadMore(
     isLoading.value = true;
 
     const data = await apiFunc(page.value, perPage);
-    const newItems: any[] = options?.responseHandler ? options.responseHandler(data) : data;
+    const newItems: any[] = (options?.responseHandler ? options.responseHandler(data) : data) || [];
+
     items.push(...newItems);
 
     if (newItems.length < perPage) {

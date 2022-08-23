@@ -1,11 +1,13 @@
 <template>
-  <Button v-bind="$attrs" :loading="loading" @click="onClick" class="!border-none !bg-transparent" :style="btnWH">
+  <Button
+    v-bind="$attrs"
+    :loading="loading"
+    @click="onClick"
+    class="!border-none !bg-transparent !p-0"
+    :style="btnWH"
+  >
     <template #icon>
-      <SvgIcon 
-        :class="class"
-        :size="size"
-        :name="icon"
-      />
+      <SvgIcon :class="iconClass" :size="size" :name="icon" />
     </template>
   </Button>
 </template>
@@ -15,8 +17,8 @@
   import { SvgIcon } from '/@/components/Icon';
   import { Button } from 'ant-design-vue';
 
-  const props =  defineProps({
-    class: propTypes.string.def(''),
+  const props = defineProps({
+    iconClass: propTypes.string.def(''),
     icon: propTypes.string.def(''),
     size: propTypes.string.def(''),
   });
@@ -24,12 +26,17 @@
 
   const emits = defineEmits(['click']);
   const loading = ref(false);
-  async function onClick() {  //The callback method needs to be called to modify the loading value
+  async function onClick() {
+    //The callback method needs to be called to modify the loading value
     loading.value = true;
-    emits('click', () => {
+
+    try {
+      emits('click', () => {
+        loading.value = false;
+      });
+    } catch (error: any) {
       loading.value = false;
-    })
-    
+    }
   }
 
   const btnWH = reactive({ height: size.value + 'px', width: size.value + 'px' });
