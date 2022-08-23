@@ -7,7 +7,62 @@
         "type": "address"
       }
     ],
+    "stateMutability": "payable",
+    "type": "constructor"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      }
+    ],
+    "name": "Log",
+    "type": "event"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_configContractAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_hamsterPoolAddress",
+        "type": "address"
+      }
+    ],
+    "name": "_init",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_indexerWalletAddress",
+        "type": "address"
+      }
+    ],
     "name": "setIndexerAddress",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_stakingAmount",
+        "type": "uint256"
+      }
+    ],
+    "name": "setStakingAmount",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -33,6 +88,19 @@
         "internalType": "uint256",
         "name": "",
         "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getAddress",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
       }
     ],
     "stateMutability": "view",
@@ -117,7 +185,40 @@
   },
   {
     "inputs": [],
+    "name": "setRewardsDestination",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "gainIncome",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getGrtAddress",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getIncome",
     "outputs": [
       {
         "internalType": "uint256",
