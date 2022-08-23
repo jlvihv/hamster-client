@@ -103,7 +103,7 @@
       createLoading.value = true;
       const params = toRaw(formData);
       params['leaseTerm'] = parseInt(params['leaseTerm']);
-      params['stakingAmount'] = parseInt(params['leaseTerm']);
+      params['stakingAmount'] = parseInt(params['stakingAmount']);
       const { id } = await AddApplication(params);
       router.push(`/applications/${id}`);
       createLoading.value = false;
