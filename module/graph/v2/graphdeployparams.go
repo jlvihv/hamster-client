@@ -41,5 +41,6 @@ type Service interface {
 	RetryDeployGraphJob(applicationId int, runNow bool) error
 	GetQueueInfo(applicationId int) (QueueInfo, error)
 	GraphStart(appID int, deploymentID string) error
+	GraphStop(appID int, deploymentID string) error
 	GraphRules(appID int) ([]GraphRule, error)
 }

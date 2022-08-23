@@ -40,6 +40,10 @@ func (g *Graph) GraphStart(applicationId int, deploymentID string) error {
 	return g.graphV2Service.GraphStart(applicationId, deploymentID)
 }
 
+func (g *Graph) GraphStop(applicationId int, deploymentID string) error {
+	return g.graphV2Service.GraphStop(applicationId, deploymentID)
+}
+
 func (g *Graph) GraphRules(applicationId int) (GraphRulesInfo, error) {
 	fmt.Println("##### applicationId: ", applicationId)
 	fmt.Println("##### g.graphV2Service: ", g.graphV2Service)
