@@ -83,7 +83,7 @@ func (g *ServiceImpl) SaveGraphDeployParameterAndApply(addData AddParam) (AddApp
 	g.keyStorageService.Set("graph_"+strconv.Itoa(int(applyData.ID)), string(jsonData))
 	applicationVo.Result = true
 	applicationVo.ID = applyData.ID
-	go g.deployGraphJob(int(applyData.ID), pluginDeployInfo.EndpointUrl)
+	go g.deployGraphJob(int(applyData.ID), pluginDeployInfo.EndpointUrl, pluginDeployInfo.ChainId)
 	return applicationVo, nil
 }
 
@@ -105,8 +105,8 @@ func (g *ServiceImpl) DeleteGraphDeployParameterAndApply(id int) (bool, error) {
 	return true, nil
 }
 
-func (g *ServiceImpl) deployGraphJob(applicationId int, networkUrl string) {
-	stakingJob := NewGraphStakingJob(g.keyStorageService, applicationId, networkUrl)
+func (g *ServiceImpl) deployGraphJob(applicationId int, networkUrl string, chainId int64) {
+	stakingJob := NewGraphStakingJob(g.keyStorageService, applicationId, networkUrl, chainId)
 	var accountInfo account.Account
 	accountInfo, err := g.accountService.GetAccount()
 	if err != nil {
@@ -145,7 +145,7 @@ func (g *ServiceImpl) RetryDeployGraphJob(applicationId int, runNow bool) error 
 			return result.Error
 		}
 		pluginDeployInfo := config.PluginMap[data.SelectNodeType]
-		stakingJob := NewGraphStakingJob(g.keyStorageService, applicationId, pluginDeployInfo.EndpointUrl)
+		stakingJob := NewGraphStakingJob(g.keyStorageService, applicationId, pluginDeployInfo.EndpointUrl, pluginDeployInfo.ChainId)
 		var accountInfo account.Account
 		accountInfo, err := g.accountService.GetAccount()
 		if err != nil {
@@ -215,7 +215,7 @@ func (g *ServiceImpl) GetQueueInfo(applicationId int) (QueueInfo, error) {
 		return QueueInfo{}, result.Error
 	}
 	pluginDeployInfo := config.PluginMap[data.SelectNodeType]
-	stakingJob := NewGraphStakingJob(g.keyStorageService, applicationId, pluginDeployInfo.EndpointUrl)
+	stakingJob := NewGraphStakingJob(g.keyStorageService, applicationId, pluginDeployInfo.EndpointUrl, pluginDeployInfo.ChainId)
 	var accountInfo account.Account
 	accountInfo, err := g.accountService.GetAccount()
 	if err != nil {
