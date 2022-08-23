@@ -97,8 +97,7 @@
 
     if (isMatch) {
       // call api to save wallet info
-      console.log(password);
-      await settingStore.saveWalletAction(jsonContent.address, jsonString, password);
+      await settingStore.saveWalletAction(jsonContent.address, jsonString);
       emits('submit', formData);
     } else {
       createErrorModal({ title: t('common.errorTip'), content: t('home.passwordError') });
@@ -160,7 +159,7 @@
     }
 
     .ant-form-item {
-      @apply mb-3;
+      @apply block mb-3;
     }
 
     .ant-input-affix-wrapper {

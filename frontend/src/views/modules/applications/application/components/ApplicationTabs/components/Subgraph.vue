@@ -14,7 +14,7 @@
         Signal: {{ formatGRT(item.currentSignalledTokens, { humanize: true }) }} GRT
       </div>
       <Button
-        class="text-[#63A0FA] text-[14px] mt-[20px] border border-[#63A0FA] rounded-[4px] h-[30px] !min-w-[100px]"
+        class="!text-[#63A0FA] text-[14px] mt-[20px] border !border-[#63A0FA] rounded-[4px] h-[30px] !min-w-[100px]"
         :loading="subgraphDeployLoading[getSubgraphIpfsHash(item)]"
         :disabled="deployedSubgraphIdentifiers.includes(getSubgraphIpfsHash(item))"
         @click="handleDeploySubgraph(item)"

@@ -1,5 +1,5 @@
 <template>
-  <div class="mx-[40px] mb-[100px]">
+  <div class="mx-[10px] mb-[100px]">
     <Tabs v-model:activeKey="activeKey">
       <TabPane key="1" :tab="t('applications.see.revenueInfo')">
         <RevenueInfo :deployInfo="deployInfo" />

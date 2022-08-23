@@ -33,7 +33,7 @@
         </div>
       </div>
     </div>
-    <div class="text-center my-[40px]" v-if="!isTouchedEnd">
+    <div class="text-center my-[40px]" v-if="!isTouchedEnd && !isFromGuide">
       <Button
         class="!h-[60px] w-[200px]"
         size="large"
@@ -50,6 +50,7 @@
 
 <script lang="ts" setup>
   import { onMounted } from 'vue';
+  import { useRoute } from 'vue-router';
   import { PageWrapper } from '/@/components/Page';
   import { SvgIcon } from '/@/components/Icon';
   import Header from './components/Header.vue';
@@ -61,7 +62,11 @@
   import { Button } from 'ant-design-vue';
 
   const { t } = useI18n();
+  const route = useRoute();
   const { getImageURL } = useAssets();
+
+  // check if redirect from home(guide page)
+  const isFromGuide = route.query.from === 'guide';
 
   const {
     items: applications,

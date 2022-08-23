@@ -1,6 +1,6 @@
 <template>
   <div class="relative h-full" v-if="isGuideVisible">
-    <form
+    <Form
       class="home-bg h-full label-center text-center"
       :style="{ backgroundImage: `url(${getImageURL('home-bg.png')})` }"
       ref="formRef"
@@ -13,11 +13,14 @@
             {{ t('home.setNode') }}
           </div>
           <div class="my-[40px] !text-left">
-            <Select
-              class="rounded-[8px] bg-[#F8F7FA] w-[560px]"
-              :options="nodeOptions"
-              v-model:value="formData.wsUrl"
-            />
+            <FormItem name="wsUrl">
+              <Select
+                class="rounded-[8px] bg-[#F8F7FA] w-[560px]"
+                :options="nodeOptions"
+                v-model:value="formData.wsUrl"
+                :placeholder="t('home.wsUrlPlaceholder')"
+              />
+            </FormItem>
           </div>
           <SvgButton @click="stepAction.setWsUrl" class="text-primary" size="56" icon="next" />
         </div>
@@ -44,7 +47,7 @@
           />
         </div>
       </transition-group>
-    </form>
+    </Form>
   </div>
 </template>
 
@@ -59,7 +62,7 @@
   import { createRule } from '/@/utils/formUtil';
   import WalletImporter from './components/WalletImporter.vue';
   import doneImage from '/@/assets/images/suc.png';
-  import { Select } from 'ant-design-vue';
+  import { Form, FormItem, Select } from 'ant-design-vue';
 
   const { t } = useI18n();
   const { getImageURL } = useAssets();
@@ -88,7 +91,6 @@
     // fetch settings from API
     try {
       await settingStore.getWalletInfoAction();
-      await settingStore.getConfigAction();
     } catch {
       console.log('Failed to load wallet and config.');
     }
@@ -99,7 +101,10 @@
       stepVal.value = parseInt(route.query.step);
       hasBackButton.value = true;
     } else {
-      if (settingStore.walletInfo) {
+      if (settingStore.walletInfo?.addressJson) {
+        // Load setting config(wsUrl)
+        settingStore.getConfigAction();
+
         // Redirect to applidation index if wallet binded
         router.push('/applications/index');
       } else {
@@ -112,13 +117,20 @@
     next() {
       stepVal.value++;
     },
-    setWsUrl(callback) {
+    async setWsUrl(callback) {
+      await formRef.value?.validate('wsUrl');
+
       settingStore.saveWsUrlAction(formData.wsUrl);
       stepAction.next();
       callback();
     },
     gotoApplicationsPage() {
-      router.push('/applications/index');
+      // Add from=guide when setup account first time
+      const query = route.query.step ? { from: 'guide' } : {};
+      router.push({
+        path: '/applications/index',
+        query,
+      });
     },
   };
 
@@ -143,6 +155,10 @@
 
   :deep(.ant-select-selector) {
     @apply !rounded-[8px] !h-[42px];
+
+    .ant-select-selection-placeholder {
+      line-height: 42px;
+    }
   }
 
   :deep(.ant-select-selection-item) {
@@ -154,7 +170,7 @@
   }
 
   .next-leave-active {
-    animation: hide 0.5s linear reverse;
+    animation: hide 0.4s linear reverse;
   }
 
   .next-enter,
