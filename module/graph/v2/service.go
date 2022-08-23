@@ -267,6 +267,29 @@ func (g *ServiceImpl) GraphStart(appID int, deploymentID string) error {
 	return parseResponseError(resp)
 }
 
+func (g *ServiceImpl) GraphStop(appID int, deploymentID string) error {
+	port, peerId, err := g.getP2pPort(appID)
+	_ = g.p2pServer.LinkByProtocol("/x/provider", port, peerId)
+	if err != nil {
+		return err
+	}
+	keyringPair, err := g.walletService.GetWalletKeypair()
+	if err != nil {
+		return err
+	}
+	url := fmt.Sprintf("http://localhost:%d/api/v1/thegraph/stop", port)
+	req := utils.NewHttp().NewRequest()
+	req.SetHeader("SS58AuthData", utils.GetSS58AuthDataWithKeyringPair(keyringPair))
+	resp, err := req.Get(fmt.Sprintf("%s?deploymentID=%s", url, deploymentID))
+	if err != nil {
+		return err
+	}
+	if resp.IsSuccess() {
+		return nil
+	}
+	return parseResponseError(resp)
+}
+
 func (g *ServiceImpl) GraphRules(appID int) ([]GraphRule, error) {
 	port, peerId, err := g.getP2pPort(appID)
 	_ = g.p2pServer.LinkByProtocol("/x/provider", port, peerId)
