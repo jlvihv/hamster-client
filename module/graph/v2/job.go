@@ -252,6 +252,7 @@ func NewWaitResourceJob(api *gsrpc.SubstrateAPI, accountService account.Service,
 type GraphStakingJob struct {
 	statusInfo        queue.StatusInfo
 	id                int
+	chainId           int64
 	network           string
 	keyStorageService keystorage.Service
 }
@@ -261,9 +262,10 @@ func (g *GraphStakingJob) InitStatus() {
 	g.statusInfo.Status = queue.None
 }
 
-func NewGraphStakingJob(service keystorage.Service, applicationId int, network string) GraphStakingJob {
+func NewGraphStakingJob(service keystorage.Service, applicationId int, network string, chainId int64) GraphStakingJob {
 	return GraphStakingJob{
 		id:                applicationId,
+		chainId:           chainId,
 		network:           network,
 		keyStorageService: service,
 	}
@@ -327,7 +329,7 @@ func (g *GraphStakingJob) Run(sc chan queue.StatusInfo) (queue.StatusInfo, error
 	}
 	if stakingAddress == ethAbi.GetEthAddress("0") {
 		//Create agent pledge address
-		err = ethAbi.StakeProxyFactoryAbiCreateStakingContract(address, client, big.NewInt(5), privateKey)
+		err = ethAbi.StakeProxyFactoryAbiCreateStakingContract(address, client, big.NewInt(g.chainId), privateKey)
 		if err != nil {
 			fmt.Println("Create agent pledge address failed, err is :", err)
 			g.statusInfo.Status = queue.Failed
@@ -347,7 +349,7 @@ func (g *GraphStakingJob) Run(sc chan queue.StatusInfo) (queue.StatusInfo, error
 		//Convert the pledged amount into Wei
 		stakingAmount := utils.ToWei18(int64(param.Staking.PledgeAmount))
 		// Authorize the agency pledge address
-		err = ethAbi.Ecr20AbiApprove(stakingAddress, client, big.NewInt(5), stakingAmount, privateKey)
+		err = ethAbi.Ecr20AbiApprove(stakingAddress, client, big.NewInt(g.chainId), stakingAmount, privateKey)
 		if err != nil {
 			fmt.Println("approve failed, err is :", err)
 			g.statusInfo.Status = queue.Failed
@@ -356,7 +358,7 @@ func (g *GraphStakingJob) Run(sc chan queue.StatusInfo) (queue.StatusInfo, error
 			return g.statusInfo, err
 		}
 		//GRT pledge
-		err = ethAbi.StakeDistributionProxyAbiStaking(stakingAddress, client, big.NewInt(5), stakingAmount, privateKey)
+		err = ethAbi.StakeDistributionProxyAbiStaking(stakingAddress, client, big.NewInt(g.chainId), stakingAmount, privateKey)
 		if err != nil {
 			fmt.Println("staking failed, err is :", err)
 			g.statusInfo.Status = queue.Failed
