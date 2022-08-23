@@ -7,19 +7,19 @@ import (
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"gorm.io/gorm"
 	"hamster-client/config"
-	"hamster-client/module/application"
+	"hamster-client/module/account"
 	"os/exec"
 )
 
 type ServiceImpl struct {
-	ctx                context.Context
-	db                 *gorm.DB
-	p2pClient          *P2pClient
-	applicationService application.Service
+	ctx            context.Context
+	db             *gorm.DB
+	p2pClient      *P2pClient
+	accountService account.Service
 }
 
-func NewServiceImpl(ctx context.Context, db *gorm.DB, applicationService application.Service) ServiceImpl {
-	return ServiceImpl{ctx: ctx, db: db, applicationService: applicationService}
+func NewServiceImpl(ctx context.Context, db *gorm.DB, accountService account.Service) ServiceImpl {
+	return ServiceImpl{ctx: ctx, db: db, accountService: accountService}
 }
 
 // initialize p2p link
@@ -42,7 +42,10 @@ func (s *ServiceImpl) getP2pClient() (*P2pClient, error) {
 
 func (s *ServiceImpl) initP2pClient(port int, privateKey string) (*P2pClient, error) {
 	var nodes []string
-	api := CreateApi()
+	api, err := s.accountService.GetSubstrateApi()
+	if err != nil {
+		return nil, err
+	}
 	meta, _ := api.RPC.State.GetMetadataLatest()
 	key, err := types.CreateStorageKey(meta, "Gateway", "Gateways")
 	api.RPC.State.GetStorageLatest(key, &nodes)
@@ -52,9 +55,10 @@ func (s *ServiceImpl) initP2pClient(port int, privateKey string) (*P2pClient, er
 	}
 	p2p := MakeIpfsP2p(&host)
 	s.p2pClient = &P2pClient{
-		Host: host,
-		P2P:  p2p,
-		DHT:  dht,
+		Host:  host,
+		P2P:   p2p,
+		DHT:   dht,
+		Peers: nodes,
 	}
 	return s.p2pClient, nil
 }
@@ -78,11 +82,7 @@ func (s *ServiceImpl) LinkByProtocol(protocol string, localPort int, peerId stri
 	if err != nil {
 		return err
 	}
-	err = client.Forward(protocol, localPort, peerId)
-	if err != nil {
-		return err
-	}
-	return nil
+	return client.Forward(protocol, localPort, peerId)
 }
 
 // Close Close Link
@@ -183,6 +183,7 @@ func portInUse(portNumber int) error {
 	return nil
 }
 
+// ProLink Expired method
 func (s *ServiceImpl) ProLink(peerId string) error {
 	client, err := s.getP2pClient()
 	if err != nil {
@@ -232,21 +233,21 @@ func (s *ServiceImpl) JudgeP2pReconnection() bool {
 	return true
 }
 
-func (s *ServiceImpl) ReconnectionProLink(applicationId int) (bool, error) {
-	applicationInfo, err := s.applicationService.QueryApplicationById(applicationId)
-	if err != nil {
-		runtime.LogError(s.ctx, "Get application error")
-		return false, err
-	}
-	if applicationInfo.PeerId != "" {
-		err := s.ProLink(applicationInfo.PeerId)
-		if err != nil {
-			return false, err
-		}
-		return true, nil
-	}
-	return false, nil
-}
+//func (s *ServiceImpl) ReconnectionProLink(applicationId int) (bool, error) {
+//	applicationInfo, err := s.applicationService.QueryApplicationById(applicationId)
+//	if err != nil {
+//		runtime.LogError(s.ctx, "Get application error")
+//		return false, err
+//	}
+//	if applicationInfo.PeerId != "" {
+//		err := s.ProLink(applicationInfo.PeerId)
+//		if err != nil {
+//			return false, err
+//		}
+//		return true, nil
+//	}
+//	return false, nil
+//}
 
 // JudgePort judge port in use. use:ture;not use false
 func (s *ServiceImpl) JudgePort(port int) bool {

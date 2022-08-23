@@ -16,6 +16,8 @@ type Application struct {
 	LeaseTerm      int            `json:"leaseTerm"`
 	PeerId         string         `json:"peerId"`
 	OrderIndex     int            `json:"orderIndex"`
+	ResourceIndex  int            `json:"resourceIndex"`
+	ResourceStatus ResourceStatus `json:"resourceStatus"`
 	CreatedAt      time.Time      `json:"createdAt"`
 	UpdatedAt      time.Time      `json:"updatedAt"`
 	DeletedAt      gorm.DeletedAt `json:"deletedAt" gorm:"index"`
@@ -49,16 +51,25 @@ type PageApplicationVo struct {
 	Total int64    `json:"total"`
 }
 
+type ResourceStatus int
+
+const (
+	Running       ResourceStatus = 0
+	Offline       ResourceStatus = 1
+	NotAllocation                = 2
+)
+
 type ApplyVo struct {
-	ID             uint      `json:"id"`
-	CreatedAt      time.Time `json:"createdAt"`
-	Name           string    `json:"name"`           //apply name
-	SelectNodeType string    `json:"selectNodeType"` //apply plugin
-	Status         int       `json:"status"`
-	LeaseTerm      int       `json:"leaseTerm"`
-	P2pForwardPort int       `json:"p2pForwardPort"`
-	CliForwardPort int       `json:"cliForwardPort"`
-	PeerId         string    `json:"peerId"`
+	ID             uint           `json:"id"`
+	CreatedAt      time.Time      `json:"createdAt"`
+	Name           string         `json:"name"`           //apply name
+	SelectNodeType string         `json:"selectNodeType"` //apply plugin
+	Status         int            `json:"status"`
+	LeaseTerm      int            `json:"leaseTerm"`
+	P2pForwardPort int            `json:"p2pForwardPort"`
+	CliForwardPort int            `json:"cliForwardPort"`
+	PeerId         string         `json:"peerId"`
+	ResourceStatus ResourceStatus `json:"resourceStatus"`
 }
 
 type ListVo struct {
@@ -81,5 +92,6 @@ type Service interface {
 	QueryCliP2pPort(id int) (int, error)
 	QueryNextCliP2pPort() int
 	UpdateApplicationCliForwardPort(id, port int) error
-	UpdatePeerIdAndOrderIndex(id, orderIndex int, peerId string) error
+	UpdatePeerIdAndOrderIndex(id, orderIndex, resourceIndex int, peerId string) error
+	UpdateApplicationResourceStatus(id int, resourceStatus ResourceStatus) error
 }

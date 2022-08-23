@@ -67,6 +67,7 @@ func (a *ServiceImpl) QueryApplicationById(id int) (ApplyVo, error) {
 	resultData.P2pForwardPort = data.P2pForwardPort
 	resultData.CliForwardPort = data.CliForwardPort
 	resultData.PeerId = data.PeerId
+
 	return resultData, nil
 }
 
@@ -152,11 +153,17 @@ func (a *ServiceImpl) QueryNextCliP2pPort() int {
 	return data.P2pForwardPort + 1
 }
 
-func (a *ServiceImpl) UpdatePeerIdAndOrderIndex(id, orderIndex int, peerId string) error {
+func (a *ServiceImpl) UpdatePeerIdAndOrderIndex(id, orderIndex, resourceIndex int, peerId string) error {
 	var applyData Application
-	result := a.db.Model(applyData).Where("id = ?", id).Updates(Application{OrderIndex: orderIndex, PeerId: peerId})
+	result := a.db.Model(applyData).Where("id = ?", id).Updates(Application{OrderIndex: orderIndex, ResourceIndex: resourceIndex, PeerId: peerId})
 	if result.Error != nil {
 		return result.Error
 	}
 	return nil
+}
+
+func (a *ServiceImpl) UpdateApplicationResourceStatus(id int, resourceStatus ResourceStatus) error {
+	var applyData Application
+	result := a.db.Model(applyData).Where("id = ?", id).Updates(Application{ResourceStatus: resourceStatus})
+	return result.Error
 }

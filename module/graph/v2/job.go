@@ -177,40 +177,58 @@ func (j *WaitResourceJob) Run(sc chan queue.StatusInfo) (queue.StatusInfo, error
 		for _, val := range mapData {
 
 			if val.Status.IsUnused {
-				fmt.Println("发现未使用资源，占用。资源号：", val.Index)
+				resourceIdex := val.Index
+				fmt.Println("发现未使用资源，占用。资源号：", resourceIdex)
 				data, err := j.applicationService.QueryApplicationById(j.applicationId)
 				if err != nil {
 					fmt.Println("get application failed,err is: ", err)
 					continue
 				}
-				c, err := types.NewCall(j.meta, "ResourceOrder.create_order_info", val.Index, types.NewU32(uint32(data.LeaseTerm)), "")
+
+				// check p2p connection can be connected
+				port := j.applicationService.QueryNextP2pPort()
+				err = j.p2pService.LinkByProtocol("/x/provider", port, string(val.PeerId))
+
+				if err != nil {
+					fmt.Println("create p2p network forward fail")
+					continue
+				}
+
+				c, err := types.NewCall(j.meta, "ResourceOrder.create_order_info", resourceIdex, types.NewU32(uint32(data.LeaseTerm)), "")
 				if err != nil {
 					fmt.Println(err.Error())
+					_, _ = j.p2pService.Close(fmt.Sprintf("/p2p/%s", string(val.PeerId)))
 					continue
 				}
+				var events pallet.MyEventRecords
 				err = pallet.CallAndWatch(j.api, c, j.meta, func(header *types.Header) error {
-					fmt.Println("资源占用成功，资源号：", val.Index)
-					return nil
+					fmt.Printf("资源占用成功，资源号： %d, 交易序号： %d", resourceIdex, header.Number)
+					// get order index
+					e, err := pallet.GetEvent(j.api, j.meta, uint64(header.Number))
+					events = *e
+					return err
 				}, pair)
 				if err != nil {
+					_, _ = j.p2pService.Close(fmt.Sprintf("/p2p/%s", string(val.PeerId)))
 					continue
 				}
-				j.applicationService.UpdatePeerIdAndOrderIndex(j.applicationId, int(val.Index), string(val.PeerId))
-				//ac, _ := j.accountService.GetAccount()
-				//ac.PeerId = string(val.PeerId)
-				//j.accountService.SaveAccount(&ac)
 
-				port := j.applicationService.QueryNextP2pPort()
+				var orderIndex types.U64
+				for _, e := range events.ResourceOrder_CreateOrderSuccess {
+					if e.ResourceIndex == resourceIdex {
+						orderIndex = e.OrderIndex
+					}
+				}
+
+				fmt.Println("查询到orderIndex: ", orderIndex)
+
+				_ = j.applicationService.UpdatePeerIdAndOrderIndex(j.applicationId, int(orderIndex), int(resourceIdex), string(val.PeerId))
 
 				err = j.applicationService.UpdateApplicationP2pForwardPort(j.applicationId, port)
 				if err != nil {
 					fmt.Println("query p2p max port fail")
 				}
-				err = j.p2pService.LinkByProtocol("/x/provider", port, string(val.PeerId))
 
-				if err != nil {
-					fmt.Println("create p2p network forward fail")
-				}
 				j.statusInfo.Status = queue.Succeeded
 				j.statusInfo.Error = ""
 				sc <- j.statusInfo

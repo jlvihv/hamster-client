@@ -24,7 +24,6 @@ import (
 	"gorm.io/gorm"
 	"hamster-client/config"
 
-	"github.com/centrifuge/go-substrate-rpc-client/v4/types"
 	"log"
 	"strings"
 	"time"
@@ -154,10 +153,11 @@ type Identity struct {
 
 // P2pClient p2p client
 type P2pClient struct {
-	Host host.Host
-	P2P  *ipfsp2p.P2P
-	DHT  *dht.IpfsDHT
-	db   *gorm.DB
+	Host  host.Host
+	P2P   *ipfsp2p.P2P
+	DHT   *dht.IpfsDHT
+	db    *gorm.DB
+	Peers []string
 }
 
 // P2PListenerInfoOutput  p2p monitoring or mapping information
@@ -219,20 +219,14 @@ func (c *P2pClient) Listen(protoOpt string, port int) error {
 // Forward connect p2p network to remote nodes / map to local port
 func (c *P2pClient) Forward(protoOpt string, port int, peerId string) error {
 
+	if peerId == "" {
+		return fmt.Errorf("peer id cannot be empty")
+	}
+
 	if err := c.CheckForwardHealth(protoOpt, peerId); err != nil {
-		var nodes []string
-		api := CreateApi()
-		meta, _ := api.RPC.State.GetMetadataLatest()
-		key, err := types.CreateStorageKey(meta, "Gateway", "Gateways")
-		api.RPC.State.GetStorageLatest(key, &nodes)
-		if len(nodes) > 0 {
-			fmt.Println("++++++++++++++++++")
-			for _, value := range nodes {
-				fmt.Println("peer id is: ", value)
-			}
-			fmt.Println("++++++++++++++++++")
-		}
-		bootstrapPeers := randomSubsetOfPeers(convertPeers(nodes), 1)
+		fmt.Println("CheckForwardHealth:", peerId)
+		fmt.Println("c.Peers:", c.Peers)
+		bootstrapPeers := randomSubsetOfPeers(convertPeers(c.Peers), 1)
 		if len(bootstrapPeers) == 0 {
 			return errors.New("not enough bootstrap peers")
 		}
@@ -312,7 +306,7 @@ func (c *P2pClient) CheckForwardHealth(protoOpt, target string) error {
 	if err != nil {
 		return err
 	}
-	cctx, cancel := context.WithTimeout(context.Background(), time.Second*30) //TODO: configurable?
+	cctx, cancel := context.WithTimeout(context.Background(), time.Second*3) //TODO: configurable?
 	defer cancel()
 	stream, err := c.Host.NewStream(cctx, targets.ID, proto)
 	if err != nil {
@@ -330,7 +324,6 @@ func (c *P2pClient) Close(target string) (int, error) {
 		return 0, err
 	}
 	match := func(listener ipfsp2p.Listener) bool {
-
 		if !targetAddress.Equal(listener.TargetAddress()) {
 			return false
 		}

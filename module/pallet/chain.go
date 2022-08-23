@@ -168,3 +168,26 @@ func Bond(api *gsrpc.SubstrateAPI, meta *types.Metadata, amount int64, pair sign
 		return err
 	}, pair)
 }
+
+func GetEvent(api *gsrpc.SubstrateAPI, meta *types.Metadata, blockNumber uint64) (*MyEventRecords, error) {
+	meta, err := api.RPC.State.GetMetadataLatest()
+	if err != nil {
+		return nil, err
+	}
+	bh, err := api.RPC.Chain.GetBlockHash(blockNumber)
+	if err != nil {
+		return nil, err
+	}
+	key, err := types.CreateStorageKey(meta, "System", "Events", nil)
+	if err != nil {
+		return nil, err
+	}
+	raw, err := api.RPC.State.GetStorageRaw(key, bh)
+	if err != nil {
+		return nil, err
+	}
+	// Decode the event records
+	events := MyEventRecords{}
+	err = types.EventRecordsRaw(*raw).DecodeEventRecords(meta, &events)
+	return &events, err
+}

@@ -67,7 +67,3 @@ func (s *P2p) WailsShutdown() {
 func (s *P2p) JudgeP2pReconnection() bool {
 	return s.p2pServer.JudgeP2pReconnection()
 }
-
-func (s *P2p) ReconnectionProLink(applicationId int) (bool, error) {
-	return s.p2pServer.ReconnectionProLink(applicationId)
-}

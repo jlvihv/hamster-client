@@ -15,7 +15,8 @@
   import { useRoute, useRouter } from 'vue-router';
   import { useI18n } from '/@/hooks/web/useI18n';
   import { Button } from 'ant-design-vue';
-  import { JudgeP2pReconnection, ReconnectionProLink } from '/@wails/go/app/P2p';
+  import { JudgeP2pReconnection } from '/@wails/go/app/P2p';
+  import { ReconnectionProLink } from '/@wails/go/app/Application';
   import { useMessage } from '/@/hooks/web/useMessage';
   const { proxy } = getCurrentInstance();
   const { t } = useI18n();
