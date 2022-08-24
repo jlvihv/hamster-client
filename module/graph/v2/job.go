@@ -148,6 +148,12 @@ func (j *WaitResourceJob) Run(sc chan queue.StatusInfo) (queue.StatusInfo, error
 		sc <- j.statusInfo
 		return j.statusInfo, err
 	}
+	if pair.Address == "" {
+		j.statusInfo.Status = queue.Failed
+		j.statusInfo.Error = errors.New("get Keypair failed").Error()
+		sc <- j.statusInfo
+		return j.statusInfo, err
+	}
 
 	if !j.bond {
 		// 100 unit
