@@ -48,6 +48,7 @@ func (g *ServiceImpl) SaveGraphDeployParameterAndApply(addData AddParam) (AddApp
 		applyData.Name = addData.Name
 		applyData.SelectNodeType = addData.SelectNodeType
 		applyData.LeaseTerm = addData.LeaseTerm
+		applyData.Status = application.Deploying
 		if err := tx.Create(&applyData).Error; err != nil {
 			return err
 		}

@@ -40,7 +40,7 @@ func (s *ServiceImpl) DeployTheGraph(id int, jsonData string) (bool, error) {
 	}
 	if info.PeerId == "" {
 		//Modify the status of the application to wait for resources
-		result := s.db.Model(application.Application{}).Where("id = ?", id).Update("status", config.WAIT_RESOURCE).Error
+		result := s.db.Model(application.Application{}).Where("id = ?", id).Update("status", application.Deploying).Error
 		if result != nil {
 			return false, result
 		}
@@ -76,7 +76,7 @@ func (s *ServiceImpl) DeployTheGraph(id int, jsonData string) (bool, error) {
 		return false, err
 	}
 	//Modification status is in deployment
-	result := s.db.Model(application.Application{}).Where("id = ?", id).Update("status", config.IN_DEPLOYMENT).Error
+	result := s.db.Model(application.Application{}).Where("id = ?", id).Update("status", application.Deploying).Error
 	if result != nil {
 		return false, result
 	}
@@ -116,7 +116,7 @@ func (s *ServiceImpl) DeployGraph(id int, sendData DeployParams) (bool, error) {
 		return false, err
 	}
 	//Modification status is in deployment
-	result := s.db.Model(application.Application{}).Where("id = ?", id).Update("status", config.IN_DEPLOYMENT).Error
+	result := s.db.Model(application.Application{}).Where("id = ?", id).Update("status", application.Deploying).Error
 	if result != nil {
 		return false, result
 	}
@@ -198,7 +198,7 @@ func (s *ServiceImpl) queryDeployStatus(id int) error {
 		}
 		fmt.Println("docker status :", res)
 		if res == 1 {
-			result := s.db.Model(application.Application{}).Where("status = ?", config.IN_DEPLOYMENT).Update("status", config.DEPLOYED).Error
+			result := s.db.Model(application.Application{}).Where("id = ?", id).Update("status", application.Running).Error
 			if result != nil {
 				fmt.Println("save  status :", result.Error())
 				if numbers >= 4 {
@@ -211,7 +211,7 @@ func (s *ServiceImpl) queryDeployStatus(id int) error {
 			continue
 		} else {
 			if numbers >= 4 {
-				s.db.Model(application.Application{}).Where("status = ?", config.IN_DEPLOYMENT).Update("status", config.DEPLOY_FAILED)
+				s.db.Model(application.Application{}).Where("id = ?", id).Update("status", application.DeploymentFailed)
 				return errors.New("deploy failed")
 			}
 		}

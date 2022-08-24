@@ -8,7 +8,6 @@ import (
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"hamster-client/app"
-	"hamster-client/config"
 	"hamster-client/module/account"
 	"hamster-client/module/application"
 	"hamster-client/module/deploy"
@@ -179,7 +178,7 @@ func (a *App) Shutdown(ctx context.Context) {
 
 func (a *App) initAllQueue() {
 	fmt.Println("start all queue")
-	list, err := a.ApplicationService.ApplicationList(0, 1000, "", config.ALL)
+	list, err := a.ApplicationService.ApplicationList(0, 1000, "", application.All)
 	if err != nil {
 		fmt.Println("get ApplicationList error:", err)
 		return

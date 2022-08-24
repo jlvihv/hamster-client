@@ -29,7 +29,7 @@
   const isLoading = ref(true);
 
   const isAppDeployed = computed(() =>
-    DictCodeEnum.ApplicationDeployStatus_Deployed.is(appInfo.status),
+    DictCodeEnum.ApplicationDeployStatus_Running.is(appInfo.status),
   );
 
   const getAppInfo = async () => {
