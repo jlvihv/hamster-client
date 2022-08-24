@@ -51,22 +51,27 @@
           </div>
         </template>
       </Input>
-      <div class="flex justify-between mt-[10px]">
-        <div>{{ t('applications.see.minAmount') }}</div>
-        <div>
-          <label class="text-[18px] font-bold mr-[3px]">10000000000</label
-          >{{ t('applications.see.grt') }}
-        </div>
-      </div>
-      <div class="flex justify-between my-[10px]">
-        <div>{{ t('applications.see.endPeriod') }}</div>
-        <div>
-          <label class="text-[18px] font-bold mr-[3px]">28</label>{{ t('applications.see.days') }}
-        </div>
-      </div>
-      <Button type="primary" size="large" @click="unStake" :loading="unStakeButtonLoading">{{
-        t('applications.see.unstake')
-      }}</Button>
+      <!--      <div class="flex justify-between mt-[10px]">-->
+      <!--        <div>{{ t('applications.see.minAmount') }}</div>-->
+      <!--        <div>-->
+      <!--          <label class="text-[18px] font-bold mr-[3px]">10000000000</label-->
+      <!--          >{{ t('applications.see.grt') }}-->
+      <!--        </div>-->
+      <!--      </div>-->
+      <!--      <div class="flex justify-between my-[10px]">-->
+      <!--        <div>{{ t('applications.see.endPeriod') }}</div>-->
+      <!--        <div>-->
+      <!--          <label class="text-[18px] font-bold mr-[3px]">28</label>{{ t('applications.see.days') }}-->
+      <!--        </div>-->
+      <!--      </div>-->
+      <Button
+        class="mt-[10px]"
+        type="primary"
+        size="large"
+        @click="unStake"
+        :loading="unStakeButtonLoading"
+        >{{ t('applications.see.unstake') }}</Button
+      >
     </div>
   </Form>
 </template>
