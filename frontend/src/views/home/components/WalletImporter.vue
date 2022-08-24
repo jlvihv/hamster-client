@@ -2,17 +2,24 @@
   <div class="text-[#222222] text-[40px] font-bold">{{ t('home.importWallet') }}</div>
   <div class="mt-[40px] text-center" v-if="!formData.fileList?.length">
     <div class="flex items-center justify-center my-[40px]">
-      <Upload
+      <component
+        :is="isWails && isMacOS ? UploadDragger : Upload"
         name="file"
         accept=".json"
-        class="upload-dnd-zone"
+        class="upload-dnd-zone !bg-transparent"
         v-model:fileList="formData.fileList"
         :maxCount="1"
         :beforeUpload="beforeUpload"
         :openFileDialogOnClick="false"
       >
-        <img :src="walletImage" class="w-[200px]" />
-      </Upload>
+        <div class="text-center px-3 cursor-pointer" v-if="isWails && isMacOS">
+          <img :src="walletImage" class="inline-block w-[200px]" />
+          <div v-if="isWails && isMacOS" class="mt-3 text-gray-500">{{
+            t('home.dragAccountToUpload')
+          }}</div>
+        </div>
+        <img :src="walletImage" class="inline-block w-[200px]" v-else />
+      </component>
     </div>
     <Upload
       name="file"
@@ -45,7 +52,7 @@
         <InputPassword :placeholder="t('home.pwd')" v-model:value="formData.password" />
       </FormItem>
     </Form>
-    <SvgButton @click="handleSubmit" class="text-primary" size="56" icon="next" />
+    <SvgButton @click="handleSubmit" iconClass="text-primary" size="56" icon="next" />
   </div>
 </template>
 
@@ -58,8 +65,9 @@
   import { useMessage } from '/@/hooks/web/useMessage';
   import { createKeyPair } from '/@/utils/polkadotUtil';
   import { useSettingStore } from '/@/store/modules/setting';
+  import { isWails, isMacOS } from '/@/utils/is';
   import walletImage from '/@/assets/images/wallet.png';
-  import { Upload, Form, FormItem, InputPassword } from 'ant-design-vue';
+  import { Upload, UploadDragger, Form, FormItem, InputPassword } from 'ant-design-vue';
 
   const emits = defineEmits(['submit']);
 

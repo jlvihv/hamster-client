@@ -22,7 +22,7 @@
               />
             </FormItem>
           </div>
-          <SvgButton @click="stepAction.setWsUrl" class="text-primary" size="56" icon="next" />
+          <SvgButton @click="stepAction.setWsUrl" iconClass="text-primary" size="56" icon="next" />
         </div>
         <div v-else-if="stepVal === 1">
           <div
@@ -41,7 +41,7 @@
           <div class="title-text my-[40px]">{{ t('home.complete') }}</div>
           <SvgButton
             @click="stepAction.gotoApplicationsPage"
-            class="text-primary"
+            iconClass="text-primary"
             size="56"
             icon="next"
           />
@@ -102,9 +102,6 @@
       hasBackButton.value = true;
     } else {
       if (settingStore.walletInfo?.addressJson) {
-        // Load setting config(wsUrl)
-        settingStore.getConfigAction();
-
         // Redirect to applidation index if wallet binded
         router.push('/applications/index');
       } else {
