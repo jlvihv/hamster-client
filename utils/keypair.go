@@ -35,6 +35,12 @@ func KeyringPairFromEncoded(encoded string, passphrase string, network uint8) (s
 		return signature.KeyringPair{}, err
 	}
 	encType := []string{"scrypt", "xsalsa20-poly1305"}
+	defer func() {
+		err := recover()
+		if err != nil {
+			fmt.Println("panic error is: ", err)
+		}
+	}()
 	secretKey, publicKey := decodePair(passphrase, decoded, encType)
 
 	return KeyringPairFromSecretKey(secretKey, publicKey, network)
