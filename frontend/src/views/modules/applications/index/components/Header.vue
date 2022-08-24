@@ -80,7 +80,7 @@
 </template>
 
 <script lang="ts" setup>
-  import { reactive, ref, computed, watchEffect } from 'vue';
+  import { reactive, ref, computed, watchEffect, onMounted } from 'vue';
   import { SvgIcon } from '/@/components/Icon';
   import { useRouter } from 'vue-router';
   import { useI18n } from '/@/hooks/web/useI18n';
@@ -144,6 +144,14 @@
   const onBack = async () => {
     router.push({ path: '/applications/index' });
   };
+
+  onMounted(async () => {
+    // Load setting config(wsUrl)
+    await settingStore.getConfigAction();
+    formData.wsUrl = settingStore.config?.wsUrl;
+
+    settingStore.getWalletInfoAction();
+  });
 </script>
 <style lang="less" scoped>
   :deep(.humster-svg-icon) {
