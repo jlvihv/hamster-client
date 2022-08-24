@@ -60,6 +60,7 @@ type ApplyVo struct {
 	P2pForwardPort int       `json:"p2pForwardPort"`
 	CliForwardPort int       `json:"cliForwardPort"`
 	PeerId         string    `json:"peerId"`
+	OrderIndex     int       `json:"orderIndex"`
 }
 
 type ListVo struct {
