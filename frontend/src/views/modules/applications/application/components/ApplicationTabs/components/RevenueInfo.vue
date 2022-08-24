@@ -72,6 +72,7 @@
     <StakeDrawer
       @query-stake="getStakeAmount"
       @close-drawer="onDrawerClose"
+      @get-balance="getAddressBalance"
       :stakeAmount="stakeTotal"
       :addressBalance="addressBalance"
       :addressAvatar="addressAvatar"
@@ -154,6 +155,12 @@
     unstakeVisible.value = false;
     withdrawVisible.value = false;
   }
+  const initData = () => {
+    getAddressBalance();
+    getIncome();
+    getStakeAmount();
+    getUnStakeAmount();
+  };
   const initAddress = () => {
     address.value = props.deployInfo?.deployment.indexerAddress;
     addressAvatar.value = createSvgAvatar(address.value);
@@ -285,6 +292,7 @@
       },
     });
   };
+  defineExpose({ initData });
 </script>
 <style lang="less" scoped>
   .drawer-revenue-info {

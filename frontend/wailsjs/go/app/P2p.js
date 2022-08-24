@@ -31,5 +31,5 @@ export function WailsInit(arg1) {
 }
 
 export function WailsShutdown() {
-  return window['go']['app']['P2p']['WailsShutdown']();
+  window['go']['app']['P2p']['WailsShutdown']();
 }

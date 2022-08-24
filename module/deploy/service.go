@@ -40,7 +40,7 @@ func (s *ServiceImpl) DeployTheGraph(id int, jsonData string) (bool, error) {
 	}
 	if info.PeerId == "" {
 		//Modify the status of the application to wait for resources
-		result := s.db.Model(application.Application{}).Where("id = ?", id).Update("status", config.WAIT_RESOURCE).Error
+		result := s.db.Model(application.Application{}).Where("id = ?", id).Update("status", application.Deploying).Error
 		if result != nil {
 			return false, result
 		}
@@ -76,7 +76,7 @@ func (s *ServiceImpl) DeployTheGraph(id int, jsonData string) (bool, error) {
 		return false, err
 	}
 	//Modification status is in deployment
-	result := s.db.Model(application.Application{}).Where("id = ?", id).Update("status", config.IN_DEPLOYMENT).Error
+	result := s.db.Model(application.Application{}).Where("id = ?", id).Update("status", application.Deploying).Error
 	if result != nil {
 		return false, result
 	}
@@ -116,11 +116,14 @@ func (s *ServiceImpl) DeployGraph(id int, sendData DeployParams) (bool, error) {
 		return false, err
 	}
 	//Modification status is in deployment
-	result := s.db.Model(application.Application{}).Where("id = ?", id).Update("status", config.IN_DEPLOYMENT).Error
+	result := s.db.Model(application.Application{}).Where("id = ?", id).Update("status", application.Deploying).Error
 	if result != nil {
 		return false, result
 	}
-	go s.queryDeployStatus(id)
+	err = s.queryDeployStatus(id)
+	if err != nil {
+		return false, err
+	}
 	return true, nil
 }
 func (s *ServiceImpl) GetDeployInfo(id int) (DeployParameter, error) {
@@ -180,24 +183,36 @@ func (g *ServiceImpl) graphStatusApi(providerUrl string, serviceName ...string) 
 }
 
 // query deploy graph status
-func (s *ServiceImpl) queryDeployStatus(id int) {
+func (s *ServiceImpl) queryDeployStatus(id int) error {
 	containerIds := []string{"graph-node", "postgres", "index-service", "index-agent", "index-cli"}
 	numbers := 0
 	for {
 		time.Sleep(time.Duration(10) * time.Second)
-		res, _ := s.QueryGraphStatus(id, containerIds...)
+		res, err := s.QueryGraphStatus(id, containerIds...)
+		if err != nil {
+			fmt.Println("docker status :", res)
+			if numbers >= 4 {
+				return err
+			}
+			continue
+		}
 		fmt.Println("docker status :", res)
 		if res == 1 {
-			result := s.db.Model(application.Application{}).Where("status = ?", config.IN_DEPLOYMENT).Update("status", config.DEPLOYED).Error
-			if result == nil {
-				return
+			result := s.db.Model(application.Application{}).Where("id = ?", id).Update("status", application.Running).Error
+			if result != nil {
+				fmt.Println("save  status :", result.Error())
+				if numbers >= 4 {
+					return result
+				}
+				continue
 			}
+			return nil
 		} else if res == config.RequestStatusFailed {
 			continue
 		} else {
-			if numbers >= 3 {
-				s.db.Model(application.Application{}).Where("status = ?", config.IN_DEPLOYMENT).Update("status", config.DEPLOY_FAILED)
-				return
+			if numbers >= 4 {
+				s.db.Model(application.Application{}).Where("id = ?", id).Update("status", application.DeploymentFailed)
+				return errors.New("deploy failed")
 			}
 		}
 		numbers = numbers + 1

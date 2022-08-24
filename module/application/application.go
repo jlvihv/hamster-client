@@ -9,7 +9,7 @@ type Application struct {
 	ID             uint           `json:"id" gorm:"primarykey"`
 	Name           string         `json:"name"`           //apply name
 	SelectNodeType string         `json:"selectNodeType"` //apply plugin
-	Status         int            `json:"status"`         //apply status 0: not deploy 1:deployed 2:ALL 3:wait resource 4:In deployment 5:deploy failed
+	Status         int            `json:"status" gorm:"default 2"`
 	P2pForwardPort int            `json:"p2pForwardPort"`
 	CliForwardPort int            `json:"cliForwardPort"`
 	GrtIncome      int64          `json:"grtIncome"`
@@ -20,6 +20,18 @@ type Application struct {
 	UpdatedAt      time.Time      `json:"updatedAt"`
 	DeletedAt      gorm.DeletedAt `json:"deletedAt" gorm:"index"`
 }
+
+type ApplicationStatus = int
+
+const DB_KEY_PREFIX = "queue_"
+
+const (
+	All              ApplicationStatus = iota // 0
+	Running                                   //1
+	Deploying                                 //2
+	DeploymentFailed                          //3
+	Offline                                   //4
+)
 
 type AddApplicationParam struct {
 	Name           string `json:"name"`           //apply name

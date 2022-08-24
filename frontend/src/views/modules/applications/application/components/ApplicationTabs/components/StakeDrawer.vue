@@ -63,12 +63,14 @@
           <label class="text-[18px] font-bold mr-[3px]">28</label>{{ t('applications.see.days') }}
         </div>
       </div>
-      <div class="flex my-[10px]">
-        <div class="seq-div !bg-[#043CC1]">1</div>{{ t('applications.see.gtrStak') }}
+      <div v-if="approveButtonVisible">
+        <div class="flex my-[10px]">
+          <div class="seq-div !bg-[#043CC1]">1</div>{{ t('applications.see.gtrStak') }}
+        </div>
+        <Button type="primary" size="large" @click="approve" :loading="approveLoading">{{
+          t('applications.see.grtAccess')
+        }}</Button>
       </div>
-      <Button type="primary" size="large" @click="approve" :loading="approveLoading">{{
-        t('applications.see.grtAccess')
-      }}</Button>
       <div class="flex my-[10px]">
         <div :class="stakeDisabled ? 'seq-div' : 'seq-div !bg-[#043CC1]'">2</div
         ><label class="text-[#7B8082]">{{ t('applications.see.gtrStak') }}</label>
@@ -104,8 +106,9 @@
   const approveLoading = ref(false);
   const stakeDisabled = ref(true);
   const stakingLoading = ref(false);
+  const approveButtonVisible = ref(true);
   const { createErrorModal } = useMessage();
-  const emits = defineEmits(['close-drawer', 'query-stake']);
+  const emits = defineEmits(['close-drawer', 'query-stake', 'get-balance']);
   const maxClick = () => {
     inputStakeAmount.value = props.addressBalance;
   };
@@ -120,6 +123,38 @@
   });
   const inputStakeChange = () => {
     inputStakeAmount.value = inputStakeAmount.value.replace(/[^\d.]/g, '');
+    judgeApprove();
+  };
+  const judgeApprove = async () => {
+    approveLoading.value = true;
+    const api = web3Api.value;
+    if (api && api.__config) {
+      const { erc20ContractAddress } = api.__config;
+      const address = props.deployInfo?.staking.agentAddress;
+      const owner = props.deployInfo?.deployment.indexerAddress;
+      const contract = buildContract(api, web3Abi.ecr20Abi, erc20ContractAddress);
+      try {
+        let data = await runContractMethod({
+          api,
+          contract,
+          method: 'allowance',
+          methodArgs: [owner, address],
+          type: 'call',
+        });
+        data = api.utils.fromWei(data);
+        if (inputStakeAmount.value * 1 <= data * 1) {
+          approveButtonVisible.value = false;
+          stakeDisabled.value = false;
+        } else {
+          approveButtonVisible.value = true;
+          stakeDisabled.value = true;
+        }
+        approveLoading.value = false;
+      } catch (e: any) {
+        approveButtonVisible.value = true;
+        approveLoading.value = false;
+      }
+    }
   };
   const approve = async () => {
     const api = web3Api.value;
@@ -139,7 +174,9 @@
         });
         approveLoading.value = false;
         stakeDisabled.value = false;
+        approveButtonVisible.value = false;
       } catch (e: any) {
+        approveButtonVisible.value = true;
         approveLoading.value = false;
         createErrorModal({
           title: t('common.errorTip'),
@@ -166,6 +203,7 @@
         inputStakeAmount.value = '';
         emits('close-drawer');
         emits('query-stake');
+        emits('get-balance');
         stakingLoading.value = false;
       } catch (e: any) {
         stakingLoading.value = false;
