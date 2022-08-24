@@ -105,7 +105,7 @@
 
     if (isMatch) {
       // call api to save wallet info
-      await settingStore.saveWalletAction(jsonContent.address, jsonString);
+      await settingStore.saveWalletAction(jsonContent.address, jsonString, password);
       emits('submit', formData);
     } else {
       createErrorModal({ title: t('common.errorTip'), content: t('home.passwordError') });
