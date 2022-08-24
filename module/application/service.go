@@ -161,9 +161,3 @@ func (a *ServiceImpl) UpdatePeerIdAndOrderIndex(id, orderIndex, resourceIndex in
 	}
 	return nil
 }
-
-func (a *ServiceImpl) UpdateApplicationResourceStatus(id int, resourceStatus ResourceStatus) error {
-	var applyData Application
-	result := a.db.Model(applyData).Where("id = ?", id).Updates(Application{ResourceStatus: resourceStatus})
-	return result.Error
-}

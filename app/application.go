@@ -59,16 +59,15 @@ func (a *Application) QueryApplicationById(id int) (application.ApplyVo, error) 
 	vo, err := a.applicationService.QueryApplicationById(id)
 
 	if vo.PeerId == "" {
-		vo.ResourceStatus = application.NotAllocation
 		return vo, err
 	}
 
-	if vo.ResourceStatus == application.Running {
+	if vo.Status == application.Running {
 		_ = a.p2pService.LinkByProtocol("/x/provider", vo.P2pForwardPort, vo.PeerId)
 		containerIds := []string{"graph-node", "postgres", "index-service", "index-agent", "index-cli"}
 		status, err := a.deployService.QueryGraphStatus(int(vo.ID), containerIds...)
 		if err != nil || status != 1 {
-			_ = a.applicationService.UpdateApplicationResourceStatus(int(vo.ID), application.Offline)
+			_ = a.applicationService.UpdateApplicationStatus(int(vo.ID), application.Offline)
 		}
 	}
 
