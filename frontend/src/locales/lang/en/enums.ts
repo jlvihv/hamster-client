@@ -1,12 +1,11 @@
 export default {
   dictCodeEnum: {
     ApplicationDeployStatus: 'Status',
-    ApplicationDeployStatus_0: 'Not Deployed',
-    ApplicationDeployStatus_1: 'Deployed',
-    ApplicationDeployStatus_2: 'All',
-    ApplicationDeployStatus_3: 'Waiting Resource',
-    ApplicationDeployStatus_4: 'In Progress',
-    ApplicationDeployStatus_5: 'Failed',
+    ApplicationDeployStatus_0: 'All',
+    ApplicationDeployStatus_1: 'Running',
+    ApplicationDeployStatus_2: 'Deploying',
+    ApplicationDeployStatus_3: 'DeploymentFailed',
+    ApplicationDeployStatus_4: 'Offline',
     ApplicationQueueStatus: 'Deployment Status',
     ApplicationQueueStatus_0: 'Not Started',
     ApplicationQueueStatus_1: 'Running',

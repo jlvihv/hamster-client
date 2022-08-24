@@ -53,7 +53,7 @@
       <div class="flex justify-between mt-[10px]">
         <div>{{ t('applications.see.minAmount') }}</div>
         <div>
-          <label class="text-[18px] font-bold mr-[3px]">10000000000</label
+          <label class="text-[18px] font-bold mr-[3px]">100000</label
           >{{ t('applications.see.grt') }}
         </div>
       </div>
