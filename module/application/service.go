@@ -67,6 +67,7 @@ func (a *ServiceImpl) QueryApplicationById(id int) (ApplyVo, error) {
 	resultData.P2pForwardPort = data.P2pForwardPort
 	resultData.CliForwardPort = data.CliForwardPort
 	resultData.PeerId = data.PeerId
+	resultData.OrderIndex = data.OrderIndex
 
 	return resultData, nil
 }

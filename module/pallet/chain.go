@@ -191,3 +191,13 @@ func GetEvent(api *gsrpc.SubstrateAPI, meta *types.Metadata, blockNumber uint64)
 	err = types.EventRecordsRaw(*raw).DecodeEventRecords(meta, &events)
 	return &events, err
 }
+
+func CancelOrder(api *gsrpc.SubstrateAPI, meta *types.Metadata, keypair signature.KeyringPair, orderIndex int) error {
+	c, err := types.NewCall(meta, "ResourceOrder.cancel_order", types.NewU64(uint64(orderIndex)))
+
+	if err != nil {
+		return err
+	}
+
+	return CallAndWatch(api, c, meta, nil, keypair)
+}

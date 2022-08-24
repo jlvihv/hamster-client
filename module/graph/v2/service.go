@@ -14,6 +14,7 @@ import (
 	"hamster-client/module/deploy"
 	"hamster-client/module/keystorage"
 	"hamster-client/module/p2p"
+	"hamster-client/module/pallet"
 	queue2 "hamster-client/module/queue"
 	"hamster-client/module/wallet"
 	"hamster-client/utils"
@@ -93,7 +94,11 @@ func (g *ServiceImpl) SaveGraphDeployParameterAndApply(addData AddParam) (AddApp
 
 func (g *ServiceImpl) DeleteGraphDeployParameterAndApply(id int) (bool, error) {
 	_ = g.queueService.StopQueue(id)
-	err := g.db.Transaction(func(tx *gorm.DB) error {
+	app, err := g.applicationService.QueryApplicationById(id)
+	if err != nil {
+		return false, err
+	}
+	err = g.db.Transaction(func(tx *gorm.DB) error {
 		if err := tx.Debug().Where("id = ?", id).Delete(&application.Application{}).Error; err != nil {
 			return err
 		}
@@ -107,6 +112,16 @@ func (g *ServiceImpl) DeleteGraphDeployParameterAndApply(id int) (bool, error) {
 	}
 	//delete key storage
 	//stop docker
+	keypair, err := g.walletService.GetWalletKeypair()
+	if err != nil {
+		return true, nil
+	}
+	if api, err := g.accountService.GetSubstrateApi(); err == nil {
+		if meta, err := api.RPC.State.GetMetadataLatest(); err == nil {
+			_ = pallet.CancelOrder(api, meta, keypair, app.OrderIndex)
+		}
+	}
+
 	return true, nil
 }
 
