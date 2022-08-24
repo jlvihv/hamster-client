@@ -30,7 +30,11 @@ func (s *ServiceImpl) getP2pClient() (*P2pClient, error) {
 	p2pConfig, err := s.GetSetting()
 	if err != nil {
 		runtime.LogError(s.ctx, "getP2pClient GetSetting is error %s"+err.Error())
-		return nil, err
+		_ = s.InitSetting()
+		p2pConfig, err = s.GetSetting()
+		if err != nil {
+			return nil, err
+		}
 	}
 	if p2pConfig.PrivateKey == "" {
 		runtime.LogWarning(s.ctx, "getP2pClient p2p config is null")
