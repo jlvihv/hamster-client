@@ -63,6 +63,15 @@
             {{ t('common.doneText') }}
           </Button>
         </router-link>
+        <Button
+          size="large"
+          class="w-32 mt-6 ml-4"
+          type="danger"
+          @click="handlerDelete"
+          shape="round"
+        >
+          {{ t('common.delText') }}
+        </Button>
       </div>
     </div>
     <div class="text-center text-xl font-bold p-6" v-else>{{ t('common.loadingText') }}</div>
@@ -76,13 +85,15 @@
   import { GetQueueInfo } from '/@wails/go/app/Queue';
   import { DictCodeEnum } from '/@/enums/dictCodeEnum';
   import { Timeline, TimelineItem, Button } from 'ant-design-vue';
-  import { RefreshGraphDeployJob } from '/@wails/go/app/Application';
+  import { RefreshGraphDeployJob, DeleteApplication } from '/@wails/go/app/Application';
+  import { useRouter } from 'vue-router';
 
   const props = defineProps({
     applicationId: Number,
   });
 
   const { t } = useI18n();
+  const router = useRouter();
 
   const queueInfo = ref([]);
   const fetchQueueInfo = async () => {
@@ -107,6 +118,15 @@
   const handleQueueFailed = async () => {
     const data = await RefreshGraphDeployJob(props.applicationId);
     console.info(data);
+  };
+
+  const handlerDelete = async () => {
+    const data = await DeleteApplication(props.applicationId);
+    if (data) {
+      await router.push({
+        path: '/applications',
+      });
+    }
   };
 
   // Load info when entering page

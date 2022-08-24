@@ -2,7 +2,6 @@ package p2p
 
 import (
 	"fmt"
-	gsrpc "github.com/centrifuge/go-substrate-rpc-client/v4"
 	"github.com/mitchellh/go-homedir"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
@@ -10,18 +9,6 @@ import (
 	"os"
 	"path/filepath"
 )
-
-func CreateApi() *gsrpc.SubstrateAPI {
-	var user account.Account
-
-	db := initDB()
-	result := db.First(&user)
-	if result.Error != nil {
-		user.WsUrl = CONFIG_DEFAULT_CHAIN_API
-	}
-	substrateApi, _ := gsrpc.NewSubstrateAPI(user.WsUrl)
-	return substrateApi
-}
 
 func initDB() *gorm.DB {
 	configPath := initConfigPath()

@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	gsrpc "github.com/centrifuge/go-substrate-rpc-client/v4"
 	"github.com/go-resty/resty/v2"
 	log "github.com/sirupsen/logrus"
 	"gorm.io/gorm"
@@ -84,11 +83,16 @@ func (g *ServiceImpl) SaveGraphDeployParameterAndApply(addData AddParam) (AddApp
 	g.keyStorageService.Set("graph_"+strconv.Itoa(int(applyData.ID)), string(jsonData))
 	applicationVo.Result = true
 	applicationVo.ID = applyData.ID
+	_, err = g.accountService.GetSubstrateApi()
+	if err != nil {
+		return applicationVo, err
+	}
 	go g.deployGraphJob(int(applyData.ID), pluginDeployInfo.EndpointUrl, pluginDeployInfo.ChainId)
 	return applicationVo, nil
 }
 
 func (g *ServiceImpl) DeleteGraphDeployParameterAndApply(id int) (bool, error) {
+	_ = g.queueService.StopQueue(id)
 	err := g.db.Transaction(func(tx *gorm.DB) error {
 		if err := tx.Debug().Where("id = ?", id).Delete(&application.Application{}).Error; err != nil {
 			return err
@@ -113,7 +117,10 @@ func (g *ServiceImpl) deployGraphJob(applicationId int, networkUrl string, chain
 	if err != nil {
 		accountInfo.WsUrl = config.DefaultPolkadotNode
 	}
-	substrateApi, _ := gsrpc.NewSubstrateAPI(accountInfo.WsUrl)
+	substrateApi, err := g.accountService.GetSubstrateApi()
+	if err != nil {
+		return
+	}
 	waitResourceJob, _ := NewWaitResourceJob(substrateApi, g.accountService, g.applicationService, g.p2pServer, applicationId, g.walletService)
 
 	pullJob := NewPullImageJob(g.applicationService, applicationId, g.p2pServer, g.accountService, g.walletService)
@@ -147,12 +154,10 @@ func (g *ServiceImpl) RetryDeployGraphJob(applicationId int, runNow bool) error 
 		}
 		pluginDeployInfo := config.PluginMap[data.SelectNodeType]
 		stakingJob := NewGraphStakingJob(g.keyStorageService, applicationId, pluginDeployInfo.EndpointUrl, pluginDeployInfo.ChainId)
-		var accountInfo account.Account
-		accountInfo, err := g.accountService.GetAccount()
+		substrateApi, err := g.accountService.GetSubstrateApi()
 		if err != nil {
-			accountInfo.WsUrl = config.DefaultPolkadotNode
+			return err
 		}
-		substrateApi, _ := gsrpc.NewSubstrateAPI(accountInfo.WsUrl)
 		waitResourceJob, _ := NewWaitResourceJob(substrateApi, g.accountService, g.applicationService, g.p2pServer, applicationId, g.walletService)
 
 		pullJob := NewPullImageJob(g.applicationService, applicationId, g.p2pServer, g.accountService, g.walletService)
@@ -217,12 +222,10 @@ func (g *ServiceImpl) GetQueueInfo(applicationId int) (QueueInfo, error) {
 	}
 	pluginDeployInfo := config.PluginMap[data.SelectNodeType]
 	stakingJob := NewGraphStakingJob(g.keyStorageService, applicationId, pluginDeployInfo.EndpointUrl, pluginDeployInfo.ChainId)
-	var accountInfo account.Account
-	accountInfo, err := g.accountService.GetAccount()
+	substrateApi, err := g.accountService.GetSubstrateApi()
 	if err != nil {
-		accountInfo.WsUrl = config.DefaultPolkadotNode
+		return QueueInfo{}, err
 	}
-	substrateApi, _ := gsrpc.NewSubstrateAPI(accountInfo.WsUrl)
 	waitResourceJob, _ := NewWaitResourceJob(substrateApi, g.accountService, g.applicationService, g.p2pServer, applicationId, g.walletService)
 
 	pullJob := NewPullImageJob(g.applicationService, applicationId, g.p2pServer, g.accountService, g.walletService)
@@ -318,7 +321,18 @@ func (g *ServiceImpl) GraphRules(appID int) ([]GraphRule, error) {
 	if err != nil {
 		return nil, err
 	}
-	return result.Result, nil
+
+	filter := func(in []GraphRule) []GraphRule {
+		n := 0
+		for _, val := range in {
+			if val.DecisionBasis == "always" {
+				in[n] = val
+			}
+		}
+		return in[:n]
+	}
+
+	return filter(result.Result), nil
 }
 
 func parseResponseError(resp *resty.Response) error {

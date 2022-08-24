@@ -16,6 +16,7 @@ type Application struct {
 	LeaseTerm      int            `json:"leaseTerm"`
 	PeerId         string         `json:"peerId"`
 	OrderIndex     int            `json:"orderIndex"`
+	ResourceIndex  int            `json:"resourceIndex"`
 	CreatedAt      time.Time      `json:"createdAt"`
 	UpdatedAt      time.Time      `json:"updatedAt"`
 	DeletedAt      gorm.DeletedAt `json:"deletedAt" gorm:"index"`
@@ -81,5 +82,5 @@ type Service interface {
 	QueryCliP2pPort(id int) (int, error)
 	QueryNextCliP2pPort() int
 	UpdateApplicationCliForwardPort(id, port int) error
-	UpdatePeerIdAndOrderIndex(id, orderIndex int, peerId string) error
+	UpdatePeerIdAndOrderIndex(id, orderIndex, resourceIndex int, peerId string) error
 }

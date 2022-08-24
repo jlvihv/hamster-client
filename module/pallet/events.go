@@ -18,8 +18,18 @@ type EventBalance struct {
 	Topics    []types.Hash
 }
 
+type EventResourceOrderCreateOrderSuccess struct {
+	Phase         types.Phase
+	AccountId     types.AccountID
+	OrderIndex    types.U64
+	ResourceIndex types.U64
+	Duration      types.U32
+	PublicKey     string
+	Topics        []types.Hash
+}
+
 type MyEventRecords struct {
 	types.EventRecords
-	ResourceOrder_FreeResourceProcessed []EventFreeResourceApplied
-	Balances_Withdraw                   []EventBalance //org approve event
+	ResourceOrder_CreateOrderSuccess []EventResourceOrderCreateOrderSuccess //nolint:stylecheck,golint
+	Balances_Withdraw                []EventBalance                         //org approve event
 }

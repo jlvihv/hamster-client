@@ -2,20 +2,28 @@ package app
 
 import (
 	"context"
+	"fmt"
+	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"hamster-client/module/application"
+	"hamster-client/module/deploy"
 	param "hamster-client/module/graph/v2"
+	"hamster-client/module/p2p"
 )
 
 type Application struct {
 	ctx                     context.Context
 	applicationService      application.Service
 	graphDeployParamService param.Service
+	p2pService              p2p.Service
+	deployService           deploy.Service
 }
 
-func NewApplicationApp(service application.Service, graphDeployParamService param.Service) Application {
+func NewApplicationApp(service application.Service, graphDeployParamService param.Service, p2pService p2p.Service, deployService deploy.Service) Application {
 	return Application{
 		applicationService:      service,
 		graphDeployParamService: graphDeployParamService,
+		p2pService:              p2pService,
+		deployService:           deployService,
 	}
 }
 
@@ -35,7 +43,10 @@ func (a *Application) UpdateApplication(application application.UpdateApplicatio
 }
 
 func (a *Application) DeleteApplication(id int) (bool, error) {
-	return a.graphDeployParamService.DeleteGraphDeployParameterAndApply(id)
+	fmt.Println("DeleteApplication: ", id)
+	result, err := a.graphDeployParamService.DeleteGraphDeployParameterAndApply(id)
+	fmt.Println("result: ", result, "err: ", err)
+	return result, err
 }
 
 // ApplicationList Paging query application list
@@ -45,9 +56,40 @@ func (a *Application) ApplicationList(page, pageSize int, name string, status in
 
 // QueryApplicationById query application by applicationId
 func (a *Application) QueryApplicationById(id int) (application.ApplyVo, error) {
-	return a.applicationService.QueryApplicationById(id)
+	vo, err := a.applicationService.QueryApplicationById(id)
+
+	if vo.PeerId == "" {
+		return vo, err
+	}
+
+	if vo.Status == application.Running {
+		_ = a.p2pService.LinkByProtocol("/x/provider", vo.P2pForwardPort, vo.PeerId)
+		containerIds := []string{"graph-node", "postgres", "index-service", "index-agent", "index-cli"}
+		status, err := a.deployService.QueryGraphStatus(int(vo.ID), containerIds...)
+		if err != nil || status != 1 {
+			_ = a.applicationService.UpdateApplicationStatus(int(vo.ID), application.Offline)
+		}
+	}
+
+	return vo, err
 }
 
 func (a *Application) RefreshGraphDeployJob(applicationId int) error {
 	return a.graphDeployParamService.RetryDeployGraphJob(applicationId, true)
+}
+
+func (a *Application) ReconnectionProLink(applicationId int) (bool, error) {
+	applicationInfo, err := a.applicationService.QueryApplicationById(applicationId)
+	if err != nil {
+		runtime.LogError(a.ctx, "Get application error")
+		return false, err
+	}
+	if applicationInfo.PeerId != "" {
+		err := a.p2pService.ProLink(applicationInfo.PeerId)
+		if err != nil {
+			return false, err
+		}
+		return true, nil
+	}
+	return false, nil
 }

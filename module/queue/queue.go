@@ -35,6 +35,7 @@ type Queue interface {
 	ID() int
 	GetStatus() (info []StatusInfo, err error)
 	Start(done chan struct{})
+	Stop() error
 	Reset()
 	SaveStatus(db *gorm.DB) error
 	LoadStatus(db *gorm.DB) error
@@ -48,6 +49,7 @@ type queue struct {
 	jobs          []Job
 	index         int
 	mu            sync.Mutex
+	cancel        func()
 }
 
 func NewQueue(id int, jobs ...Job) (q Queue, err error) {
@@ -84,15 +86,21 @@ func (q *queue) Start(done chan struct{}) {
 	}
 	statusInfo := make(chan StatusInfo)
 
-	go func() {
+	ctx, cancel := context.WithCancel(context.Background())
+	q.cancel = cancel
+	go func(ctx context.Context) {
 		for {
 			select {
+			case <-ctx.Done():
+				fmt.Println("cancel ")
+				return
+
 			case si := <-statusInfo:
 				name := q.jobs[q.index].Status().Name
 				q.statusInfoMap.Store(name, si)
 			}
 		}
-	}()
+	}(ctx)
 
 	for i, j := range q.jobs {
 		q.mu.Lock()
@@ -202,6 +210,11 @@ func (q *queue) Reset() {
 		j.InitStatus()
 	}
 	q.InitStatus()
+}
+
+func (q *queue) Stop() error {
+	q.cancel()
+	return nil
 }
 
 func isJobDuplicate(jobs ...Job) bool {
