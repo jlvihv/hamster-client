@@ -28,8 +28,10 @@
   const appInfo = reactive({});
   const isLoading = ref(true);
 
-  const isAppDeployed = computed(() =>
-    DictCodeEnum.ApplicationDeployStatus_Running.is(appInfo.status),
+  const isAppDeployed = computed(
+    () =>
+      DictCodeEnum.ApplicationDeployStatus_Running.is(appInfo.status) ||
+      DictCodeEnum.ApplicationDeployStatus_Offline.is(appInfo.status),
   );
 
   const getAppInfo = async () => {

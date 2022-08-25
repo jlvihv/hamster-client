@@ -24,7 +24,7 @@
             <SvgIcon color="#63A0FA" size="16" name="time" />
             <label class="text-[#7B8082] ml-[6px]">{{ t('applications.see.thawLeft') }}</label>
           </div>
-          <div class="text-[18px] font-bold">1D 0H 19M</div>
+          <div class="text-[18px] font-bold">{{ thawingTime }}</div>
         </div>
       </div>
     </div>
@@ -35,6 +35,7 @@
         size="large"
         @click="withdraw"
         :loading="withdrawButtonLoading"
+        :disabled="withdrawDisabled"
       >
         {{ t('applications.see.withdraw') }}
       </Button>
@@ -45,20 +46,30 @@
   import { useI18n } from '/@/hooks/web/useI18n';
   import { SvgIcon } from '/@/components/Icon';
   import { Button } from 'ant-design-vue';
-  import { computed, ref } from 'vue';
+  import { computed, onMounted, ref } from 'vue';
   import { buildContract, createWeb3Api, runContractMethod, web3Abi } from '/@/utils/web3Util';
   import { useMessage } from '/@/hooks/web/useMessage';
+  import { QueryApplicationById } from '/@wails/go/app/Application';
+  import { BigNumber } from 'ethers';
+  import { blockTime } from '/@/utils/constant';
+  import { formatSeconds } from '/@/utils/dateUtil';
   // defines
   const props = defineProps({
     unStakeAmount: String,
     addressAvatar: String,
     shortAddress: String,
     deployInfo: Object as PropType<Recordable>,
+    applicationId: Number,
+  });
+  onMounted(() => {
+    getDeadline();
   });
   const { t } = useI18n();
-  const emits = defineEmits(['close-drawer', 'query-un-stake', 'query-stake']);
+  const emits = defineEmits(['close-drawer', 'query-un-stake', 'query-stake', 'get-balance']);
   const { createErrorModal } = useMessage();
   const withdrawButtonLoading = ref(false);
+  const withdrawDisabled = ref(false);
+  const thawingTime = ref('0D');
   const web3Api = computed(() => {
     const { initialization, staking } = props.deployInfo;
     const accountMnemonic = initialization.accountMnemonic;
@@ -68,6 +79,26 @@
     }
     return undefined;
   });
+  const getDeadline = async () => {
+    const applicationData = await QueryApplicationById(props.applicationId);
+    const api = web3Api.value;
+    if (api) {
+      const blockNumber = await api.eth.getBlockNumber();
+      if (applicationData['thinkingTime'] > blockNumber) {
+        const difference = BigNumber.from(applicationData['thinkingTime']).sub(
+          BigNumber.from(blockNumber),
+        );
+        thawingTime.value = formatSeconds(difference.toNumber() * blockTime);
+      } else {
+        thawingTime.value = '0D';
+      }
+    }
+    if (thawingTime.value == '0D' && props.unStakeAmount != '0') {
+      withdrawDisabled.value = false;
+    } else {
+      withdrawDisabled.value = true;
+    }
+  };
   const withdraw = async () => {
     const api = web3Api.value;
     if (api) {
@@ -82,9 +113,10 @@
           methodArgs: [],
           type: 'send',
         });
-        emits('close-drawer');
         emits('query-un-stake');
         emits('query-stake');
+        emits('get-balance');
+        emits('close-drawer');
         withdrawButtonLoading.value = false;
       } catch (e: any) {
         withdrawButtonLoading.value = false;

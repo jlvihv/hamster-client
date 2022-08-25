@@ -363,6 +363,7 @@ func (g *GraphStakingJob) Run(sc chan queue.StatusInfo) (queue.StatusInfo, error
 			sc <- g.statusInfo
 			return g.statusInfo, err
 		}
+		time.Sleep(time.Second * 2)
 		// Get the agent pledge address again
 		stakingAddress, err = ethAbi.StakeProxyFactoryAbiGetStakingAddress(context.Background(), address, client)
 		if err != nil {
@@ -372,27 +373,16 @@ func (g *GraphStakingJob) Run(sc chan queue.StatusInfo) (queue.StatusInfo, error
 			sc <- g.statusInfo
 			return g.statusInfo, err
 		}
-	}
-	// Authorize the agency pledge address
-	err = ethAbi.Ecr20AbiApprove(stakingAddress, client, big.NewInt(g.chainId), stakingAmount, privateKey)
-	if err != nil {
-		fmt.Println("approve failed, err is :", err)
-		g.statusInfo.Status = queue.Failed
-		g.statusInfo.Error = err.Error()
-		sc <- g.statusInfo
-		return g.statusInfo, err
-	}
-
-	// get staking amount
-	amount, err := ethAbi.StakeDistributionProxyAbiGetStakingAmount(context.Background(), stakingAddress, client)
-	if err != nil {
-		fmt.Println("get stake amount failed, err is :", err)
-		g.statusInfo.Status = queue.Failed
-		g.statusInfo.Error = err.Error()
-		sc <- g.statusInfo
-		return g.statusInfo, err
-	}
-	if amount.Cmp(big.NewInt(0)) == 0 {
+		// Authorize the agency pledge address
+		err = ethAbi.Ecr20AbiApprove(stakingAddress, client, big.NewInt(g.chainId), stakingAmount, privateKey)
+		if err != nil {
+			fmt.Println("approve failed, err is :", err)
+			g.statusInfo.Status = queue.Failed
+			g.statusInfo.Error = err.Error()
+			sc <- g.statusInfo
+			return g.statusInfo, err
+		}
+		time.Sleep(time.Second * 3)
 		//GRT pledge
 		err = ethAbi.StakeDistributionProxyAbiStaking(stakingAddress, client, big.NewInt(g.chainId), stakingAmount, privateKey)
 		if err != nil {
@@ -401,6 +391,37 @@ func (g *GraphStakingJob) Run(sc chan queue.StatusInfo) (queue.StatusInfo, error
 			g.statusInfo.Error = err.Error()
 			sc <- g.statusInfo
 			return g.statusInfo, err
+		}
+	} else {
+		// get staking amount
+		amount, err := ethAbi.StakeDistributionProxyAbiGetStakingAmount(context.Background(), stakingAddress, client)
+		if err != nil {
+			fmt.Println("get stake amount failed, err is :", err)
+			g.statusInfo.Status = queue.Failed
+			g.statusInfo.Error = err.Error()
+			sc <- g.statusInfo
+			return g.statusInfo, err
+		}
+		if amount.Cmp(big.NewInt(0)) == 0 {
+			// Authorize the agency pledge address
+			err = ethAbi.Ecr20AbiApprove(stakingAddress, client, big.NewInt(g.chainId), stakingAmount, privateKey)
+			if err != nil {
+				fmt.Println("approve failed, err is :", err)
+				g.statusInfo.Status = queue.Failed
+				g.statusInfo.Error = err.Error()
+				sc <- g.statusInfo
+				return g.statusInfo, err
+			}
+			time.Sleep(time.Second * 3)
+			//GRT pledge
+			err = ethAbi.StakeDistributionProxyAbiStaking(stakingAddress, client, big.NewInt(g.chainId), stakingAmount, privateKey)
+			if err != nil {
+				fmt.Println("staking failed, err is :", err)
+				g.statusInfo.Status = queue.Failed
+				g.statusInfo.Error = err.Error()
+				sc <- g.statusInfo
+				return g.statusInfo, err
+			}
 		}
 	}
 	param.Deployment.IndexerAddress = addr
