@@ -162,7 +162,10 @@ wails dev
 ### 6.1 Team blog
 > https://github.com/hamster-shared
 
-## 7. Contributors
+## 7. Maintainers
+> ltyuanmu@gmail.com                                                       
+                                                            
+## 8. Contributors
 
 Thank you for considering your contribution to hamster!
 
@@ -170,6 +173,6 @@ Thank you for considering your contribution to hamster!
   <img src="https://contrib.rocks/image?repo=hamster-shared/hamster-client" />
 </a>
 
-## 8. Commercial considerations
+## 9. Commercial considerations
 
 If you use this project for commercial purposes, please comply with the Apache2.0 agreement and retain the author's technical support statement.
