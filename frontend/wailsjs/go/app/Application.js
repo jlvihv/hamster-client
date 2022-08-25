@@ -14,24 +14,24 @@ export function RefreshGraphDeployJob(arg1) {
   return window['go']['app']['Application']['RefreshGraphDeployJob'](arg1);
 }
 
-export function DeleteApplication(arg1) {
-  return window['go']['app']['Application']['DeleteApplication'](arg1);
-}
-
-export function ApplicationList(arg1, arg2, arg3, arg4) {
-  return window['go']['app']['Application']['ApplicationList'](arg1, arg2, arg3, arg4);
-}
-
-export function UpdateApplication(arg1) {
-  return window['go']['app']['Application']['UpdateApplication'](arg1);
-}
-
 export function UpdateApplicationIncome(arg1, arg2) {
   return window['go']['app']['Application']['UpdateApplicationIncome'](arg1, arg2);
 }
 
 export function UpdateThinkingTime(arg1, arg2) {
   return window['go']['app']['Application']['UpdateThinkingTime'](arg1, arg2);
+}
+
+export function ApplicationList(arg1, arg2, arg3, arg4) {
+  return window['go']['app']['Application']['ApplicationList'](arg1, arg2, arg3, arg4);
+}
+
+export function DeleteApplication(arg1) {
+  return window['go']['app']['Application']['DeleteApplication'](arg1);
+}
+
+export function UpdateApplication(arg1) {
+  return window['go']['app']['Application']['UpdateApplication'](arg1);
 }
 
 export function WailsInit(arg1) {
