@@ -213,7 +213,10 @@ func (q *queue) Reset() {
 }
 
 func (q *queue) Stop() error {
-	q.cancel()
+	if q.cancel != nil {
+		q.cancel()
+	}
+
 	return nil
 }
 

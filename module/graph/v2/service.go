@@ -342,6 +342,7 @@ func (g *ServiceImpl) GraphRules(appID int) ([]GraphRule, error) {
 		for _, val := range in {
 			if val.DecisionBasis == "always" {
 				in[n] = val
+				n++
 			}
 		}
 		return in[:n]
