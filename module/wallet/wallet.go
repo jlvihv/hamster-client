@@ -21,6 +21,7 @@ type WalletJson struct {
 	Encoded  string             `json:"encoded"`
 	Encoding WalletJsonEncoding `json:"encoding"`
 	Address  string             `json:"address"`
+	Meta     WalletJsonMeta     `json:"meta"`
 }
 
 type WalletJsonEncoding struct {
