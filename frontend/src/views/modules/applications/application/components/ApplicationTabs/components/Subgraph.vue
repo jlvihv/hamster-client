@@ -16,12 +16,11 @@
       <Button
         class="!text-[#63A0FA] text-[14px] mt-[20px] border !border-[#63A0FA] rounded-[4px] h-[30px] !min-w-[100px]"
         :loading="subgraphDeployLoading[getSubgraphIpfsHash(item)]"
-        :disabled="deployedSubgraphIdentifiers.includes(getSubgraphIpfsHash(item))"
         @click="handleDeploySubgraph(item)"
       >
         {{
           deployedSubgraphIdentifiers.includes(getSubgraphIpfsHash(item))
-            ? t('applications.see.deployed')
+            ? t('applications.see.stop')
             : t('applications.see.start')
         }}
       </Button>
@@ -47,7 +46,7 @@
   import { useLoadMore } from '/@/hooks/web/useLoadMore';
   import { createSubgraphClient, fetchSubgraphs } from '/@/utils/thegraphUtil/subgraph';
   import { shortenAddress, pluginConfigs } from '/@/utils/thegraphUtil';
-  import { GraphStart, GraphRules } from '/@wails/go/app/Graph';
+  import { GraphStart, GraphStop, GraphRules } from '/@wails/go/app/Graph';
   import { formatGRT } from '/@/utils/thegraphUtil/grt';
   import { Button } from 'ant-design-vue';
 
@@ -67,14 +66,16 @@
   const getSubgraphIpfsHash = (item: any) => item.currentVersion.subgraphDeployment.ipfsHash;
   const handleDeploySubgraph = async (item: any) => {
     const deploymentId = getSubgraphIpfsHash(item);
+    const isDeployed = deployedSubgraphIdentifiers.value.includes(deploymentId);
+    const handler = isDeployed ? GraphStop : GraphStart;
 
     subgraphDeployLoading[deploymentId] = true;
 
     try {
-      await GraphStart(application.value.id, deploymentId);
+      await handler(application.value.id, deploymentId);
       await loadDeployedSubgraphs();
     } catch (error: any) {
-      console.log('Deployed Failed', deploymentId);
+      console.log('Deployed Or Stop Failed', deploymentId);
     } finally {
       subgraphDeployLoading[deploymentId] = false;
     }
