@@ -20,8 +20,8 @@ export const pluginConfigs = [
 
 export const deployData = {
   nodeEthereumUrl: 'mainnet:https://main-light.eth.linkpool.io',
-  ethereumUrl: 'https://rinkeby.infura.io/v3/62d7b5f33ae443e784919f1c2afe24a3',
-  ethereumNetwork: 'rinkeby',
+  ethereumUrl: 'https://goerli.infura.io/v3/bab2a1a435b04c07a488d847cf6788f7',
+  ethereumNetwork: 'goerli',
   indexerAddress: '',
 };
 
