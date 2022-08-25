@@ -82,6 +82,9 @@
   import { computed, ref } from 'vue';
   import { buildContract, createWeb3Api, runContractMethod, web3Abi } from '/@/utils/web3Util';
   import { useMessage } from '/@/hooks/web/useMessage';
+  import { BigNumber } from 'ethers';
+  import { thawingPeriod } from '/@/utils/constant';
+  import { UpdateThinkingTime } from '/@wails/go/app/Application';
   // defines
   const props = defineProps({
     stakeAmount: String,
@@ -89,6 +92,7 @@
     addressAvatar: String,
     shortAddress: String,
     deployInfo: Object as PropType<Recordable>,
+    applicationId: Number,
   });
   const inputUnStakeAmount = ref();
   const unStakeButtonLoading = ref(false);
@@ -124,6 +128,11 @@
           methodArgs: [api.utils.toWei(inputUnStakeAmount.value.toString())],
           type: 'send',
         });
+        const blockNumber = await api.eth.getBlockNumber();
+        const currentBlockNumber = BigNumber.from(blockNumber);
+        const period = BigNumber.from(thawingPeriod);
+        const untilTime = currentBlockNumber.add(period).add(BigNumber.from('1'));
+        await UpdateThinkingTime(props.applicationId, untilTime.toNumber());
         inputUnStakeAmount.value = '';
         emits('close-drawer');
         emits('query-un-stake');

@@ -58,17 +58,7 @@ func (a *ServiceImpl) QueryApplicationById(id int) (ApplyVo, error) {
 	if result.Error != nil {
 		return resultData, result.Error
 	}
-	resultData.ID = data.ID
-	resultData.Name = data.Name
-	resultData.SelectNodeType = data.SelectNodeType
-	resultData.CreatedAt = data.CreatedAt
-	resultData.LeaseTerm = data.LeaseTerm
-	resultData.Status = data.Status
-	resultData.P2pForwardPort = data.P2pForwardPort
-	resultData.CliForwardPort = data.CliForwardPort
-	resultData.PeerId = data.PeerId
-	resultData.OrderIndex = data.OrderIndex
-
+	copier.Copy(&resultData, &data)
 	return resultData, nil
 }
 
@@ -161,4 +151,21 @@ func (a *ServiceImpl) UpdatePeerIdAndOrderIndex(id, orderIndex, resourceIndex in
 		return result.Error
 	}
 	return nil
+}
+
+func (a *ServiceImpl) UpdateApplicationIncome(id, income int) (bool, error) {
+	var applyData Application
+	result := a.db.Model(applyData).Where("id = ?", id).Update("grt_income", income)
+	if result != nil {
+		return false, result.Error
+	}
+	return true, nil
+}
+
+func (a *ServiceImpl) UpdateThinkingTime(id, time int) (bool, error) {
+	result := a.db.Model(Application{}).Where("id = ?", id).Update("thinking_time", time)
+	if result != nil {
+		return false, result.Error
+	}
+	return true, nil
 }

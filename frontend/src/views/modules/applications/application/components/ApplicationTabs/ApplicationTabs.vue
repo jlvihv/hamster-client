@@ -2,7 +2,7 @@
   <div class="mx-[10px] mb-[100px]">
     <Tabs v-model:activeKey="activeKey" @change="tabChange">
       <TabPane key="1" :tab="t('applications.see.revenueInfo')">
-        <RevenueInfo :deployInfo="deployInfo" ref="revenueInfoRef" />
+        <RevenueInfo :deployInfo="deployInfo" :application="application" ref="revenueInfoRef" />
       </TabPane>
       <TabPane key="2" :tab="t('applications.see.subgraph')">
         <Subgraph :application="application" />

@@ -88,16 +88,19 @@
       :addressAvatar="addressAvatar"
       :shortAddress="shortAddress"
       :deployInfo="deployData"
+      :applicationId="application.id"
       v-if="unstakeVisible"
     />
     <WithdrawDrawer
       @query-stake="getStakeAmount"
       @query-un-stake="getUnStakeAmount"
+      @get-balance="getAddressBalance"
       @close-drawer="onDrawerClose"
       :unStakeAmount="unStakeAmount"
       :addressAvatar="addressAvatar"
       :shortAddress="shortAddress"
       :deployInfo="deployData"
+      :applicationId="application.id"
       v-if="withdrawVisible"
     />
   </Drawer>
@@ -115,9 +118,11 @@
   import { Drawer, Modal } from 'ant-design-vue';
   import { buildContract, createWeb3Api, runContractMethod, web3Abi } from '/@/utils/web3Util';
   import { useMessage } from '/@/hooks/web/useMessage';
+  import { UpdateApplicationIncome } from '/@wails/go/app/Application';
 
   // defines
   const props = defineProps({
+    application: Object as PropType<Recordable>,
     deployInfo: Object as PropType<Recordable>,
   });
 
@@ -203,6 +208,7 @@
           type: 'call',
         });
         income.value = api.utils.fromWei(data.toString());
+        await UpdateApplicationIncome(props.application?.id, Number(income.value));
       } catch (e: any) {
         income.value = '0';
         console.info(e);

@@ -95,3 +95,11 @@ func (a *Application) ReconnectionProLink(applicationId int) (bool, error) {
 	}
 	return false, nil
 }
+
+func (a *Application) UpdateApplicationIncome(id, income int) (bool, error) {
+	return a.applicationService.UpdateApplicationIncome(id, income)
+}
+
+func (a *Application) UpdateThinkingTime(id, time int) (bool, error) {
+	return a.applicationService.UpdateThinkingTime(id, time)
+}
