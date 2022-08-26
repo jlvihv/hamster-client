@@ -40,7 +40,7 @@ func TestAll(t *testing.T) {
 	stakingAddress, err = StakeProxyFactoryAbiGetStakingAddress(context.Background(), sender, client)
 	if err != nil {
 		// 如果获取质押合约地址失败，则创建质押合约
-		err = StakeProxyFactoryAbiCreateStakingContract(sender, client, big.NewInt(4), privKey)
+		err = StakeProxyFactoryAbiCreateStakingContract(sender, client, big.NewInt(4), privKey, context.Background(), client)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -53,7 +53,7 @@ func TestAll(t *testing.T) {
 	fmt.Println("get staking stakingAddress:", stakingAddress)
 
 	// 批准
-	err = Ecr20AbiApprove(stakingAddress, client, big.NewInt(4), stakingAmount, privKey)
+	err = Ecr20AbiApprove(stakingAddress, client, big.NewInt(4), stakingAmount, privKey, context.Background(), client)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -66,7 +66,7 @@ func TestAll(t *testing.T) {
 	fmt.Println("get staking amount:", amount)
 	if amount.Cmp(big.NewInt(0)) == 0 {
 		// 质押
-		err = StakeDistributionProxyAbiStaking(stakingAddress, client, big.NewInt(4), stakingAmount, privKey)
+		err = StakeDistributionProxyAbiStaking(stakingAddress, client, big.NewInt(4), stakingAmount, privKey, context.Background(), client)
 		if err != nil {
 			t.Fatal(err)
 		}

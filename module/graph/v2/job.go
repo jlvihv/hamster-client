@@ -355,7 +355,7 @@ func (g *GraphStakingJob) Run(sc chan queue.StatusInfo) (queue.StatusInfo, error
 	stakingAmount := utils.ToWei18(int64(param.Staking.PledgeAmount))
 	if stakingAddress == ethAbi.GetEthAddress("0") {
 		//Create agent pledge address
-		err = ethAbi.StakeProxyFactoryAbiCreateStakingContract(address, client, big.NewInt(g.chainId), privateKey)
+		err = ethAbi.StakeProxyFactoryAbiCreateStakingContract(address, client, big.NewInt(g.chainId), privateKey, context.Background(), client)
 		if err != nil {
 			fmt.Println("Create agent pledge address failed, err is :", err)
 			g.statusInfo.Status = queue.Failed
@@ -374,7 +374,7 @@ func (g *GraphStakingJob) Run(sc chan queue.StatusInfo) (queue.StatusInfo, error
 			return g.statusInfo, err
 		}
 		// Authorize the agency pledge address
-		err = ethAbi.Ecr20AbiApprove(stakingAddress, client, big.NewInt(g.chainId), stakingAmount, privateKey)
+		err = ethAbi.Ecr20AbiApprove(stakingAddress, client, big.NewInt(g.chainId), stakingAmount, privateKey, context.Background(), client)
 		if err != nil {
 			fmt.Println("approve failed, err is :", err)
 			g.statusInfo.Status = queue.Failed
@@ -384,7 +384,7 @@ func (g *GraphStakingJob) Run(sc chan queue.StatusInfo) (queue.StatusInfo, error
 		}
 		time.Sleep(time.Second * 3)
 		//GRT pledge
-		err = ethAbi.StakeDistributionProxyAbiStaking(stakingAddress, client, big.NewInt(g.chainId), stakingAmount, privateKey)
+		err = ethAbi.StakeDistributionProxyAbiStaking(stakingAddress, client, big.NewInt(g.chainId), stakingAmount, privateKey, context.Background(), client)
 		if err != nil {
 			fmt.Println("staking failed, err is :", err)
 			g.statusInfo.Status = queue.Failed
@@ -404,7 +404,7 @@ func (g *GraphStakingJob) Run(sc chan queue.StatusInfo) (queue.StatusInfo, error
 		}
 		if amount.Cmp(big.NewInt(0)) == 0 {
 			// Authorize the agency pledge address
-			err = ethAbi.Ecr20AbiApprove(stakingAddress, client, big.NewInt(g.chainId), stakingAmount, privateKey)
+			err = ethAbi.Ecr20AbiApprove(stakingAddress, client, big.NewInt(g.chainId), stakingAmount, privateKey, context.Background(), client)
 			if err != nil {
 				fmt.Println("approve failed, err is :", err)
 				g.statusInfo.Status = queue.Failed
@@ -414,7 +414,7 @@ func (g *GraphStakingJob) Run(sc chan queue.StatusInfo) (queue.StatusInfo, error
 			}
 			time.Sleep(time.Second * 3)
 			//GRT pledge
-			err = ethAbi.StakeDistributionProxyAbiStaking(stakingAddress, client, big.NewInt(g.chainId), stakingAmount, privateKey)
+			err = ethAbi.StakeDistributionProxyAbiStaking(stakingAddress, client, big.NewInt(g.chainId), stakingAmount, privateKey, context.Background(), client)
 			if err != nil {
 				fmt.Println("staking failed, err is :", err)
 				g.statusInfo.Status = queue.Failed
