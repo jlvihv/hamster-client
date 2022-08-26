@@ -87,6 +87,7 @@
   import { Timeline, TimelineItem, Button } from 'ant-design-vue';
   import { RefreshGraphDeployJob, DeleteApplication } from '/@wails/go/app/Application';
   import { useRouter } from 'vue-router';
+  import { useMessage } from '/@/hooks/web/useMessage';
 
   const props = defineProps({
     applicationId: Number,
@@ -94,6 +95,7 @@
 
   const { t } = useI18n();
   const router = useRouter();
+  const { createConfirm } = useMessage();
 
   const queueInfo = ref([]);
   const fetchQueueInfo = async () => {
@@ -121,12 +123,18 @@
   };
 
   const handlerDelete = async () => {
-    const data = await DeleteApplication(props.applicationId);
-    if (data) {
-      await router.push({
-        path: '/applications',
-      });
-    }
+    createConfirm({
+      title: 'Confirm',
+      content: 'Are you sure to delete this service ?',
+      onOk: async () => {
+        const data = await DeleteApplication(props.applicationId);
+        if (data) {
+          await router.push({
+            path: '/applications',
+          });
+        }
+      },
+    });
   };
 
   // Load info when entering page

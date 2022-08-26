@@ -8,7 +8,6 @@ import (
 	"hamster-client/module/deploy"
 	param "hamster-client/module/graph/v2"
 	"hamster-client/module/p2p"
-	"time"
 )
 
 type Application struct {
@@ -63,13 +62,15 @@ func (a *Application) QueryApplicationById(id int) (application.ApplyVo, error) 
 		return vo, err
 	}
 
-	if vo.Status == application.Running && time.Now().After(vo.CreatedAt.Add(30*time.Minute)) {
+	if vo.Status == application.Running || vo.Status == application.Offline {
 		_ = a.p2pService.LinkByProtocol("/x/provider", vo.P2pForwardPort, vo.PeerId)
 		containerIds := []string{"graph-node", "postgres", "index-service", "index-agent", "index-cli"}
 		status, err := a.deployService.QueryGraphStatus(int(vo.ID), containerIds...)
 		fmt.Println("status:", status, "error: ", err)
 		if err != nil || status != 1 {
 			_ = a.applicationService.UpdateApplicationStatus(int(vo.ID), application.Offline)
+		} else if status == 1 {
+			_ = a.applicationService.UpdateApplicationStatus(int(vo.ID), application.Running)
 		}
 	}
 
