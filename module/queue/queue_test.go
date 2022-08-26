@@ -67,9 +67,9 @@ func TestAll(t *testing.T) {
 	hi := hiJob{}
 
 	db := getGormDB()
-	id := 1
+	id := 9876
 
-	_, err := NewQueue(id, &hello, &hi)
+	_, err := NewQueue(id, db, &hello, &hi)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -78,20 +78,6 @@ func TestAll(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-
-	// load status
-	err = q.LoadStatus(db)
-	if err != nil {
-		fmt.Println("load status error:", err)
-	}
-
-	// defer save status
-	defer func() {
-		err = q.SaveStatus(db)
-		if err != nil {
-			t.Error(err)
-		}
-	}()
 
 	// start queue, in a new goroutine
 	done := make(chan struct{})
@@ -136,9 +122,10 @@ func TestQueueJobDuplicate(t *testing.T) {
 	hello := helloJob{}
 	hi := hiJob{}
 	hello2 := helloJob{}
+	db := getGormDB()
 
-	id := 10
+	id := 8765
 
-	_, err := NewQueue(id, &hello, &hi, &hello2)
+	_, err := NewQueue(id, db, &hello, &hi, &hello2)
 	assert.Error(t, err)
 }
