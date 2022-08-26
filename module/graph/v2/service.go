@@ -142,17 +142,11 @@ func (g *ServiceImpl) deployGraphJob(applicationId int, networkUrl string, chain
 
 	deployJob := NewServiceDeployJob(g.keyStorageService, g.deployService, applicationId, g.p2pServer, g.accountService, g.applicationService, g.walletService)
 
-	queue, err := queue2.NewQueue(applicationId, &stakingJob, waitResourceJob, &pullJob, &deployJob)
+	queue, err := queue2.NewQueue(applicationId, g.db, &stakingJob, waitResourceJob, &pullJob, &deployJob)
 	if err != nil {
 		fmt.Println("new queue failed,err is: ", err)
 	}
 	channel := make(chan struct{})
-	defer func() {
-		err = queue.SaveStatus(g.db)
-		if err != nil {
-			fmt.Println("save status failed,err is: ", err)
-		}
-	}()
 	go queue.Start(channel)
 	<-channel
 }
@@ -179,27 +173,15 @@ func (g *ServiceImpl) RetryDeployGraphJob(applicationId int, runNow bool) error 
 
 		deployJob := NewServiceDeployJob(g.keyStorageService, g.deployService, applicationId, g.p2pServer, g.accountService, g.applicationService, g.walletService)
 
-		queue, err = queue2.NewQueue(applicationId, &stakingJob, waitResourceJob, &pullJob, &deployJob)
+		queue, err = queue2.NewQueue(applicationId, g.db, &stakingJob, waitResourceJob, &pullJob, &deployJob)
 		if err != nil {
 			fmt.Println("new queue failed, err is: ", err)
 			return err
 		}
 	}
 
-	err = queue.LoadStatus(g.db)
-	if err != nil {
-		fmt.Println("queue LoadStatus error, init queue")
-		queue.InitStatus()
-	}
-	channel := make(chan struct{})
-	defer func() {
-		err = queue.SaveStatus(g.db)
-		if err != nil {
-			fmt.Println("save status failed,err is: ", err)
-		}
-	}()
-
 	if runNow {
+		channel := make(chan struct{})
 		go queue.Start(channel)
 		<-channel
 	} else {
@@ -223,11 +205,6 @@ func (g *ServiceImpl) RetryDeployGraphJob(applicationId int, runNow bool) error 
 	return nil
 }
 
-// FakeQueue 创建一个虚假的队列，用来在重新启动后，展示给前端页面
-func (g *ServiceImpl) FakeQueue(applicationId int) {
-
-}
-
 func (g *ServiceImpl) GetQueueInfo(applicationId int) (QueueInfo, error) {
 	var data application.Application
 	result := g.db.Where("id = ? ", applicationId).First(&data)
@@ -247,12 +224,11 @@ func (g *ServiceImpl) GetQueueInfo(applicationId int) (QueueInfo, error) {
 
 	deployJob := NewServiceDeployJob(g.keyStorageService, g.deployService, applicationId, g.p2pServer, g.accountService, g.applicationService, g.walletService)
 
-	queue, err := queue2.NewQueue(applicationId, &stakingJob, waitResourceJob, &pullJob, &deployJob)
+	_, err = queue2.NewQueue(applicationId, g.db, &stakingJob, waitResourceJob, &pullJob, &deployJob)
 	if err != nil {
 		fmt.Println("new queue failed,err is: ", err)
 		return QueueInfo{}, err
 	}
-	err = queue.LoadStatus(g.db)
 	if err != nil {
 		return QueueInfo{}, err
 	}
