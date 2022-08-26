@@ -70,10 +70,14 @@ export class DictCode {
 
 export const DictCodeEnum = {
   ApplicationDeployStatus: new DictCode('ApplicationDeployStatus'),
-  ApplicationDeployStatus_All: new DictCode('ApplicationDeployStatus', 2),
-  ApplicationDeployStatus_NotDeployed: new DictCode('ApplicationDeployStatus', 0),
-  ApplicationDeployStatus_WaitResource: new DictCode('ApplicationDeployStatus', 3),
-  ApplicationDeployStatus_InProgress: new DictCode('ApplicationDeployStatus', 4),
-  ApplicationDeployStatus_Deployed: new DictCode('ApplicationDeployStatus', 1),
-  ApplicationDeployStatus_DeployFailed: new DictCode('ApplicationDeployStatus', 5),
+  ApplicationDeployStatus_All: new DictCode('ApplicationDeployStatus', 0),
+  ApplicationDeployStatus_Running: new DictCode('ApplicationDeployStatus', 1),
+  ApplicationDeployStatus_Deploying: new DictCode('ApplicationDeployStatus', 2),
+  ApplicationDeployStatus_DeploymentFailed: new DictCode('ApplicationDeployStatus', 3),
+  ApplicationDeployStatus_Offline: new DictCode('ApplicationDeployStatus', 4),
+  ApplicationQueueStatus: new DictCode('ApplicationQueueStatus'),
+  ApplicationQueueStatus_None: new DictCode('ApplicationQueueStatus', 0),
+  ApplicationQueueStatus_Running: new DictCode('ApplicationQueueStatus', 1),
+  ApplicationQueueStatus_Succeeded: new DictCode('ApplicationQueueStatus', 2),
+  ApplicationQueueStatus_Failed: new DictCode('ApplicationQueueStatus', 3),
 };

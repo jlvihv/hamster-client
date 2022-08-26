@@ -6,3 +6,29 @@
 svg {
   vertical-align: baseline;
 }
+
+.right-line {
+  @apply relative;
+}
+
+.right-line::after {
+  content: '';
+  border-left: 2px solid rgb(255 255 255 / 30%);
+  height: 20px;
+  position: absolute;
+  right: 0;
+  top: 40%;
+}
+
+.left-line {
+  @apply relative;
+}
+
+.left-line::before {
+  content: '';
+  border-left: 2px solid #525ce1;
+  height: 20px;
+  position: absolute;
+  left: 0;
+  top: 50px;
+}

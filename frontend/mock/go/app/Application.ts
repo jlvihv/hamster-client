@@ -6,15 +6,17 @@ const applications = [
   {
     id: 1,
     name: 'Example',
-    describe: 'I am an example record',
+    selectNodeType: 'thegraph',
     status: 0,
+    grtIncome: 1000,
     ...getTimestamps(),
   },
   {
     id: 2,
     name: 'Test',
-    describe: 'I am an test record',
+    selectNodeType: 'thegraph',
     status: 1,
+    grtIncome: 2000,
     ...getTimestamps(),
   },
 ];
@@ -25,7 +27,7 @@ export default {
   ApplicationList: (page: number, pageSize: number, name: string, status: number) => {
     let data = applications;
     if (name) data = applications.filter((x) => lowerCase(x.name) === lowerCase(name));
-    if (status != 2) data = applications.filter((x) => x.status === status);
+    if (status != null && status != 2) data = applications.filter((x) => x.status === status);
 
     return resultPageSuccess(page, pageSize, data);
   },
@@ -41,7 +43,7 @@ export default {
 
     applications.push(newApplication);
 
-    return resultSuccess(true);
+    return resultSuccess({ id: newApplication.id, result: true });
   },
   UpdateApplication: (application) => {
     const { id } = application;

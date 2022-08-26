@@ -1,0 +1,164 @@
+html {
+  .ant-timeline {
+    @apply flex;
+    margin-bottom: 60px;
+
+    .ant-timeline-item {
+      width: 25%;
+      padding-bottom: 40px;
+    }
+
+    .ant-timeline-item-tail {
+      @apply border-l-0 w-full border-b-4;
+      left: 50%;
+    }
+
+    .ant-timeline-suc,
+    .ant-timeline-run {
+      .ant-timeline-item-tail {
+        @apply border-[#63A0FA];
+      }
+    }
+
+    .ant-timeline-fail .ant-timeline-item-tail {
+      @apply border-[#E70000];
+    }
+
+    .ant-timeline-item-icon {
+      @apply bg-[#EBEBEB] flex items-center justify-center;
+      border-radius: 50%;
+      height: 40px;
+      width: 40px;
+    }
+
+    .ant-timeline-item-content {
+      @apply top-0 m-auto border-2 border-[#D8E0EF] rounded-[50%] w-[160px] h-[160px] text-[24px] font-bold flex items-center justify-center;
+      box-shadow: 0px 2px 6px 0px rgba(179, 187, 201, 0.5);
+    }
+
+    .ant-timeline-item-title {
+      @apply text-center;
+      line-height: 24px;
+    }
+
+    .ant-timeline-suc .ant-timeline-item-content {
+      @apply border-[#043CC1] border-4;
+    }
+
+    .ant-timeline-fail .ant-timeline-item-content {
+      box-shadow: 0px 2px 6px 0px rgba(179, 187, 201, 0.5);
+      border-color: rgba(216, 224, 239, 0.3);
+    }
+
+    .ant-timeline-fail-realod {
+      @apply absolute bg-white bg-opacity-95 w-full h-full flex items-center justify-center;
+      border-radius: 50%;
+    }
+
+    .ant-timeline-item-head-custom {
+      top: 200px;
+      left: 50%;
+    }
+
+    .svg {
+      position: absolute;
+      margin: 24px auto;
+      display: block;
+    }
+
+    circle {
+      fill: transparent;
+      stroke: #043cc1;
+      stroke-width: 4;
+      stroke-linecap: round;
+      stroke-dasharray: 0, 301.59289;
+      -webkit-animation: stroke-dash 2000ms linear infinite, stroke-width 2000ms linear infinite,
+        stroke-color 8000ms steps(4) infinite;
+      animation: stroke-dash 2000ms linear infinite, stroke-width 2000ms linear infinite,
+        stroke-color 8000ms steps(4) infinite;
+    }
+    @-webkit-keyframes svg-rotate {
+      to {
+        -webkit-transform: rotate(360deg);
+        transform: rotate(360deg);
+      }
+    }
+    @keyframes svg-rotate {
+      to {
+        -webkit-transform: rotate(360deg);
+        transform: rotate(360deg);
+      }
+    }
+    @-webkit-keyframes stroke-width {
+      0%,
+      100% {
+        stroke-width: 0;
+      }
+      45%,
+      55% {
+        stroke-width: 2;
+      }
+      50% {
+        stroke-width: 4;
+      }
+    }
+    @keyframes stroke-width {
+      0%,
+      100% {
+        stroke-width: 0;
+      }
+      45%,
+      55% {
+        stroke-width: 2;
+      }
+      50% {
+        stroke-width: 4;
+      }
+    }
+    @-webkit-keyframes stroke-dash {
+      0% {
+        stroke-dasharray: 0, 301.59289;
+        stroke-dashoffset: 0;
+      }
+      50% {
+        stroke-dasharray: 301.59289, 0;
+        stroke-dashoffset: 0;
+      }
+      100% {
+        stroke-dasharray: 301.59289, 301.59289;
+        stroke-dashoffset: -301.59289;
+      }
+    }
+    @keyframes stroke-dash {
+      0% {
+        stroke-dasharray: 0, 301.59289;
+        stroke-dashoffset: 0;
+      }
+      50% {
+        stroke-dasharray: 301.59289, 0;
+        stroke-dashoffset: 0;
+      }
+      100% {
+        stroke-dasharray: 301.59289, 301.59289;
+        stroke-dashoffset: -301.59289;
+      }
+    }
+
+    @-webkit-keyframes stroke-color {
+      from {
+        stroke: #043cc1;
+      }
+    }
+
+    @keyframes stroke-color {
+      from {
+        stroke: #043cc1;
+      }
+    }
+  }
+
+  .ant-timeline.ant-timeline-label .ant-timeline-item-label {
+    @apply w-full text-center;
+    top: 230px;
+  }
+}

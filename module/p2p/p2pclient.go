@@ -21,6 +21,7 @@ type LinkInfo struct {
 
 type Service interface {
 	Link(port int, peerId string) error
+	LinkByProtocol(protocol string, localPort int, peerId string) error
 	Close(target string) (int, error)
 	Destroy() error
 	GetLinks() *[]LinkInfo
@@ -29,5 +30,6 @@ type Service interface {
 	ProLink(peerId string) error
 	GetProviderLinks() *[]LinkInfo
 	JudgeP2pReconnection() bool
-	ReconnectionProLink() (bool, error)
+	//ReconnectionProLink(applicationId int) (bool, error)
+	QueryLinks(protocol string) *[]LinkInfo
 }

@@ -21,16 +21,22 @@
   "dependencies": {
     "@ant-design/colors": "^6.0.0",
     "@ant-design/icons-vue": "^6.1.0",
+    "@dicebear/avatars": "^4.10.3",
+    "@dicebear/avatars-identicon-sprites": "^4.10.3",
     "@iconify/iconify": "^2.2.1",
     "@polkadot/api": "^8.10.1",
     "@polkadot/wasm-crypto": "^6.1.5",
     "@polkadot/wasm-crypto-asmjs": "^6.1.5",
     "@polkadot/wasm-crypto-wasm": "^6.1.5",
     "@truffle/hdwallet-provider": "^2.0.10",
+    "@urql/core": "^2.6.1",
     "@vueuse/core": "^8.7.5",
     "ant-design-vue": "^3.2.9",
     "date-fns": "^2.28.0",
     "dayjs": "^1.11.3",
+    "graphql": "^16.5.0",
+    "graphql-tag": "2.12.6",
+    "isomorphic-fetch": "3.0.0",
     "lodash-es": "^4.17.21",
     "nprogress": "^0.2.0",
     "pinia": "^2.0.14",
@@ -42,7 +48,8 @@
     "web3": "^1.7.4",
     "xterm": "^4.19.0",
     "xterm-addon-attach": "^0.6.0",
-    "xterm-addon-fit": "^0.5.0"
+    "xterm-addon-fit": "^0.5.0",
+    "ethers": "5.6.2"
   },
   "devDependencies": {
     "@babel/core": "^7.18.9",

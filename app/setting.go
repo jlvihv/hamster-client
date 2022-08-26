@@ -7,7 +7,6 @@ import (
 	"hamster-client/module/deploy"
 	"hamster-client/module/keystorage"
 	"hamster-client/module/p2p"
-	"hamster-client/module/pallet"
 )
 
 type Config struct {
@@ -24,7 +23,6 @@ type Setting struct {
 	deployService     deploy.Service
 	p2pService        p2p.Service
 	accountService    account.Service
-	chainListener     pallet.ChainListener
 }
 
 func NewSettingApp(service p2p.Service, accountService account.Service, db *gorm.DB, keyStorageService keystorage.Service, deployService deploy.Service) Setting {
@@ -71,9 +69,9 @@ func (s *Setting) Setting(publicKey string, wsUrl string) (bool, error) {
 	accountInfo.WsUrl = wsUrl
 	s.accountService.SaveAccount(&accountInfo)
 	// close go func
-	s.chainListener.CancelListen()
+	//s.chainListener.CancelListen()
 	//start go func
-	s.chainListener.StartListen(s.db, s.keyStorageService, s.deployService)
+	//s.chainListener.StartListen(s.db, s.keyStorageService, s.deployService)
 	return true, nil
 }
 
@@ -94,10 +92,6 @@ func (s *Setting) SettingWsUrl(wsUrl string) (bool, error) {
 	}
 	accountInfo.WsUrl = wsUrl
 	s.accountService.SaveAccount(&accountInfo)
-	// close go func
-	s.chainListener.CancelListen()
-	//start go func
-	s.chainListener.StartListen(s.db, s.keyStorageService, s.deployService)
 	return true, nil
 }
 

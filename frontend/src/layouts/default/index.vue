@@ -6,6 +6,7 @@
 
 <script lang="ts" setup>
   import Content from './content/index.vue';
+  import { useDesign } from '/@/hooks/web/useDesign';
   import { Layout, LayoutContent } from 'ant-design-vue';
 
   const { prefixCls } = useDesign('layout');
@@ -18,7 +19,7 @@
     min-height: 100%;
 
     &-main {
-      background-color: #f7f3ee;
+      background-color: linear-gradient(132deg, #f4f5fa 0%, #f8f9fc 100%, #f8f9fc 100%);
 
       &-header {
         background-color: @white;

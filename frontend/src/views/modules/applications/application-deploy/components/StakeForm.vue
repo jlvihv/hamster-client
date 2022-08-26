@@ -81,7 +81,7 @@
     buildContract,
     runContractMethod,
   } from '/@/utils/web3Util';
-  import { deployData } from '/@/utils/graphDeployUtil';
+  import { deployData } from '/@/utils/thegraphUtil';
   import { SaveDeployInfo } from '/@wails/go/app/Deploy';
   import { useMessage } from '/@/hooks/web/useMessage';
   import { Form, FormItem, Button, Input, InputNumber, Select, Modal } from 'ant-design-vue';

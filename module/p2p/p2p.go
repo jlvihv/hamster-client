@@ -24,7 +24,6 @@ import (
 	"gorm.io/gorm"
 	"hamster-client/config"
 
-	"github.com/centrifuge/go-substrate-rpc-client/v4/types"
 	"log"
 	"strings"
 	"time"
@@ -154,10 +153,11 @@ type Identity struct {
 
 // P2pClient p2p client
 type P2pClient struct {
-	Host host.Host
-	P2P  *ipfsp2p.P2P
-	DHT  *dht.IpfsDHT
-	db   *gorm.DB
+	Host  host.Host
+	P2P   *ipfsp2p.P2P
+	DHT   *dht.IpfsDHT
+	db    *gorm.DB
+	Peers []string
 }
 
 // P2PListenerInfoOutput  p2p monitoring or mapping information
@@ -219,19 +219,14 @@ func (c *P2pClient) Listen(protoOpt string, port int) error {
 // Forward connect p2p network to remote nodes / map to local port
 func (c *P2pClient) Forward(protoOpt string, port int, peerId string) error {
 
-	fmt.Println("======================")
-	fmt.Println("forward : protoOpt: ", protoOpt)
-	fmt.Println("forward : port: ", port)
-	fmt.Println("forward : peerId: ", peerId)
-	fmt.Println("======================")
+	if peerId == "" {
+		return fmt.Errorf("peer id cannot be empty")
+	}
 
 	if err := c.CheckForwardHealth(protoOpt, peerId); err != nil {
-		var nodes []string
-		api := CreateApi()
-		meta, _ := api.RPC.State.GetMetadataLatest()
-		key, err := types.CreateStorageKey(meta, "Gateway", "Gateways")
-		api.RPC.State.GetStorageLatest(key, &nodes)
-		bootstrapPeers := randomSubsetOfPeers(convertPeers(nodes), 1)
+		fmt.Println("CheckForwardHealth:", peerId)
+		fmt.Println("c.Peers:", c.Peers)
+		bootstrapPeers := randomSubsetOfPeers(convertPeers(c.Peers), 1)
 		if len(bootstrapPeers) == 0 {
 			return errors.New("not enough bootstrap peers")
 		}
@@ -251,16 +246,44 @@ func (c *P2pClient) Forward(protoOpt string, port int, peerId string) error {
 		return err
 	}
 
-	targets, err := parseIpfsAddr(targetOpt)
+	targetAddrInfo, err := parseIpfsAddr(targetOpt)
 	protoId := protocol.ID(protoOpt)
 
-	err = forwardLocal(context.Background(), c.P2P, c.Host.Peerstore(), protoId, listen, targets)
+	c.P2P.ListenersP2P.Lock()
+	defer c.P2P.ListenersP2P.Unlock()
+
+	target, err := ma.NewMultiaddr(targetOpt)
+
+	listeners := c.filterListener(c.P2P.ListenersLocal, func(listener ipfsp2p.Listener) bool {
+		return listener.Protocol() == protoId && listener.ListenAddress().String() == listen.String() && listener.TargetAddress().String() == target.String()
+	})
+
+	if len(listeners) > 0 {
+		return nil
+	}
+	err = forwardLocal(context.Background(), c.P2P, c.Host.Peerstore(), protoId, listen, targetAddrInfo)
 	if err != nil {
 		log.Println(err)
 		return err
 	}
+	fmt.Println("======================")
+	fmt.Println("forward : protoOpt: ", protoOpt)
+	fmt.Println("forward : port: ", port)
+	fmt.Println("forward : peerId: ", peerId)
+	fmt.Println("======================")
 	fmt.Println("remote_node" + peerId + ",forward to" + listenOpt + "success")
 	return err
+}
+
+func (c *P2pClient) filterListener(listeners *ipfsp2p.Listeners, matchFunc func(listener ipfsp2p.Listener) bool) []ipfsp2p.Listener {
+	todo := make([]ipfsp2p.Listener, 0)
+	for _, l := range listeners.Listeners {
+		if matchFunc(l) {
+			todo = append(todo, l)
+		}
+	}
+	return todo
+
 }
 
 func (c *P2pClient) ConnectCircuit(circuitPeer, targetPeer string) error {
@@ -283,7 +306,7 @@ func (c *P2pClient) CheckForwardHealth(protoOpt, target string) error {
 	if err != nil {
 		return err
 	}
-	cctx, cancel := context.WithTimeout(context.Background(), time.Second*30) //TODO: configurable?
+	cctx, cancel := context.WithTimeout(context.Background(), time.Second*3) //TODO: configurable?
 	defer cancel()
 	stream, err := c.Host.NewStream(cctx, targets.ID, proto)
 	if err != nil {
@@ -301,7 +324,6 @@ func (c *P2pClient) Close(target string) (int, error) {
 		return 0, err
 	}
 	match := func(listener ipfsp2p.Listener) bool {
-
 		if !targetAddress.Equal(listener.TargetAddress()) {
 			return false
 		}

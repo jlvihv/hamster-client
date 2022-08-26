@@ -6,38 +6,71 @@ import (
 )
 
 type Application struct {
-	ID        uint           `json:"id" gorm:"primarykey"`
-	Name      string         `json:"name"`   //apply name
-	Plugin    string         `json:"plugin"` //apply plugin
-	Status    int            `json:"status"` //apply status 0: not deploy 1:deployed 2:ALL 3:wait resource 4:In deployment 5:deploy failed
-	CreatedAt time.Time      `json:"createdAt"`
-	UpdatedAt time.Time      `json:"updatedAt"`
-	DeletedAt gorm.DeletedAt `json:"deletedAt" gorm:"index"`
+	ID             uint           `json:"id" gorm:"primarykey"`
+	Name           string         `json:"name"`           //apply name
+	SelectNodeType string         `json:"selectNodeType"` //apply plugin
+	Status         int            `json:"status" gorm:"default 2"`
+	P2pForwardPort int            `json:"p2pForwardPort"`
+	CliForwardPort int            `json:"cliForwardPort"`
+	GrtIncome      int64          `json:"grtIncome"`
+	LeaseTerm      int            `json:"leaseTerm"`
+	PeerId         string         `json:"peerId"`
+	OrderIndex     int            `json:"orderIndex"`
+	ResourceIndex  int            `json:"resourceIndex"`
+	ThinkingTime   int            `json:"thinkingTime"`
+	CreatedAt      time.Time      `json:"createdAt"`
+	UpdatedAt      time.Time      `json:"updatedAt"`
+	DeletedAt      gorm.DeletedAt `json:"deletedAt" gorm:"index"`
 }
 
+type ApplicationStatus = int
+
+const DB_KEY_PREFIX = "queue_"
+
+const (
+	All              ApplicationStatus = iota // 0
+	Running                                   //1
+	Deploying                                 //2
+	DeploymentFailed                          //3
+	Offline                                   //4
+)
+
 type AddApplicationParam struct {
-	Name   string `json:"name"`   //apply name
-	Plugin string `json:"plugin"` //apply plugin
+	Name           string `json:"name"`           //apply name
+	SelectNodeType string `json:"selectNodeType"` //apply plugin
 }
 
 type UpdateApplicationParam struct {
-	ID     uint   `json:"id"`     //application ID
-	Name   string `json:"name"`   //apply name
-	Plugin string `json:"plugin"` //apply plugin
+	ID             uint   `json:"id"`             //application ID
+	Name           string `json:"name"`           //apply name
+	SelectNodeType string `json:"selectNodeType"` //apply plugin
 }
 
 type PageApplicationVo struct {
-	Items []Application `json:"items"`
-	Total int64         `json:"total"`
+	Items []ListVo `json:"items"`
+	Total int64    `json:"total"`
 }
 
 type ApplyVo struct {
-	ID        uint      `json:"id"`
-	CreatedAt time.Time `json:"createdAt"`
-	UpdatedAt time.Time `json:"updatedAt"`
-	Name      string    `json:"name"`   //apply name
-	Plugin    string    `json:"plugin"` //apply plugin
-	Status    int       `json:"status"`
+	ID             uint      `json:"id"`
+	CreatedAt      time.Time `json:"createdAt"`
+	Name           string    `json:"name"`           //apply name
+	SelectNodeType string    `json:"selectNodeType"` //apply plugin
+	Status         int       `json:"status"`
+	LeaseTerm      int       `json:"leaseTerm"`
+	P2pForwardPort int       `json:"p2pForwardPort"`
+	CliForwardPort int       `json:"cliForwardPort"`
+	PeerId         string    `json:"peerId"`
+	OrderIndex     int       `json:"orderIndex"`
+	ThinkingTime   int       `json:"thinkingTime"`
+}
+
+type ListVo struct {
+	ID             uint   `json:"id"`
+	Name           string `json:"name"`           //apply name
+	SelectNodeType string `json:"selectNodeType"` //apply plugin
+	Status         int    `json:"status"`
+	GrtIncome      int64  `json:"grtIncome"`
 }
 
 type Service interface {
@@ -47,4 +80,12 @@ type Service interface {
 	QueryApplicationById(id int) (ApplyVo, error)
 	ApplicationList(page, pageSize int, name string, status int) (PageApplicationVo, error)
 	UpdateApplicationStatus(id, status int) error
+	UpdateApplicationP2pForwardPort(id, port int) error
+	QueryNextP2pPort() int
+	QueryCliP2pPort(id int) (int, error)
+	QueryNextCliP2pPort() int
+	UpdateApplicationCliForwardPort(id, port int) error
+	UpdatePeerIdAndOrderIndex(id, orderIndex, resourceIndex int, peerId string) error
+	UpdateApplicationIncome(id, income int) (bool, error)
+	UpdateThinkingTime(id, time int) (bool, error)
 }

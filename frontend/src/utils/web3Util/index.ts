@@ -25,11 +25,11 @@ export const web3Configs = [
   //   configContractAddress: '0x24EA2E2cbc8A0D772dCDFCA304f1b6Fc34fACeCF',
   // },
   {
-    endpoint: 'https://rinkeby.infura.io/v3/62d7b5f33ae443e784919f1c2afe24a3',
-    stakeContractAddress: '0x2d44C0e097F6cD0f514edAC633d82E01280B4A5c',
-    factoryContractAddress: '0xeFF0ed9Fc8276Fcf4eda2e012dD065A3DC18591D',
-    erc20ContractAddress: '0x54Fe55d5d255b8460fB3Bc52D5D676F9AE5697CD',
-    configContractAddress: '0xA0fe59d6e7b68A9bE162673e62dDb2A06f8153cC',
+    endpoint: 'https://goerli.infura.io/v3/62d7b5f33ae443e784919f1c2afe24a3',
+    stakeContractAddress: '0x35e3Cb6B317690d662160d5d02A5b364578F62c9',
+    factoryContractAddress: '0x1625649b8Fa14A17F93CfEFA6E9285b206a2243A',
+    erc20ContractAddress: '0x5c946740441C12510a167B447B7dE565C20b9E3C',
+    configContractAddress: '0xE472B0EfC79A98f35058F8d20E3567a9A252c92A',
   },
 ];
 

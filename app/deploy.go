@@ -40,6 +40,6 @@ func (d *Deploy) SaveDeployInfo(id int, json string) (bool, error) {
 	return d.deployService.SaveDeployInfo(id, json)
 }
 
-func (d *Deploy) QueryGraphStatus(serviceName ...string) (int, error) {
-	return d.deployService.QueryGraphStatus(serviceName...)
+func (d *Deploy) QueryGraphStatus(id int, serviceName ...string) (int, error) {
+	return d.deployService.QueryGraphStatus(id, serviceName...)
 }

@@ -1,4 +1,4 @@
-VERSION = v1.2.0
+VERSION = v1.3.0
 macos:
 	wails build
 	cd build/bin && tar -czvf hamster-client-$(VERSION)-darwin-amd64.tar.gz ./hamster-client.app

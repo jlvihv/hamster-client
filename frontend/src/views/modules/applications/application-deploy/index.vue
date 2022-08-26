@@ -57,12 +57,7 @@
   import DeployInfo from '../application/components/DeployInfo.vue';
   import { GetDeployInfo, DeployTheGraph } from '/@wails/go/app/Deploy';
   import { useSettingStore } from '/@/store/modules/setting';
-  import {
-    createPolkadotApi,
-    createKeyPair,
-    cancelResourceOrder,
-    applyResourceOrder,
-  } from '/@/utils/polkadotUtil';
+  import { createPolkadotApi, createKeyPair, createOrder } from '/@/utils/polkadotUtil';
   import { Steps, Step, Modal, Form, FormItem, InputPassword } from 'ant-design-vue';
 
   const { t } = useI18n();
@@ -145,11 +140,34 @@
       }
 
       try {
-        await cancelResourceOrder(polkadotApi, keyPair);
+        // await cancelResourceOrder(polkadotApi, keyPair);
         const { leaseTerm, publicKey } = deployInfo.value.initialization;
-        const result = await applyResourceOrder(polkadotApi, keyPair, { leaseTerm, publicKey });
+        // const result = await applyResourceOrder(polkadotApi, keyPair, { leaseTerm, publicKey });
 
-        console.log(result);
+        let data = await polkadotApi.query.provider.resources.entries();
+        console.log('query resource: ', data);
+        data = data.filter((t) => {
+          if (t && t.length > 1) {
+            if (t[1].toJSON().status === 'Unused') {
+              return true;
+            }
+          }
+          return false;
+        });
+        if (data && data.length > 0) {
+          const resource = data[0];
+          if (resource && resource.length > 1) {
+            const resourceIndex = resource[1].toJSON().index;
+            try {
+              await createOrder(polkadotApi, keyPair, { resourceIndex, leaseTerm, publicKey });
+            } catch (e) {
+              console.log('create order fail :', e);
+            }
+          }
+        } else {
+          console.log('No Enough Resource');
+          return;
+        }
 
         // Call deploy API
         await DeployTheGraph(applicationId, JSON.stringify({}));

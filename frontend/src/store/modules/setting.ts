@@ -20,8 +20,8 @@ export const useSettingStore = defineStore({
       const wallet = await GetWalletInfo();
       if (!(wallet instanceof Error)) this.walletInfo = wallet;
     },
-    async saveWalletAction(address: string, json: string) {
-      await SaveWallet(address, json);
+    async saveWalletAction(address: string, json: string, password: string) {
+      await SaveWallet(address, json, password);
       await this.getWalletInfoAction();
     },
     async deleteWalletAction() {

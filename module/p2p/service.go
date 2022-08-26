@@ -12,13 +12,14 @@ import (
 )
 
 type ServiceImpl struct {
-	ctx       context.Context
-	db        *gorm.DB
-	p2pClient *P2pClient
+	ctx            context.Context
+	db             *gorm.DB
+	p2pClient      *P2pClient
+	accountService account.Service
 }
 
-func NewServiceImpl(ctx context.Context, db *gorm.DB) ServiceImpl {
-	return ServiceImpl{ctx: ctx, db: db}
+func NewServiceImpl(ctx context.Context, db *gorm.DB, accountService account.Service) ServiceImpl {
+	return ServiceImpl{ctx: ctx, db: db, accountService: accountService}
 }
 
 // initialize p2p link
@@ -29,7 +30,11 @@ func (s *ServiceImpl) getP2pClient() (*P2pClient, error) {
 	p2pConfig, err := s.GetSetting()
 	if err != nil {
 		runtime.LogError(s.ctx, "getP2pClient GetSetting is error %s"+err.Error())
-		return nil, err
+		_ = s.InitSetting()
+		p2pConfig, err = s.GetSetting()
+		if err != nil {
+			return nil, err
+		}
 	}
 	if p2pConfig.PrivateKey == "" {
 		runtime.LogWarning(s.ctx, "getP2pClient p2p config is null")
@@ -41,7 +46,10 @@ func (s *ServiceImpl) getP2pClient() (*P2pClient, error) {
 
 func (s *ServiceImpl) initP2pClient(port int, privateKey string) (*P2pClient, error) {
 	var nodes []string
-	api := CreateApi()
+	api, err := s.accountService.GetSubstrateApi()
+	if err != nil {
+		return nil, err
+	}
 	meta, _ := api.RPC.State.GetMetadataLatest()
 	key, err := types.CreateStorageKey(meta, "Gateway", "Gateways")
 	api.RPC.State.GetStorageLatest(key, &nodes)
@@ -51,9 +59,10 @@ func (s *ServiceImpl) initP2pClient(port int, privateKey string) (*P2pClient, er
 	}
 	p2p := MakeIpfsP2p(&host)
 	s.p2pClient = &P2pClient{
-		Host: host,
-		P2P:  p2p,
-		DHT:  dht,
+		Host:  host,
+		P2P:   p2p,
+		DHT:   dht,
+		Peers: nodes,
 	}
 	return s.p2pClient, nil
 }
@@ -70,6 +79,14 @@ func (s *ServiceImpl) Link(port int, peerId string) error {
 		return err
 	}
 	return nil
+}
+
+func (s *ServiceImpl) LinkByProtocol(protocol string, localPort int, peerId string) error {
+	client, err := s.getP2pClient()
+	if err != nil {
+		return err
+	}
+	return client.Forward(protocol, localPort, peerId)
 }
 
 // Close Close Link
@@ -170,6 +187,7 @@ func portInUse(portNumber int) error {
 	return nil
 }
 
+// ProLink Expired method
 func (s *ServiceImpl) ProLink(peerId string) error {
 	client, err := s.getP2pClient()
 	if err != nil {
@@ -181,6 +199,7 @@ func (s *ServiceImpl) ProLink(peerId string) error {
 	if err != nil {
 		return err
 	}
+
 	return nil
 }
 
@@ -218,19 +237,52 @@ func (s *ServiceImpl) JudgeP2pReconnection() bool {
 	return true
 }
 
-func (s *ServiceImpl) ReconnectionProLink() (bool, error) {
-	var account account.Account
-	result := s.db.First(&account)
-	if result.Error != nil {
-		runtime.LogError(s.ctx, "GetAccount error")
-		return false, result.Error
-	}
-	if account.PeerId != "" {
-		err := s.ProLink(account.PeerId)
-		if err != nil {
-			return false, err
+//func (s *ServiceImpl) ReconnectionProLink(applicationId int) (bool, error) {
+//	applicationInfo, err := s.applicationService.QueryApplicationById(applicationId)
+//	if err != nil {
+//		runtime.LogError(s.ctx, "Get application error")
+//		return false, err
+//	}
+//	if applicationInfo.PeerId != "" {
+//		err := s.ProLink(applicationInfo.PeerId)
+//		if err != nil {
+//			return false, err
+//		}
+//		return true, nil
+//	}
+//	return false, nil
+//}
+
+// JudgePort judge port in use. use:ture;not use false
+func (s *ServiceImpl) JudgePort(port int) bool {
+	links := s.GetProviderLinks()
+	if len(*links) > 0 {
+		for _, value := range *links {
+			if value.Status {
+
+			}
 		}
-		return true, nil
+		return false
 	}
-	return false, nil
+	return false
+}
+
+func (s *ServiceImpl) QueryLinks(protocol string) *[]LinkInfo {
+	runtime.LogWarning(s.ctx, "GetLinks start")
+	var links []LinkInfo
+	client, err := s.getP2pClient()
+	if err != nil {
+		return &links
+	}
+	outPut := client.List()
+	for _, value := range outPut.Listeners {
+		linkInfo := LinkInfo{Protocol: value.Protocol, ListenAddress: value.ListenAddress, TargetAddress: value.TargetAddress}
+		err := client.CheckForwardHealth(protocol, value.TargetAddress)
+		linkInfo.Status = err == nil
+		runtime.LogInfo(s.ctx, fmt.Sprintf("GetLinks %s\n", linkInfo.Status))
+		if linkInfo.Protocol == protocol {
+			links = append(links, linkInfo)
+		}
+	}
+	return &links
 }

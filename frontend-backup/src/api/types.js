@@ -13,7 +13,6 @@ const types = {
     "fault_duration": "u32"
   },
   "ResourceRentalInfo": {
-    "rent_unit_price": "Balance",
     "rent_duration": "BlockNumber",
     "end_of_rent": "BlockNumber"
   },
