@@ -76,7 +76,7 @@ func GetPrivateKeyHexStringWithMnemonic(mnemonic string) (string, error) {
 }
 
 // Ecr20AbiApprove call ecr20Abi.approve(address,  amount)
-func Ecr20AbiApprove(stakingAddress common.Address, backend bind.ContractBackend, chainID *big.Int, amount *big.Int, privateKey *ecdsa.PrivateKey) error {
+func Ecr20AbiApprove(stakingAddress common.Address, backend bind.ContractBackend, chainID *big.Int, amount *big.Int, privateKey *ecdsa.PrivateKey, ctx context.Context, deployBind bind.DeployBackend) error {
 	if amount.Cmp(big.NewInt(100000)) == -1 {
 		return errors.New("amount must be greater than or equal to 100000")
 	}
@@ -88,15 +88,22 @@ func Ecr20AbiApprove(stakingAddress common.Address, backend bind.ContractBackend
 	if err != nil {
 		return err
 	}
-	_, err = cli.Approve(opts, stakingAddress, amount)
+	tx, err := cli.Approve(opts, stakingAddress, amount)
 	if err != nil {
+		fmt.Println("approve failed,error is: ", err)
 		return err
 	}
+	res, err := bind.WaitMined(ctx, deployBind, tx)
+	if err != nil {
+		fmt.Println("approve wait mined error ", err)
+		return err
+	}
+	fmt.Println("approve tx block is :", res.BlockNumber)
 	return nil
 }
 
 // StakeDistributionProxyAbiStaking call stakeDistributionProxyAbi.staking(amount)
-func StakeDistributionProxyAbiStaking(stakingAddress common.Address, backend bind.ContractBackend, chainID *big.Int, amount *big.Int, privateKey *ecdsa.PrivateKey) error {
+func StakeDistributionProxyAbiStaking(stakingAddress common.Address, backend bind.ContractBackend, chainID *big.Int, amount *big.Int, privateKey *ecdsa.PrivateKey, ctx context.Context, deployBind bind.DeployBackend) error {
 	cli, err := stake_distribution_proxy.NewStakeDistributionProxy(stakingAddress, backend)
 	if err != nil {
 		return err
@@ -105,10 +112,17 @@ func StakeDistributionProxyAbiStaking(stakingAddress common.Address, backend bin
 	if err != nil {
 		return err
 	}
-	_, err = cli.Staking(opts, amount)
+	tx, err := cli.Staking(opts, amount)
 	if err != nil {
+		fmt.Println("staking tx error: ", err)
 		return err
 	}
+	res, err := bind.WaitMined(ctx, deployBind, tx)
+	if err != nil {
+		fmt.Println("staking tx wait mined error ", err)
+		return err
+	}
+	fmt.Println("staking tx block is :", res.BlockNumber)
 	return nil
 }
 
@@ -126,7 +140,7 @@ func StakeDistributionProxyAbiGetStakingAmount(ctx context.Context, contractAddr
 }
 
 // StakeProxyFactoryAbiCreateStakingContract call stakeProxyFactoryAbi.createStakingContract(address)
-func StakeProxyFactoryAbiCreateStakingContract(senderAddress common.Address, backend bind.ContractBackend, chainID *big.Int, privateKey *ecdsa.PrivateKey) error {
+func StakeProxyFactoryAbiCreateStakingContract(senderAddress common.Address, backend bind.ContractBackend, chainID *big.Int, privateKey *ecdsa.PrivateKey, ctx context.Context, deployBind bind.DeployBackend) error {
 	cli, err := stake_proxy_factory.NewStakeProxyFactory(GetEthAddress(stakeProxyFactoryContractAddress), backend)
 	if err != nil {
 		return err
@@ -135,10 +149,17 @@ func StakeProxyFactoryAbiCreateStakingContract(senderAddress common.Address, bac
 	if err != nil {
 		return err
 	}
-	_, err = cli.CreateStakingContract(opts, senderAddress)
+	tx, err := cli.CreateStakingContract(opts, senderAddress)
 	if err != nil {
+		fmt.Println("create staking address error: ", err)
 		return err
 	}
+	res, err := bind.WaitMined(ctx, deployBind, tx)
+	if err != nil {
+		fmt.Println("create staking address wait mined error ", err)
+		return err
+	}
+	fmt.Println("create staking address tx block is :", res.BlockNumber)
 	return nil
 }
 

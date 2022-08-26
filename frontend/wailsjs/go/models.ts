@@ -1,20 +1,3 @@
-export namespace account {
-  export class Account {
-    publicKey: string;
-    wsUrl: string;
-
-    static createFrom(source: any = {}) {
-      return new Account(source);
-    }
-
-    constructor(source: any = {}) {
-      if ('string' === typeof source) source = JSON.parse(source);
-      this.publicKey = source['publicKey'];
-      this.wsUrl = source['wsUrl'];
-    }
-  }
-}
-
 export namespace resource {
   export class Resource {
     peerId: string;
@@ -66,36 +49,6 @@ export namespace resource {
 }
 
 export namespace app {
-  export class QueueInfo {
-    info: StatusInfo[];
-
-    static createFrom(source: any = {}) {
-      return new QueueInfo(source);
-    }
-
-    constructor(source: any = {}) {
-      if ('string' === typeof source) source = JSON.parse(source);
-      this.info = this.convertValues(source['info'], StatusInfo);
-    }
-
-    convertValues(a: any, classs: any, asMap: boolean = false): any {
-      if (!a) {
-        return a;
-      }
-      if (a.slice) {
-        return (a as any[]).map((elem) => this.convertValues(elem, classs));
-      } else if ('object' === typeof a) {
-        if (asMap) {
-          for (const key of Object.keys(a)) {
-            a[key] = new classs(a[key]);
-          }
-          return a;
-        }
-        return new classs(a);
-      }
-      return a;
-    }
-  }
   export class Config {
     publicKey: string;
     port: number;
@@ -124,6 +77,36 @@ export namespace app {
     constructor(source: any = {}) {
       if ('string' === typeof source) source = JSON.parse(source);
       this.info = this.convertValues(source['info'], GraphRule);
+    }
+
+    convertValues(a: any, classs: any, asMap: boolean = false): any {
+      if (!a) {
+        return a;
+      }
+      if (a.slice) {
+        return (a as any[]).map((elem) => this.convertValues(elem, classs));
+      } else if ('object' === typeof a) {
+        if (asMap) {
+          for (const key of Object.keys(a)) {
+            a[key] = new classs(a[key]);
+          }
+          return a;
+        }
+        return new classs(a);
+      }
+      return a;
+    }
+  }
+  export class QueueInfo {
+    info: StatusInfo[];
+
+    static createFrom(source: any = {}) {
+      return new QueueInfo(source);
+    }
+
+    constructor(source: any = {}) {
+      if ('string' === typeof source) source = JSON.parse(source);
+      this.info = this.convertValues(source['info'], StatusInfo);
     }
 
     convertValues(a: any, classs: any, asMap: boolean = false): any {
@@ -465,6 +448,23 @@ export namespace graph {
         return new classs(a);
       }
       return a;
+    }
+  }
+}
+
+export namespace account {
+  export class Account {
+    publicKey: string;
+    wsUrl: string;
+
+    static createFrom(source: any = {}) {
+      return new Account(source);
+    }
+
+    constructor(source: any = {}) {
+      if ('string' === typeof source) source = JSON.parse(source);
+      this.publicKey = source['publicKey'];
+      this.wsUrl = source['wsUrl'];
     }
   }
 }

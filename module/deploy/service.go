@@ -194,6 +194,7 @@ func (s *ServiceImpl) queryDeployStatus(id int) error {
 			if numbers >= 4 {
 				return err
 			}
+			numbers = numbers + 1
 			continue
 		}
 		fmt.Println("docker status :", res)
@@ -204,10 +205,12 @@ func (s *ServiceImpl) queryDeployStatus(id int) error {
 				if numbers >= 4 {
 					return result
 				}
+				numbers = numbers + 1
 				continue
 			}
 			return nil
 		} else if res == config.RequestStatusFailed {
+			numbers = numbers + 1
 			continue
 		} else {
 			if numbers >= 4 {

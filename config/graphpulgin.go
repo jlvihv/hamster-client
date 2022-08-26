@@ -27,7 +27,7 @@ var PluginMap = map[string]PluginDeployInfo{
 		ChainId:                4,
 	},
 	"thegraph_gorli": {
-		EndpointUrl:            "https://goerli.infura.io/v3/bab2a1a435b04c07a488d847cf6788f7",
+		EndpointUrl:            "https://eth-goerli.g.alchemy.com/v2/IpH88zRU0Y5UZ2pbusbiBYoUmfmqzXLU",
 		EthNetwork:             "mainnet:http://3.110.153.211:8545",
 		EthereumNetworkName:    "goerli",
 		TheGraphStakingAddress: "0x35e3Cb6B317690d662160d5d02A5b364578F62c9",
