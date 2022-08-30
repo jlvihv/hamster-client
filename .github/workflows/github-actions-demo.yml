@@ -1,6 +1,5 @@
 name: "wails build"
-on:
-  workflow_dispatch:
+on: ["push"]
   # This Action only starts when you go to Actions and manually run the workflow.
 
 jobs:
