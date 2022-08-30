@@ -3,7 +3,7 @@
 import { account } from '../models';
 import { context } from '../models';
 
-export function GetAccountInfo(): Promise<account.Account | Error>;
+export function GetAccountInfo(): Promise<account.Account>;
 
 export function IsAccount(): Promise<boolean>;
 
