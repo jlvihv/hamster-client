@@ -7,10 +7,14 @@
       <Timeline>
         <TimelineItem
           :class="getTimelineItemClass(item.status)"
-          :label="DictCodeEnum.ApplicationQueueStatus.getOptionLabel(item.status || 0)"
           v-for="item in queueInfo"
           :key="item.name"
         >
+          <template #label>
+            <Tooltip :title="item.error" color="#F0F0F0" placement="bottom">
+              <div>{{ DictCodeEnum.ApplicationQueueStatus.getOptionLabel(item.status || 0) }}</div>
+            </Tooltip>
+          </template>
           <template #dot>
             <div
               class="ant-timeline-item-icon !bg-[#63A0FA]"
@@ -84,7 +88,7 @@
   import { SvgIcon } from '/@/components/Icon';
   import { GetQueueInfo } from '/@wails/go/app/Queue';
   import { DictCodeEnum } from '/@/enums/dictCodeEnum';
-  import { Timeline, TimelineItem, Button } from 'ant-design-vue';
+  import { Tooltip, Timeline, TimelineItem, Button } from 'ant-design-vue';
   import { RefreshGraphDeployJob, DeleteApplication } from '/@wails/go/app/Application';
   import { useRouter } from 'vue-router';
   import { useMessage } from '/@/hooks/web/useMessage';
@@ -150,5 +154,9 @@
     .svg {
       margin: 0;
     }
+  }
+
+  :deep(.ant-tooltip-inner) {
+    color: #666;
   }
 </style>
