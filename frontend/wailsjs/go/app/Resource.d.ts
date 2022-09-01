@@ -3,6 +3,6 @@
 import { resource } from '../models';
 import { context } from '../models';
 
-export function GetResources(): Promise<Array<resource.Resource>>;
+export function GetResources(): Promise<Array<resource.Resource> | Error>;
 
 export function WailsInit(arg1: context.Context): Promise<Error>;
