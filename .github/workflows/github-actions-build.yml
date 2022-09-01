@@ -43,12 +43,15 @@ jobs:
         run: |
           echo "Signing Package"
           gon -log-level=info ./build/darwin/gon-sign.json
+        env:
+          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
       - name: upload artifacts macOS
         if: matrix.platform == 'macos-latest'
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
-          name: wails-binaries-macos
-          path: build/bin/hamster-client.zip
+          name: hamster-client-macos
+          path: |
+            hamster-client.dmg
       - name: upload artifacts windows
         if: matrix.platform == 'windows-latest'
         uses: actions/upload-artifact@v2

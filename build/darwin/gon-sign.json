@@ -2,17 +2,17 @@
   "source" : ["./build/bin/hamster-client.app"],
   "bundle_id" : "come.tntlingking.hamster-client",
   "apple_id": {
-    "username": "@env:APPLE_USERNAME",
+    "username": "lwy521998@126.com",
     "password": "@env:APPLE_PASSWORD"
   },
   "sign" :{
     "application_identity" : "Developer ID Application: Hubei Tiantian digital chain Technology Co., Ltd (9Z99F74JZM)"
   },
   "dmg" :{
-      "output_path":  "./build/darwin/hamster-client.dmg",
+      "output_path":  "hamster-client.dmg",
       "volume_name":  "hamster-client"
   },
   "zip" :{
-      "output_path" : "./build/darwin/hamster-client.zip"
+      "output_path" : "hamster-client.zip"
   }
 }
