@@ -1,9 +1,9 @@
 export const pluginConfigs = [
-  {
-    label: 'Thegraph(Mainnet)',
-    value: 'thegraph_mainnet',
-    url: 'https://gateway.thegraph.com/network',
-  },
+  // {
+  //   label: 'Thegraph(Mainnet)',
+  //   value: 'thegraph_mainnet',
+  //   url: 'https://gateway.thegraph.com/network',
+  // },
   {
     label: 'Thegraph(Görli)',
     value: 'thegraph_gorli',
