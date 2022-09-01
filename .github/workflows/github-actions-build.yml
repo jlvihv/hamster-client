@@ -44,7 +44,6 @@ jobs:
           echo "Signing Package"
           gon -log-level=info ./build/darwin/gon-sign.json
         env:
-          APPLE_USERNAME: ${{ secrets.APPLE_USERNAME }}
           APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
       - name: upload artifacts macOS
         if: matrix.platform == 'macos-latest'
