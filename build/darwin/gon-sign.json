@@ -2,7 +2,7 @@
   "source" : ["./build/bin/hamster-client.app"],
   "bundle_id" : "come.tntlingking.hamster-client",
   "apple_id": {
-    "username": "@env:APPLE_USERNAME",
+    "username": "lwy521998@126.com",
     "password": "@env:APPLE_PASSWORD"
   },
   "sign" :{
