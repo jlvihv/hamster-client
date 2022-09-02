@@ -44,7 +44,6 @@
       <Col :span="12" class="font-bold">{{ t('applications.see.ethereumNetwork') }}</Col>
       <Col :span="12">{{ deployInfo.deployment?.ethereumUrl }}</Col>
       <Col :span="12">{{ deployInfo.deployment?.ethereumNetwork }}</Col>
-      <Col :span="24" class="font-bold">{{ t('applications.deploy.mnemonic') }}</Col>
     </Row>
   </div>
   <div class="text-center my-[40px]">
