@@ -52,7 +52,6 @@ jobs:
           name: hamster-client-macos
           path: |
             hamster-client.dmg
-            hamster-client.zip
       - name: upload artifacts windows
         if: matrix.platform == 'windows-latest'
         uses: actions/upload-artifact@v2
