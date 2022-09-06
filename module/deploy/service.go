@@ -187,7 +187,7 @@ func (s *ServiceImpl) queryDeployStatus(id int) error {
 	containerIds := []string{"graph-node", "postgres", "index-service", "index-agent", "index-cli"}
 	numbers := 0
 	for {
-		time.Sleep(time.Duration(10) * time.Second)
+		time.Sleep(time.Duration(40) * time.Second)
 		res, err := s.QueryGraphStatus(id, containerIds...)
 		if err != nil {
 			fmt.Println("docker status :", res)

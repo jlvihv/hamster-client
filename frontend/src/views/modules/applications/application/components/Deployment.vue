@@ -11,8 +11,11 @@
           :key="item.name"
         >
           <template #label>
-            <Tooltip :title="item.error" color="#F0F0F0" placement="bottom">
+            <Tooltip color="#F0F0F0" placement="bottom">
               <div>{{ DictCodeEnum.ApplicationQueueStatus.getOptionLabel(item.status || 0) }}</div>
+              <template #title>
+                <span class="tooltip-text">{{ item.error }}</span>
+              </template>
             </Tooltip>
           </template>
           <template #dot>
@@ -156,7 +159,7 @@
     }
   }
 
-  :deep(.ant-tooltip-inner) {
+  .tooltip-text {
     color: #666;
   }
 </style>
