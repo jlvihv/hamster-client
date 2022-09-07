@@ -7,6 +7,7 @@ import (
 	"fmt"
 	gsrpc "github.com/centrifuge/go-substrate-rpc-client/v4"
 	"github.com/centrifuge/go-substrate-rpc-client/v4/types"
+	"hamster-client/config"
 	ethAbi "hamster-client/module/abi"
 	"hamster-client/module/account"
 	"hamster-client/module/application"
@@ -180,7 +181,13 @@ func (j *WaitResourceJob) Run(sc chan queue.StatusInfo) (queue.StatusInfo, error
 
 		fmt.Println("可用资源数：", len(mapData))
 
+		failSet := make(map[int]string)
+
 		for _, val := range mapData {
+
+			if _, isMapContainsKey := failSet[int(val.Index)]; isMapContainsKey {
+				continue
+			}
 
 			if val.Status.IsUnused {
 				resourceIdex := val.Index
@@ -193,10 +200,11 @@ func (j *WaitResourceJob) Run(sc chan queue.StatusInfo) (queue.StatusInfo, error
 
 				// check p2p connection can be connected
 				port := j.applicationService.QueryNextP2pPort()
-				err = j.p2pService.LinkByProtocol("/x/provider", port, string(val.PeerId))
+				err = j.p2pService.LinkByProtocol(config.ProviderProtocol, port, string(val.PeerId))
 
 				if err != nil {
 					fmt.Println("create p2p network forward fail")
+					failSet[int(val.Index)] = "fail"
 					continue
 				}
 
@@ -204,6 +212,7 @@ func (j *WaitResourceJob) Run(sc chan queue.StatusInfo) (queue.StatusInfo, error
 				if err != nil {
 					fmt.Println(err.Error())
 					_, _ = j.p2pService.Close(fmt.Sprintf("/p2p/%s", string(val.PeerId)))
+					failSet[int(val.Index)] = "fail"
 					continue
 				}
 				var events pallet.MyEventRecords
@@ -216,6 +225,7 @@ func (j *WaitResourceJob) Run(sc chan queue.StatusInfo) (queue.StatusInfo, error
 				}, pair)
 				if err != nil {
 					_, _ = j.p2pService.Close(fmt.Sprintf("/p2p/%s", string(val.PeerId)))
+					failSet[int(val.Index)] = "fail"
 					continue
 				}
 
@@ -226,7 +236,42 @@ func (j *WaitResourceJob) Run(sc chan queue.StatusInfo) (queue.StatusInfo, error
 					}
 				}
 
-				fmt.Println("查询到orderIndex: ", orderIndex)
+				fmt.Println("query orderIndex: ", orderIndex)
+
+				// check provider exec order
+				number, err := pallet.GetBlockNumber(j.api)
+				if err != nil {
+					_ = pallet.CancelOrder(j.api, j.meta, pair, int(orderIndex))
+					continue
+				}
+
+				accept := false
+
+				for i := number; i < number+10; i++ {
+					events, err := pallet.GetEvent(j.api, j.meta, i)
+					if err != nil {
+						continue
+					}
+					if len(events.ResourceOrder_OrderExecSuccess) > 0 {
+						for _, e := range events.ResourceOrder_OrderExecSuccess {
+							if e.OrderIndex == orderIndex {
+								accept = true
+								fmt.Println("confirm order : ", orderIndex)
+								break
+							}
+						}
+						if accept {
+							break
+						}
+					}
+					time.Sleep(time.Second * 6)
+				}
+
+				if !accept {
+					_ = pallet.CancelOrder(j.api, j.meta, pair, int(orderIndex))
+					failSet[int(val.Index)] = "fail"
+					continue
+				}
 
 				_ = j.applicationService.UpdatePeerIdAndOrderIndex(j.applicationId, int(orderIndex), int(resourceIdex), string(val.PeerId))
 
@@ -525,7 +570,7 @@ func (s *ServiceDeployJob) Status() queue.StatusInfo {
 }
 
 func reForwardLink(p2pService p2p.Service, port int, peerId string) error {
-	protocol := "/x/provider"
+	protocol := config.ProviderProtocol
 	err := p2pService.LinkByProtocol(protocol, port, peerId)
 	return err
 }

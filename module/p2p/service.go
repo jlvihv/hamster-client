@@ -193,7 +193,7 @@ func (s *ServiceImpl) ProLink(peerId string) error {
 	if err != nil {
 		return err
 	}
-	protocol := "/x/provider"
+	protocol := config.ProviderProtocol
 	port := 10771
 	err = client.Forward(protocol, port, peerId)
 	if err != nil {
@@ -205,7 +205,7 @@ func (s *ServiceImpl) ProLink(peerId string) error {
 
 func (s *ServiceImpl) GetProviderLinks() *[]LinkInfo {
 	runtime.LogWarning(s.ctx, "GetLinks start")
-	protocol := "/x/provider"
+	protocol := config.ProviderProtocol
 	var links []LinkInfo
 	client, err := s.getP2pClient()
 	if err != nil {

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
+	"hamster-client/config"
 	"hamster-client/module/application"
 	"hamster-client/module/deploy"
 	param "hamster-client/module/graph/v2"
@@ -63,7 +64,7 @@ func (a *Application) QueryApplicationById(id int) (application.ApplyVo, error) 
 	}
 
 	if vo.Status == application.Running || vo.Status == application.Offline {
-		_ = a.p2pService.LinkByProtocol("/x/provider", vo.P2pForwardPort, vo.PeerId)
+		_ = a.p2pService.LinkByProtocol(config.ProviderProtocol, vo.P2pForwardPort, vo.PeerId)
 		containerIds := []string{"graph-node", "postgres", "index-service", "index-agent", "index-cli"}
 		status, err := a.deployService.QueryGraphStatus(int(vo.ID), containerIds...)
 		fmt.Println("status:", status, "error: ", err)
