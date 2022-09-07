@@ -4,10 +4,6 @@ const (
 	DefaultPolkadotNode = "ws://127.0.0.1:9944"
 	// HttpGetResource get my resources
 	HttpGetResource = "http://42.192.53.10:8888/api/resources/use"
-	// HttpGetCode get verification code
-	HttpGetCode = "https://ttchain.tntlinking.com/api/authorization/verification/code"
-	// HttpLogin login
-	HttpLogin       = "https://ttchain.tntlinking.com/api/authorization/oauth/token"
 	Httpprovider    = "http://localhost:%d/api/v1/thegraph/deploy"
 	HttpGraphStatus = "http://localhost:%d/api/v1/thegraph/status"
 
@@ -30,3 +26,6 @@ const (
 
 //HTTP request docker status Failure Return
 const RequestStatusFailed = 5
+
+// ProviderProtocol provider protocol
+const ProviderProtocol = "/x/provider"

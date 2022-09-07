@@ -319,6 +319,7 @@ func (c *P2pClient) CheckForwardHealth(protoOpt, target string) error {
 
 // Close closeP2P monitor or map
 func (c *P2pClient) Close(target string) (int, error) {
+
 	targetAddress, err := ma.NewMultiaddr(target)
 	if err != nil {
 		return 0, err
@@ -332,6 +333,8 @@ func (c *P2pClient) Close(target string) (int, error) {
 
 	done := c.P2P.ListenersLocal.Close(match)
 	done += c.P2P.ListenersP2P.Close(match)
+
+	fmt.Println("close target: ", done)
 
 	return done, nil
 

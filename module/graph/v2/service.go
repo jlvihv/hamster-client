@@ -95,6 +95,8 @@ func (g *ServiceImpl) SaveGraphDeployParameterAndApply(addData AddParam) (AddApp
 func (g *ServiceImpl) DeleteGraphDeployParameterAndApply(id int) (bool, error) {
 	_ = g.queueService.StopQueue(id)
 	app, err := g.applicationService.QueryApplicationById(id)
+	// close p2p port
+	_, _ = g.p2pServer.Close(fmt.Sprintf("/p2p/%s", app.PeerId))
 	if err != nil {
 		return false, err
 	}
@@ -241,7 +243,7 @@ func (g *ServiceImpl) GetQueueInfo(applicationId int) (QueueInfo, error) {
 
 func (g *ServiceImpl) GraphStart(appID int, deploymentID string) error {
 	port, peerId, err := g.getP2pPort(appID)
-	_ = g.p2pServer.LinkByProtocol("/x/provider", port, peerId)
+	_ = g.p2pServer.LinkByProtocol(config.ProviderProtocol, port, peerId)
 	if err != nil {
 		return err
 	}
@@ -264,7 +266,7 @@ func (g *ServiceImpl) GraphStart(appID int, deploymentID string) error {
 
 func (g *ServiceImpl) GraphStop(appID int, deploymentID string) error {
 	port, peerId, err := g.getP2pPort(appID)
-	_ = g.p2pServer.LinkByProtocol("/x/provider", port, peerId)
+	_ = g.p2pServer.LinkByProtocol(config.ProviderProtocol, port, peerId)
 	if err != nil {
 		return err
 	}
@@ -287,7 +289,7 @@ func (g *ServiceImpl) GraphStop(appID int, deploymentID string) error {
 
 func (g *ServiceImpl) GraphRules(appID int) ([]GraphRule, error) {
 	port, peerId, err := g.getP2pPort(appID)
-	_ = g.p2pServer.LinkByProtocol("/x/provider", port, peerId)
+	_ = g.p2pServer.LinkByProtocol(config.ProviderProtocol, port, peerId)
 
 	fmt.Println("#### p2p port : ", port)
 	if err != nil {

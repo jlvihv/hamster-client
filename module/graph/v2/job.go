@@ -7,6 +7,7 @@ import (
 	"fmt"
 	gsrpc "github.com/centrifuge/go-substrate-rpc-client/v4"
 	"github.com/centrifuge/go-substrate-rpc-client/v4/types"
+	"hamster-client/config"
 	ethAbi "hamster-client/module/abi"
 	"hamster-client/module/account"
 	"hamster-client/module/application"
@@ -193,7 +194,7 @@ func (j *WaitResourceJob) Run(sc chan queue.StatusInfo) (queue.StatusInfo, error
 
 				// check p2p connection can be connected
 				port := j.applicationService.QueryNextP2pPort()
-				err = j.p2pService.LinkByProtocol("/x/provider", port, string(val.PeerId))
+				err = j.p2pService.LinkByProtocol(config.ProviderProtocol, port, string(val.PeerId))
 
 				if err != nil {
 					fmt.Println("create p2p network forward fail")
@@ -525,7 +526,7 @@ func (s *ServiceDeployJob) Status() queue.StatusInfo {
 }
 
 func reForwardLink(p2pService p2p.Service, port int, peerId string) error {
-	protocol := "/x/provider"
+	protocol := config.ProviderProtocol
 	err := p2pService.LinkByProtocol(protocol, port, peerId)
 	return err
 }
