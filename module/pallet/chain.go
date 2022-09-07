@@ -169,7 +169,17 @@ func Bond(api *gsrpc.SubstrateAPI, meta *types.Metadata, amount int64, pair sign
 	}, pair)
 }
 
+func GetBlockNumber(api *gsrpc.SubstrateAPI) (uint64, error) {
+	header, err := api.RPC.Chain.GetHeaderLatest()
+	if err != nil {
+		return 0, err
+	}
+
+	return uint64(header.Number), nil
+}
+
 func GetEvent(api *gsrpc.SubstrateAPI, meta *types.Metadata, blockNumber uint64) (*MyEventRecords, error) {
+	fmt.Println("get event: ", blockNumber)
 	meta, err := api.RPC.State.GetMetadataLatest()
 	if err != nil {
 		return nil, err
