@@ -35,3 +35,27 @@ function humanizeNumber(num: number, options: { precision?: number } = {}): stri
   // format number and add suffix
   return +scaled.toFixed(precision) + suffix;
 }
+
+export function formatIncome(value: number): string {
+  const company = [
+    { value: 1, symbol: '' },
+    { value: 1e3, symbol: 'K' },
+    { value: 1e6, symbol: 'M' },
+    { value: 1e9, symbol: 'G' },
+    { value: 1e12, symbol: 'T' },
+    { value: 1e15, symbol: 'P' },
+    { value: 1e18, symbol: 'E' },
+  ];
+  if (value >= 1) {
+    let i;
+    for (i = company.length - 1; i > 0; i--) {
+      if (value >= company[i].value) {
+        break;
+      }
+    }
+    return (value / company[i].value).toFixed(2) + company[i].symbol;
+  } else if (value > 0) {
+    return '~0';
+  }
+  return '0';
+}

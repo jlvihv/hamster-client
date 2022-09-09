@@ -12,7 +12,7 @@ type Application struct {
 	Status         int            `json:"status" gorm:"default 2"`
 	P2pForwardPort int            `json:"p2pForwardPort"`
 	CliForwardPort int            `json:"cliForwardPort"`
-	GrtIncome      int64          `json:"grtIncome"`
+	GrtIncome      float64        `json:"grtIncome"`
 	LeaseTerm      int            `json:"leaseTerm"`
 	PeerId         string         `json:"peerId"`
 	OrderIndex     int            `json:"orderIndex"`
@@ -66,11 +66,11 @@ type ApplyVo struct {
 }
 
 type ListVo struct {
-	ID             uint   `json:"id"`
-	Name           string `json:"name"`           //apply name
-	SelectNodeType string `json:"selectNodeType"` //apply plugin
-	Status         int    `json:"status"`
-	GrtIncome      int64  `json:"grtIncome"`
+	ID             uint    `json:"id"`
+	Name           string  `json:"name"`           //apply name
+	SelectNodeType string  `json:"selectNodeType"` //apply plugin
+	Status         int     `json:"status"`
+	GrtIncome      float64 `json:"grtIncome"`
 }
 
 type Service interface {
@@ -86,6 +86,6 @@ type Service interface {
 	QueryNextCliP2pPort() int
 	UpdateApplicationCliForwardPort(id, port int) error
 	UpdatePeerIdAndOrderIndex(id, orderIndex, resourceIndex int, peerId string) error
-	UpdateApplicationIncome(id, income int) (bool, error)
+	UpdateApplicationIncome(id int, income float64) (bool, error)
 	UpdateThinkingTime(id, time int) (bool, error)
 }
