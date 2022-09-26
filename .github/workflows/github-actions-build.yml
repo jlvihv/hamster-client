@@ -1,10 +1,11 @@
 name: "wails build"
-on: ["push"]
-  # This Action only starts when you go to Actions and manually run the workflow.
+on:
+  push:
+    branches:
+      - main
 
 jobs:
   package:
-    if: ${{ github.ref == 'refs/heads/main' }}
     strategy:
       matrix:
         platform: [ windows-latest, macos-latest ]

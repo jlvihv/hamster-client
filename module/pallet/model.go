@@ -1,7 +1,6 @@
 package pallet
 
 import (
-	"fmt"
 	"github.com/centrifuge/go-substrate-rpc-client/v4/scale"
 	"github.com/centrifuge/go-substrate-rpc-client/v4/types"
 )
@@ -37,9 +36,22 @@ type Status struct {
 	IsOffline bool `json:"isOffline"`
 }
 
+func (s *Status) toString() string {
+	if s.IsInuse {
+		return "Inuse"
+	} else if s.IsLocked {
+		return "Locked"
+	} else if s.IsUnused {
+		return "Unuse"
+	} else if s.IsOffline {
+		return "Offline"
+	} else {
+		return ""
+	}
+}
+
 func (m *Status) Decode(decoder scale.Decoder) error {
 	b, err := decoder.ReadOneByte()
-	fmt.Println(b)
 
 	if err != nil {
 		return err

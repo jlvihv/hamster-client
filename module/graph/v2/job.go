@@ -85,6 +85,7 @@ func (j *PullImageJob) Run(sc chan queue.StatusInfo) (queue.StatusInfo, error) {
 		response, err := req.Post(url)
 		if err != nil {
 			j.statusInfo.Error = err.Error()
+			fmt.Println(string(response.Body()))
 			continue
 		}
 		if response.IsSuccess() {
@@ -190,8 +191,8 @@ func (j *WaitResourceJob) Run(sc chan queue.StatusInfo) (queue.StatusInfo, error
 			}
 
 			if val.Status.IsUnused {
-				resourceIdex := val.Index
-				fmt.Println("发现未使用资源，占用。资源号：", resourceIdex)
+				resourceIndex := val.Index
+				fmt.Println("发现未使用资源，占用。资源号：", resourceIndex)
 				data, err := j.applicationService.QueryApplicationById(j.applicationId)
 				if err != nil {
 					fmt.Println("get application failed,err is: ", err)
@@ -205,10 +206,30 @@ func (j *WaitResourceJob) Run(sc chan queue.StatusInfo) (queue.StatusInfo, error
 				if err != nil {
 					fmt.Println("create p2p network forward fail")
 					failSet[int(val.Index)] = "fail"
+					_, _ = j.p2pService.Close(fmt.Sprintf("/p2p/%s", string(val.PeerId)))
 					continue
 				}
 
-				c, err := types.NewCall(j.meta, "ResourceOrder.create_order_info", resourceIdex, types.NewU32(uint32(data.LeaseTerm)), "")
+				// check http is Ok
+				url := fmt.Sprintf("http://localhost:%d/version", port)
+				req := utils.NewHttp().NewRequest()
+				resp, err := req.Get(url)
+				if err != nil {
+					_, _ = j.p2pService.Close(fmt.Sprintf("/p2p/%s", string(val.PeerId)))
+					failSet[int(val.Index)] = "fail"
+					continue
+				}
+
+				var version VersionVo
+				err = json.Unmarshal(resp.Body(), &version)
+				if err != nil {
+					_, _ = j.p2pService.Close(fmt.Sprintf("/p2p/%s", string(val.PeerId)))
+					failSet[int(val.Index)] = "fail"
+					continue
+				}
+				fmt.Println("provider version: ", version.Version)
+
+				c, err := types.NewCall(j.meta, "ResourceOrder.create_order_info", resourceIndex, types.NewU32(uint32(data.LeaseTerm)), "")
 				if err != nil {
 					fmt.Println(err.Error())
 					_, _ = j.p2pService.Close(fmt.Sprintf("/p2p/%s", string(val.PeerId)))
@@ -217,7 +238,7 @@ func (j *WaitResourceJob) Run(sc chan queue.StatusInfo) (queue.StatusInfo, error
 				}
 				var events pallet.MyEventRecords
 				err = pallet.CallAndWatch(j.api, c, j.meta, func(header *types.Header) error {
-					fmt.Printf("资源占用成功，资源号： %d, 交易序号： %d", resourceIdex, header.Number)
+					fmt.Printf("资源占用成功，资源号： %d, 交易序号： %d", resourceIndex, header.Number)
 					// get order index
 					e, err := pallet.GetEvent(j.api, j.meta, uint64(header.Number))
 					events = *e
@@ -231,7 +252,7 @@ func (j *WaitResourceJob) Run(sc chan queue.StatusInfo) (queue.StatusInfo, error
 
 				var orderIndex types.U64
 				for _, e := range events.ResourceOrder_CreateOrderSuccess {
-					if e.ResourceIndex == resourceIdex {
+					if e.ResourceIndex == resourceIndex {
 						orderIndex = e.OrderIndex
 					}
 				}
@@ -242,6 +263,7 @@ func (j *WaitResourceJob) Run(sc chan queue.StatusInfo) (queue.StatusInfo, error
 				number, err := pallet.GetBlockNumber(j.api)
 				if err != nil {
 					_ = pallet.CancelOrder(j.api, j.meta, pair, int(orderIndex))
+					_, _ = j.p2pService.Close(fmt.Sprintf("/p2p/%s", string(val.PeerId)))
 					continue
 				}
 
@@ -269,11 +291,12 @@ func (j *WaitResourceJob) Run(sc chan queue.StatusInfo) (queue.StatusInfo, error
 
 				if !accept {
 					_ = pallet.CancelOrder(j.api, j.meta, pair, int(orderIndex))
+					_, _ = j.p2pService.Close(fmt.Sprintf("/p2p/%s", string(val.PeerId)))
 					failSet[int(val.Index)] = "fail"
 					continue
 				}
 
-				_ = j.applicationService.UpdatePeerIdAndOrderIndex(j.applicationId, int(orderIndex), int(resourceIdex), string(val.PeerId))
+				_ = j.applicationService.UpdatePeerIdAndOrderIndex(j.applicationId, int(orderIndex), int(resourceIndex), string(val.PeerId))
 
 				err = j.applicationService.UpdateApplicationP2pForwardPort(j.applicationId, port)
 				if err != nil {
