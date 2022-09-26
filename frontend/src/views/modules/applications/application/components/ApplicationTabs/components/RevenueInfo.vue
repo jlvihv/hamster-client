@@ -23,7 +23,12 @@
     </div>
     <div class="grid grid-cols-3 text-white text-center mt-[20px]">
       <div class="right-line">
-        <div class="text-[22px] font-bold">{{ income }} GRT</div>
+        <Tooltip>
+          <template #title v-if="income == 0 ? false : true">
+            <span>{{ income }}</span>
+          </template>
+          <div class="text-[22px] font-bold">{{ formatIncome(Number(income)) }} GRT</div>
+        </Tooltip>
         <div>{{ t('applications.see.income') }}</div>
       </div>
       <div class="right-line">
@@ -115,10 +120,11 @@
   import WithdrawDrawer from './WithdrawDrawer.vue';
   import { createSvgAvatar } from '/@/utils/avatar';
   import { shortenAddress } from '/@/utils/thegraphUtil';
-  import { Drawer, Modal } from 'ant-design-vue';
+  import { Drawer, Modal, Tooltip } from 'ant-design-vue';
   import { buildContract, createWeb3Api, runContractMethod, web3Abi } from '/@/utils/web3Util';
   import { useMessage } from '/@/hooks/web/useMessage';
   import { UpdateApplicationIncome } from '/@wails/go/app/Application';
+  import { formatIncome } from '/@/utils/thegraphUtil/grt';
 
   // defines
   const props = defineProps({
@@ -208,9 +214,11 @@
           type: 'call',
         });
         income.value = api.utils.fromWei(data.toString());
+        console.log(formatIncome(Number(income.value)));
         await UpdateApplicationIncome(props.application?.id, Number(income.value));
       } catch (e: any) {
         income.value = '0';
+        console.log(e);
         console.info(e);
       }
     }

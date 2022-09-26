@@ -10,15 +10,13 @@ export function ReconnectionProLink(arg1: number): Promise<boolean | Error>;
 
 export function RefreshGraphDeployJob(arg1: number): Promise<Error>;
 
+export function UpdateApplicationIncome(arg1: number, arg2: number): Promise<boolean | Error>;
+
 export function UpdateThinkingTime(arg1: number, arg2: number): Promise<boolean | Error>;
 
 export function WailsInit(arg1: context.Context): Promise<Error>;
 
 export function AddApplication(arg1: v2.AddParam): Promise<v2.AddApplicationVo | Error>;
-
-export function DeleteApplication(arg1: number): Promise<boolean | Error>;
-
-export function UpdateApplicationIncome(arg1: number, arg2: number): Promise<boolean | Error>;
 
 export function ApplicationList(
   arg1: number,
@@ -26,6 +24,8 @@ export function ApplicationList(
   arg3: string,
   arg4: number,
 ): Promise<application.PageApplicationVo | Error>;
+
+export function DeleteApplication(arg1: number): Promise<boolean | Error>;
 
 export function UpdateApplication(
   arg1: application.UpdateApplicationParam,

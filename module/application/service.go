@@ -153,7 +153,7 @@ func (a *ServiceImpl) UpdatePeerIdAndOrderIndex(id, orderIndex, resourceIndex in
 	return nil
 }
 
-func (a *ServiceImpl) UpdateApplicationIncome(id, income int) (bool, error) {
+func (a *ServiceImpl) UpdateApplicationIncome(id int, income float64) (bool, error) {
 	var applyData Application
 	result := a.db.Model(applyData).Where("id = ?", id).Update("grt_income", income)
 	if result != nil {
