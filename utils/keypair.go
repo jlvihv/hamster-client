@@ -3,12 +3,16 @@ package utils
 import (
 	"bytes"
 	"encoding/base64"
+	"errors"
 	"fmt"
 	"github.com/ChainSafe/go-schnorrkel"
 	"github.com/centrifuge/go-substrate-rpc-client/v4/signature"
+	"github.com/centrifuge/go-substrate-rpc-client/v4/types"
+	"github.com/decred/base58"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/gtank/merlin"
 	"github.com/vedhavyas/go-subkey"
+	"golang.org/x/crypto/blake2b"
 	"golang.org/x/crypto/nacl/secretbox"
 	"golang.org/x/crypto/scrypt"
 	"math"
@@ -372,4 +376,33 @@ func reverse(a []byte) []byte {
 		a[left], a[right] = a[right], a[left]
 	}
 	return a
+}
+
+// 将区块链帐号转成公钥
+func AddressToPublicKey(address string) ([]byte, error) {
+
+	if len(address) < 33 {
+		return []byte{}, errors.New("帐号格式不合法")
+	}
+	return base58.Decode(address)[1:33], nil
+}
+
+// 将types.AccountId　转换为 string 类型的地址
+func AccountIdToAddress(id types.AccountID) string {
+	s := concatBytes([]byte{42}, id[:])
+	hash := blake2b.Sum512(concatBytes([]byte("SS58PRE"), s))
+	address := base58.Encode(concatBytes(s, hash[0:2]))
+	return address
+}
+
+// 连接2个比特数组
+func concatBytes(a, b []byte) []byte {
+	s := make([]byte, 0)
+	for _, n := range a {
+		s = append(s, n)
+	}
+	for _, n := range b {
+		s = append(s, n)
+	}
+	return s
 }

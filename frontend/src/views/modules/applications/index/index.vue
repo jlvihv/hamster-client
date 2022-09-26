@@ -24,10 +24,15 @@
           class="w-full rounded-t-[20px]"
         />
         <div class="text-[20px] font-bold my-[10px]">{{ item.name }}</div>
-        <div class="text-[18px]">
-          <SvgIcon class="text-primary" size="20" name="grt" />
-          {{ item.grtIncome }} GRT
-        </div>
+        <Tooltip>
+          <template #title v-if="item.grtIncome == 0 ? false : true">
+            <span>{{ item.grtIncome }}</span>
+          </template>
+          <div class="text-[18px]">
+            <SvgIcon class="text-primary" size="20" name="grt" />
+            {{ formatIncome(Number(item.grtIncome)) }} GRT
+          </div>
+        </Tooltip>
         <div class="text-[#6A7EAF] text-[18px] mt-[10px] mb-[50px]">
           {{ DictCodeEnum.ApplicationDeployStatus.getOptionLabel(item.status) }}
         </div>
@@ -59,7 +64,8 @@
   import { ApplicationList } from '/@wails/go/app/Application';
   import { DictCodeEnum } from '/@/enums/dictCodeEnum';
   import { useAssets } from '/@/hooks/web/useAssets';
-  import { Button } from 'ant-design-vue';
+  import { Button, Tooltip } from 'ant-design-vue';
+  import { formatIncome } from '/@/utils/thegraphUtil/grt';
 
   const { t } = useI18n();
   const route = useRoute();

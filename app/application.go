@@ -98,7 +98,7 @@ func (a *Application) ReconnectionProLink(applicationId int) (bool, error) {
 	return false, nil
 }
 
-func (a *Application) UpdateApplicationIncome(id, income int) (bool, error) {
+func (a *Application) UpdateApplicationIncome(id int, income float64) (bool, error) {
 	return a.applicationService.UpdateApplicationIncome(id, income)
 }
 
