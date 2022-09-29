@@ -1,9 +1,9 @@
 <template>
   <PageWrapper>
     <Header />
-    <div class="grid grid-cols-3 gap-8 mt-3 mx-3 text-center">
+    <div class="grid grid-cols-3 gap-8 mx-3 mt-3 text-center">
       <router-link
-        to="/applications/new"
+        to="/applications/select"
         class="rounded-[20px] h-full border-2 border-[#043CC1] border-dashed flex items-center justify-center cursor-pointer transition duration-500 hover:scale-110 min-h-[300px]"
       >
         <SvgIcon class="text-primary rounded-[50%]" size="60" name="add" />
