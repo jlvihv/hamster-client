@@ -24,6 +24,15 @@ const applications: AppRouteModule = {
       },
     },
     {
+      path: 'select',
+      name: 'SelectApplication',
+      component: () => import('/@/views/modules/applications/application-select/index.vue'),
+      meta: {
+        title: t('routes.applications.selectApplication'),
+        hideMenu: true,
+      },
+    },
+    {
       path: 'new',
       name: 'AddApplication',
       component: () => import('/@/views/modules/applications/application-add/index.vue'),

@@ -5,4 +5,5 @@ export default {
   showApplication: 'View Application',
   deployApplication: 'Deploy Application',
   applicationCli: 'Application Cli',
+  selectApplication: 'Select Application',
 };

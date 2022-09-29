@@ -45,7 +45,7 @@
             </div>
           </div>
         </template>
-        <SvgIcon class="cursor-pointer border-none" color="#858B92" size="20" name="people" />
+        <SvgIcon class="border-none cursor-pointer" color="#858B92" size="20" name="people" />
       </Popover>
       <Popover
         placement="bottomRight"
@@ -142,7 +142,7 @@
   };
 
   const onBack = async () => {
-    router.push({ path: '/applications/index' });
+    router.go(-1);
   };
 
   onMounted(async () => {
