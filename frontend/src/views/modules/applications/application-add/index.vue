@@ -132,6 +132,7 @@
     try {
       createLoading.value = true;
       const params = toRaw(formData);
+      params['serviceType'] = blockchain;
       params['leaseTerm'] = parseInt(params['leaseTerm']);
       params['stakingAmount'] = parseInt(params['stakingAmount']);
       const { id } = await AddApplication(params);

@@ -52,7 +52,10 @@ func (s *ServiceImpl) initP2pClient(port int, privateKey string) (*P2pClient, er
 	}
 	meta, _ := api.RPC.State.GetMetadataLatest()
 	key, err := types.CreateStorageKey(meta, "Gateway", "Gateways")
-	api.RPC.State.GetStorageLatest(key, &nodes)
+	ok, err := api.RPC.State.GetStorageLatest(key, &nodes)
+	if !ok || err != nil || len(nodes) == 0 {
+		nodes = DEFAULT_IPFS_PEERS
+	}
 	host, dht, err := MakeRoutedHost(port, privateKey, nodes)
 	if err != nil {
 		return nil, err

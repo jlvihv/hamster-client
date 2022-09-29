@@ -18,8 +18,19 @@ type GraphDeployParameter struct {
 	ApplicationID   uint                    `json:"applicationId"` //application id
 }
 
+type EthereumDeployParam struct {
+	ID            uint                    `json:"id"`
+	CreatedAt     time.Time               `json:"createdAt"`
+	UpdatedAt     time.Time               `json:"updatedAt"`
+	Network       string                  `json:"network"`       //rinkbey network or mainnet network
+	LeaseTerm     int                     `json:"leaseTerm"`     //
+	Application   application.Application `json:"application"`   //application entity
+	ApplicationID uint                    `json:"applicationId"` //application id
+}
+
 type AddParam struct {
-	Name            string `json:"name"`           //apply name
+	Name            string `json:"name"` //apply name
+	ServiceType     string `json:"serviceType"`
 	SelectNodeType  string `json:"selectNodeType"` //apply plugin
 	LeaseTerm       int    `json:"leaseTerm"`
 	ThegraphIndexer string `json:"thegraphIndexer"` // mnemonic

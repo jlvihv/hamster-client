@@ -27,37 +27,51 @@ type ServiceImpl struct {
 	keyStorageService  keystorage.Service
 	accountService     account.Service
 	applicationService application.Service
-	p2pServer          p2p.Service
+	p2pService         p2p.Service
 	deployService      deploy.Service
 	walletService      wallet.Service
 	queueService       queue2.Service
 }
 
-func NewServiceImpl(ctx context.Context, db *gorm.DB, keyStorageService keystorage.Service, accountService account.Service, applicationService application.Service, p2pServer p2p.Service, deployService deploy.Service, walletService wallet.Service, queueService queue2.Service) ServiceImpl {
-	return ServiceImpl{ctx, db, keyStorageService, accountService, applicationService, p2pServer, deployService, walletService, queueService}
+type ServiceDeploySaveService interface {
+	saveDeployParam(appData application.Application, paramData interface{}, tx *gorm.DB) error
+	saveJsonParam(id string, paramData interface{}) error
+	deployJob(appData application.Application)
 }
 
-func (g *ServiceImpl) SaveGraphDeployParameterAndApply(addData AddParam) (AddApplicationVo, error) {
+func NewServiceImpl(ctx context.Context, db *gorm.DB, keyStorageService keystorage.Service, accountService account.Service, applicationService application.Service, p2pService p2p.Service, deployService deploy.Service, walletService wallet.Service, queueService queue2.Service) ServiceImpl {
+	return ServiceImpl{ctx, db, keyStorageService, accountService, applicationService, p2pService, deployService, walletService, queueService}
+}
+
+func (g *ServiceImpl) SaveGraphDeployParameterAndApply(addParam AddParam) (AddApplicationVo, error) {
+
+	var saveService ServiceDeploySaveService
+	switch addParam.ServiceType {
+	case application.TYPE_THEGRAPH:
+		saveService = &ThegraphDeploySaveServiceImpl{*g}
+		break
+	case application.TYPE_ETHEREUM:
+		saveService = &CommonDeploySaveServiceImpl{*g, 3}
+		break
+	default:
+		return AddApplicationVo{}, errors.New("Unsupport deploy type!")
+	}
+
 	var applyData application.Application
-	var deployData GraphDeployParameter
 	var applicationVo AddApplicationVo
 	err := g.db.Transaction(func(tx *gorm.DB) error {
-		if err := tx.Where("name=?", addData.Name).First(&applyData).Error; err != gorm.ErrRecordNotFound {
-			return errors.New(fmt.Sprintf("application:%s already exists", addData.Name))
+		if err := tx.Where("name=?", addParam.Name).First(&applyData).Error; err != gorm.ErrRecordNotFound {
+			return errors.New(fmt.Sprintf("application:%s already exists", addParam.Name))
 		}
-		applyData.Name = addData.Name
-		applyData.SelectNodeType = addData.SelectNodeType
-		applyData.LeaseTerm = addData.LeaseTerm
+		applyData.Name = addParam.Name
+		applyData.ServiceType = addParam.ServiceType
+		applyData.SelectNodeType = addParam.SelectNodeType
+		applyData.LeaseTerm = addParam.LeaseTerm
 		applyData.Status = application.Deploying
 		if err := tx.Create(&applyData).Error; err != nil {
 			return err
 		}
-		deployData.Application = applyData
-		deployData.LeaseTerm = addData.LeaseTerm
-		deployData.ThegraphIndexer = addData.ThegraphIndexer
-		deployData.StakingAmount = addData.StakingAmount
-		deployData.ApplicationID = applyData.ID
-		if err := tx.Create(&deployData).Error; err != nil {
+		if err := saveService.saveDeployParam(applyData, addParam, tx); err != nil {
 			return err
 		}
 		return nil
@@ -66,29 +80,15 @@ func (g *ServiceImpl) SaveGraphDeployParameterAndApply(addData AddParam) (AddApp
 		applicationVo.Result = false
 		return applicationVo, err
 	}
-	var deploymentData deploy.DeployParameter
-	pluginDeployInfo := config.PluginMap[addData.SelectNodeType]
-	deploymentData.Initialization.AccountMnemonic = addData.ThegraphIndexer
-	deploymentData.Initialization.LeaseTerm = addData.LeaseTerm
-	deploymentData.Staking.PledgeAmount = addData.StakingAmount
-	deploymentData.Deployment.NodeEthereumUrl = pluginDeployInfo.EthNetwork
-	deploymentData.Deployment.EthereumUrl = pluginDeployInfo.EndpointUrl
-	deploymentData.Deployment.EthereumNetwork = pluginDeployInfo.EthereumNetworkName
-	deploymentData.Staking.NetworkUrl = pluginDeployInfo.EndpointUrl
-	deploymentData.Staking.Address = pluginDeployInfo.TheGraphStakingAddress
-	jsonData, err := json.Marshal(deploymentData)
+	err = saveService.saveJsonParam(strconv.Itoa(int(applyData.ID)), addParam)
 	if err != nil {
 		applicationVo.Result = false
 		return applicationVo, err
 	}
-	g.keyStorageService.Set("graph_"+strconv.Itoa(int(applyData.ID)), string(jsonData))
+
+	go saveService.deployGraphJob(applyData)
 	applicationVo.Result = true
 	applicationVo.ID = applyData.ID
-	_, err = g.accountService.GetSubstrateApi()
-	if err != nil {
-		return applicationVo, err
-	}
-	go g.deployGraphJob(int(applyData.ID), pluginDeployInfo.EndpointUrl, pluginDeployInfo.ChainId)
 	return applicationVo, nil
 }
 
@@ -96,7 +96,7 @@ func (g *ServiceImpl) DeleteGraphDeployParameterAndApply(id int) (bool, error) {
 	_ = g.queueService.StopQueue(id)
 	app, err := g.applicationService.QueryApplicationById(id)
 	// close p2p port
-	_, _ = g.p2pServer.Close(fmt.Sprintf("/p2p/%s", app.PeerId))
+	_, _ = g.p2pService.Close(fmt.Sprintf("/p2p/%s", app.PeerId))
 	if err != nil {
 		return false, err
 	}
@@ -127,32 +127,6 @@ func (g *ServiceImpl) DeleteGraphDeployParameterAndApply(id int) (bool, error) {
 	return true, nil
 }
 
-func (g *ServiceImpl) deployGraphJob(applicationId int, networkUrl string, chainId int64) {
-	stakingJob := NewGraphStakingJob(g.keyStorageService, applicationId, networkUrl, chainId)
-	var accountInfo account.Account
-	accountInfo, err := g.accountService.GetAccount()
-	if err != nil {
-		accountInfo.WsUrl = config.DefaultPolkadotNode
-	}
-	substrateApi, err := g.accountService.GetSubstrateApi()
-	if err != nil {
-		return
-	}
-	waitResourceJob, _ := NewWaitResourceJob(substrateApi, g.accountService, g.applicationService, g.p2pServer, applicationId, g.walletService)
-
-	pullJob := NewPullImageJob(g.applicationService, applicationId, g.p2pServer, g.accountService, g.walletService)
-
-	deployJob := NewServiceDeployJob(g.keyStorageService, g.deployService, applicationId, g.p2pServer, g.accountService, g.applicationService, g.walletService)
-
-	queue, err := queue2.NewQueue(applicationId, g.db, &stakingJob, waitResourceJob, &pullJob, &deployJob)
-	if err != nil {
-		fmt.Println("new queue failed,err is: ", err)
-	}
-	channel := make(chan struct{})
-	go queue.Start(channel)
-	<-channel
-}
-
 func (g *ServiceImpl) RetryDeployGraphJob(applicationId int, runNow bool) error {
 	var queue queue2.Queue
 	queue, err := queue2.GetQueue(applicationId)
@@ -169,11 +143,12 @@ func (g *ServiceImpl) RetryDeployGraphJob(applicationId int, runNow bool) error 
 		if err != nil {
 			return err
 		}
-		waitResourceJob, _ := NewWaitResourceJob(substrateApi, g.accountService, g.applicationService, g.p2pServer, applicationId, g.walletService)
+		const deployType = 0
+		waitResourceJob, _ := NewWaitResourceJob(substrateApi, g.accountService, g.applicationService, g.p2pService, applicationId, g.walletService, deployType)
 
-		pullJob := NewPullImageJob(g.applicationService, applicationId, g.p2pServer, g.accountService, g.walletService)
+		pullJob := NewPullImageJob(g.applicationService, applicationId, g.p2pService, g.accountService, g.walletService)
 
-		deployJob := NewServiceDeployJob(g.keyStorageService, g.deployService, applicationId, g.p2pServer, g.accountService, g.applicationService, g.walletService)
+		deployJob := NewServiceDeployJob(g.keyStorageService, g.deployService, applicationId, g.p2pService, g.accountService, g.applicationService, g.walletService)
 
 		queue, err = queue2.NewQueue(applicationId, g.db, &stakingJob, waitResourceJob, &pullJob, &deployJob)
 		if err != nil {
@@ -220,11 +195,12 @@ func (g *ServiceImpl) GetQueueInfo(applicationId int) (QueueInfo, error) {
 	if err != nil {
 		return QueueInfo{}, err
 	}
-	waitResourceJob, _ := NewWaitResourceJob(substrateApi, g.accountService, g.applicationService, g.p2pServer, applicationId, g.walletService)
+	const deployType = 0
+	waitResourceJob, _ := NewWaitResourceJob(substrateApi, g.accountService, g.applicationService, g.p2pService, applicationId, g.walletService, deployType)
 
-	pullJob := NewPullImageJob(g.applicationService, applicationId, g.p2pServer, g.accountService, g.walletService)
+	pullJob := NewPullImageJob(g.applicationService, applicationId, g.p2pService, g.accountService, g.walletService)
 
-	deployJob := NewServiceDeployJob(g.keyStorageService, g.deployService, applicationId, g.p2pServer, g.accountService, g.applicationService, g.walletService)
+	deployJob := NewServiceDeployJob(g.keyStorageService, g.deployService, applicationId, g.p2pService, g.accountService, g.applicationService, g.walletService)
 
 	_, err = queue2.NewQueue(applicationId, g.db, &stakingJob, waitResourceJob, &pullJob, &deployJob)
 	if err != nil {
@@ -243,7 +219,7 @@ func (g *ServiceImpl) GetQueueInfo(applicationId int) (QueueInfo, error) {
 
 func (g *ServiceImpl) GraphStart(appID int, deploymentID string) error {
 	port, peerId, err := g.getP2pPort(appID)
-	_ = g.p2pServer.LinkByProtocol(config.ProviderProtocol, port, peerId)
+	_ = g.p2pService.LinkByProtocol(config.ProviderProtocol, port, peerId)
 	if err != nil {
 		return err
 	}
@@ -266,7 +242,7 @@ func (g *ServiceImpl) GraphStart(appID int, deploymentID string) error {
 
 func (g *ServiceImpl) GraphStop(appID int, deploymentID string) error {
 	port, peerId, err := g.getP2pPort(appID)
-	_ = g.p2pServer.LinkByProtocol(config.ProviderProtocol, port, peerId)
+	_ = g.p2pService.LinkByProtocol(config.ProviderProtocol, port, peerId)
 	if err != nil {
 		return err
 	}
@@ -289,7 +265,7 @@ func (g *ServiceImpl) GraphStop(appID int, deploymentID string) error {
 
 func (g *ServiceImpl) GraphRules(appID int) ([]GraphRule, error) {
 	port, peerId, err := g.getP2pPort(appID)
-	_ = g.p2pServer.LinkByProtocol(config.ProviderProtocol, port, peerId)
+	_ = g.p2pService.LinkByProtocol(config.ProviderProtocol, port, peerId)
 
 	fmt.Println("#### p2p port : ", port)
 	if err != nil {

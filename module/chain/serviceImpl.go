@@ -21,19 +21,19 @@ type ServiceImpl struct {
 	q   queue.Queue
 }
 
-func NewServiceImpl(db *gorm.DB, app application.Service, p2p p2p.Service) ServiceImpl {
-	return ServiceImpl{
+func NewServiceImpl(db *gorm.DB, app application.Service, p2p p2p.Service) *ServiceImpl {
+	return &ServiceImpl{
 		db:  db,
 		app: app,
 		p2p: p2p,
 	}
 }
 
-func (c *ServiceImpl) getP2pForwardPort(appID int) (p2pForwardPort int, err error) {
+func (c *ServiceImpl) getP2pForwardPort(appID int) (int, error) {
 	vo, err := c.app.QueryApplicationById(appID)
 	if err != nil {
 		fmt.Println("query application by id failed, err: ", err)
-		return
+		return 0, err
 	}
 
 	fmt.Println("pull before: reForwardLink:", vo.PeerId)
@@ -44,7 +44,7 @@ func (c *ServiceImpl) getP2pForwardPort(appID int) (p2pForwardPort int, err erro
 	err = reForwardLink(c.p2p, vo.P2pForwardPort, vo.PeerId)
 	if err != nil {
 		fmt.Println("reForwardLink failed, err: ", err)
-		return
+		return 0, err
 	}
 	return vo.P2pForwardPort, nil
 }
@@ -72,10 +72,6 @@ func (c *ServiceImpl) StartQueue(appID int) error {
 	<-done
 
 	return nil
-}
-
-type QueueInfo struct {
-	Info []queue.StatusInfo `json:"info"`
 }
 
 func (c *ServiceImpl) GetQueueInfo(appID int) (QueueInfo, error) {

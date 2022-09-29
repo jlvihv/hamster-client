@@ -63,6 +63,7 @@
   import WalletImporter from './components/WalletImporter.vue';
   import doneImage from '/@/assets/images/suc.png';
   import { Form, FormItem, Select } from 'ant-design-vue';
+  import { NodeOptions } from '/@/settings/commonSetting';
 
   const { t } = useI18n();
   const { getImageURL } = useAssets();
@@ -70,9 +71,7 @@
   const route = useRoute();
   const settingStore = useSettingStore();
 
-  const nodeOptions = reactive([
-    { label: '183.66.65.207:49944', value: 'ws://183.66.65.207:49944' },
-  ]);
+  const nodeOptions = reactive(NodeOptions);
   const stepVal = ref(0);
   const hasBackButton = ref(false);
 

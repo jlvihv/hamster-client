@@ -89,6 +89,7 @@
   import { createPolkadotApi, formatBalance } from '/@/utils/polkadotUtil';
   import { createRule } from '/@/utils/formUtil';
   import { Form, Button, Select, Popover } from 'ant-design-vue';
+  import { NodeOptions } from '/@/settings/commonSetting';
 
   const { t } = useI18n();
   const router = useRouter();
@@ -124,9 +125,7 @@
   });
 
   // Form
-  const urlOptions = reactive([
-    { label: '183.66.65.207:49944', value: 'ws://183.66.65.207:49944' },
-  ]);
+  const urlOptions = reactive(NodeOptions);
 
   const formRef = ref();
   const formData = reactive({

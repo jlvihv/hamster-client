@@ -25,15 +25,12 @@ import (
 
 var (
 	DEFAULT_IPFS_PEERS = []string{
-		//"/ip4/183.66.65.247/tcp/4001/p2p/12D3KooWHPbFSqWiKgh1QzuX64otKZNfYuUu1cYRmfCWnxEqjb5k",
-		"/ip4/59.80.40.149/tcp/4001/p2p/12D3KooWSm8rYXfjbMaBkySrt1WhtHEZpqJXyqj36hPJoVkMvQfd",
-		//"/ip4/10.8.0.1/tcp/4001/p2p/12D3KooWPspserj71AYehMh69Nra7GA1QbtD9CueAXdrThiBbAxz",
+		"/ip4/59.80.30.152/tcp/4001/p2p/12D3KooWCNUrtYDkudWGJCeiP5kefZQMtmSUJynCEHCAPyNdSang",
 	}
 )
 
 const (
 	CONFIG_DEFAULT_CHAIN_API = "ws://127.0.0.1:9944"
-	//CONFIG_DEFAULT_CHAIN_API = "ws://183.66.65.207:49944"
 )
 
 // ErrNotEnoughBootstrapPeers signals that we do not have enough bootstrap

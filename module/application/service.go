@@ -103,15 +103,17 @@ func (a *ServiceImpl) UpdateApplicationP2pForwardPort(id, port int) error {
 	return result.Error
 }
 
+const DEFAULT_FORWARD_PORT = 36000
+
 func (a *ServiceImpl) QueryNextP2pPort() int {
 	var data Application
 	tx := a.db.Model(Application{})
 	result := tx.Order("p2p_forward_port desc").Limit(1).First(&data)
 	if result.Error != nil {
-		return 34000
+		return DEFAULT_FORWARD_PORT
 	}
-	if data.P2pForwardPort < 34000 {
-		return 34000
+	if data.P2pForwardPort < DEFAULT_FORWARD_PORT {
+		return DEFAULT_FORWARD_PORT
 	}
 	return data.P2pForwardPort + 1
 }

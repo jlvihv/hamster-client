@@ -20,12 +20,12 @@ type ServiceImpl struct {
 	keyStorageService  keystorage.Service
 	accountService     account.Service
 	applicationService application.Service
-	p2pServer          p2p.Service
+	p2pService         p2p.Service
 	deployService      deploy.Service
 }
 
-func NewServiceImpl(ctx context.Context, db *gorm.DB, keyStorageService keystorage.Service, accountService account.Service, applicationService application.Service, p2pServer p2p.Service, deployService deploy.Service) ServiceImpl {
-	return ServiceImpl{ctx, db, keyStorageService, accountService, applicationService, p2pServer, deployService}
+func NewServiceImpl(ctx context.Context, db *gorm.DB, keyStorageService keystorage.Service, accountService account.Service, applicationService application.Service, p2pService p2p.Service, deployService deploy.Service) ServiceImpl {
+	return ServiceImpl{ctx, db, keyStorageService, accountService, applicationService, p2pService, deployService}
 }
 
 func (c *ServiceImpl) CliLink(applicationId int) (int, error) {
@@ -41,9 +41,9 @@ func (c *ServiceImpl) CliLink(applicationId int) (int, error) {
 	if info.PeerId == "" {
 		return port, errors.New("Peerid is empty")
 	}
-	_, resultErr := c.p2pServer.GetSetting()
+	_, resultErr := c.p2pService.GetSetting()
 	if resultErr != nil {
-		err := c.p2pServer.InitSetting()
+		err := c.p2pService.InitSetting()
 		if err != nil {
 			return port, err
 		}
@@ -57,7 +57,7 @@ func (c *ServiceImpl) CliLink(applicationId int) (int, error) {
 			fmt.Println("update cli p2p forward port failed,error is: ", err)
 			return 0, err
 		}
-		err = c.p2pServer.LinkByProtocol(protocol, port, info.PeerId)
+		err = c.p2pService.LinkByProtocol(protocol, port, info.PeerId)
 		if err != nil {
 			fmt.Println("cli p2p forward link error, error is: ", err)
 			return 0, err
@@ -77,7 +77,7 @@ func (c *ServiceImpl) CliLink(applicationId int) (int, error) {
 		fmt.Println("update cli p2p forward port failed,error is: ", err)
 		return 0, err
 	}
-	err = c.p2pServer.LinkByProtocol(protocol, nextPort, info.PeerId)
+	err = c.p2pService.LinkByProtocol(protocol, nextPort, info.PeerId)
 	if err != nil {
 		fmt.Println("cli p2p forward link error, error is: ", err)
 		return 0, err
@@ -86,7 +86,7 @@ func (c *ServiceImpl) CliLink(applicationId int) (int, error) {
 }
 
 func (c *ServiceImpl) judgePortIsActive(port int, protocol string) bool {
-	links := c.p2pServer.QueryLinks(protocol)
+	links := c.p2pService.QueryLinks(protocol)
 	if len(*links) > 0 {
 		for _, value := range *links {
 			listenAddress := value.ListenAddress

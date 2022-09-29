@@ -8,13 +8,13 @@ import (
 )
 
 type P2p struct {
-	ctx       context.Context
-	p2pServer p2p.Service
+	ctx        context.Context
+	p2pService p2p.Service
 }
 
 func NewP2pApp(service p2p.Service) P2p {
 	return P2p{
-		p2pServer: service,
+		p2pService: service,
 	}
 }
 
@@ -22,7 +22,7 @@ func (s *P2p) WailsInit(ctx context.Context) error {
 	s.ctx = ctx
 	go func() {
 		for {
-			runtime.EventsEmit(s.ctx, "Links", s.p2pServer.GetLinks())
+			runtime.EventsEmit(s.ctx, "Links", s.p2pService.GetLinks())
 			time.Sleep(5 * time.Second)
 		}
 	}()
@@ -31,7 +31,7 @@ func (s *P2p) WailsInit(ctx context.Context) error {
 
 // IsP2PSetting determine whether p2p information is configured
 func (s *P2p) IsP2PSetting() bool {
-	config, err := s.p2pServer.GetSetting()
+	config, err := s.p2pService.GetSetting()
 	if err != nil {
 		return false
 	}
@@ -41,7 +41,7 @@ func (s *P2p) IsP2PSetting() bool {
 // Link p2p link
 func (s *P2p) Link(port int, peerId string) (bool, error) {
 	//make a p2p link
-	err := s.p2pServer.Link(port, peerId)
+	err := s.p2pService.Link(port, peerId)
 	if err != nil {
 		return false, err
 	}
@@ -51,19 +51,19 @@ func (s *P2p) Link(port int, peerId string) (bool, error) {
 // CloseLink close link
 func (s *P2p) CloseLink(target string) (int, error) {
 	//disconnect p2p
-	return s.p2pServer.Close(target)
+	return s.p2pService.Close(target)
 }
 
 // GetLinkStatus query p2p link status
 func (s *P2p) GetLinkStatus() *[]p2p.LinkInfo {
-	return s.p2pServer.GetLinks()
+	return s.p2pService.GetLinks()
 }
 
 // WailsShutdown close link
 func (s *P2p) WailsShutdown() {
-	_ = s.p2pServer.Destroy()
+	_ = s.p2pService.Destroy()
 }
 
 func (s *P2p) JudgeP2pReconnection() bool {
-	return s.p2pServer.JudgeP2pReconnection()
+	return s.p2pService.JudgeP2pReconnection()
 }

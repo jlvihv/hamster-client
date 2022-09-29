@@ -23,13 +23,13 @@ type ServiceImpl struct {
 	httpUtil           *utils.HttpUtil
 	db                 *gorm.DB
 	keyStorageService  keystorage.Service
-	p2pServer          p2p.Service
+	p2pService         p2p.Service
 	walletService      wallet.Service
 	applicationService application.Service
 }
 
-func NewServiceImpl(ctx context.Context, httpUtil *utils.HttpUtil, db *gorm.DB, keyStorageService *keystorage.Service, p2pServer p2p.Service, walletService wallet.Service, applicationService application.Service) ServiceImpl {
-	return ServiceImpl{ctx, httpUtil, db, *keyStorageService, p2pServer, walletService, applicationService}
+func NewServiceImpl(ctx context.Context, httpUtil *utils.HttpUtil, db *gorm.DB, keyStorageService *keystorage.Service, p2pService p2p.Service, walletService wallet.Service, applicationService application.Service) ServiceImpl {
+	return ServiceImpl{ctx, httpUtil, db, *keyStorageService, p2pService, walletService, applicationService}
 }
 
 func (s *ServiceImpl) DeployTheGraph(id int, jsonData string) (bool, error) {
@@ -223,19 +223,19 @@ func (s *ServiceImpl) queryDeployStatus(id int) error {
 }
 
 func (s *ServiceImpl) closeP2p() {
-	data := s.p2pServer.GetProviderLinks()
+	data := s.p2pService.GetProviderLinks()
 	res := *data
 	if len(res) > 0 {
 		for _, value := range res {
-			s.p2pServer.Close(value.TargetAddress)
+			s.p2pService.Close(value.TargetAddress)
 		}
 	}
 }
 
 func (s *ServiceImpl) setupP2p(peerId string) error {
-	_, resultErr := s.p2pServer.GetSetting()
+	_, resultErr := s.p2pService.GetSetting()
 	if resultErr != nil {
-		err := s.p2pServer.InitSetting()
+		err := s.p2pService.InitSetting()
 		if err != nil {
 			return err
 		}
@@ -244,7 +244,7 @@ func (s *ServiceImpl) setupP2p(peerId string) error {
 	s.closeP2p()
 	fmt.Println("p2p start")
 	fmt.Println(peerId)
-	proErr := s.p2pServer.ProLink(peerId)
+	proErr := s.p2pService.ProLink(peerId)
 	if proErr != nil {
 		runtime.LogError(s.ctx, "provider link error:"+proErr.Error())
 		return proErr

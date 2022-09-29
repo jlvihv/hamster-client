@@ -10,7 +10,7 @@ import (
 type Deploy struct {
 	ctx            context.Context
 	deployService  deploy.Service
-	p2pServer      p2p.Service
+	p2pService     p2p.Service
 	accountService account.Service
 }
 
@@ -18,7 +18,7 @@ func NewDeployApp(service deploy.Service, accountService account.Service, p2p p2
 	return Deploy{
 		deployService:  service,
 		accountService: accountService,
-		p2pServer:      p2p,
+		p2pService:     p2p,
 	}
 }
 

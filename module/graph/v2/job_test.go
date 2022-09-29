@@ -39,7 +39,7 @@ func TestDeploy(t *testing.T) {
 	httpUtil := utils.NewHttp()
 	accountService := account.NewServiceImpl(ctx, db, httpUtil)
 	applicationService := application.NewServiceImpl(ctx, db)
-	p2pService := p2p.NewServiceImpl(ctx, db, &applicationService)
+	p2pService := p2p.NewServiceImpl(ctx, db, &accountService)
 	keyStorageService := keystorage.NewServiceImpl(ctx, db)
 	walletService := wallet.NewServiceImpl(ctx, db)
 	deployService := deploy.NewServiceImpl(ctx, httpUtil, db, &keyStorageService, &p2pService, &walletService, &applicationService)
@@ -122,11 +122,26 @@ func getGraphParamService() ServiceImpl {
 	httpUtil := utils.NewHttp()
 	accountService := account.NewServiceImpl(ctx, db, httpUtil)
 	applicationService := application.NewServiceImpl(ctx, db)
-	p2pService := p2p.NewServiceImpl(ctx, db, &applicationService)
+	p2pService := p2p.NewServiceImpl(ctx, db, &accountService)
 	keyStorageService := keystorage.NewServiceImpl(ctx, db)
 	walletService := wallet.NewServiceImpl(ctx, db)
 	deployService := deploy.NewServiceImpl(ctx, httpUtil, db, &keyStorageService, &p2pService, &walletService, &applicationService)
 	queueService := queue2.NewServiceImpl()
 	graphParamService := NewServiceImpl(ctx, db, keyStorageService, &accountService, &applicationService, &p2pService, &deployService, &walletService, queueService)
 	return graphParamService
+}
+
+func TestHttp(t *testing.T) {
+	url := fmt.Sprintf("http://localhost:%d/version", 8888)
+	fmt.Println("测试 api 连通性:", url)
+	req := utils.NewHttp().NewRequest()
+	resp, err := req.Get(url)
+
+	fmt.Println("连通性结果： ", err != nil)
+
+	fmt.Println(string(resp.Body()))
+
+	if err != nil {
+		panic(err)
+	}
 }

@@ -130,6 +130,7 @@ type WaitResourceJob struct {
 	p2pService         p2p.Service
 	applicationId      int
 	walletService      wallet.Service
+	deployType         int
 	bond               bool
 }
 
@@ -211,25 +212,28 @@ func (j *WaitResourceJob) Run(sc chan queue.StatusInfo) (queue.StatusInfo, error
 				}
 
 				// check http is Ok
+
 				url := fmt.Sprintf("http://localhost:%d/version", port)
+				fmt.Println("测试 api 连通性:", url)
 				req := utils.NewHttp().NewRequest()
-				resp, err := req.Get(url)
-				if err != nil {
+				resp, httperr := req.Get(url)
+				fmt.Println("连通性结果： ", httperr == nil)
+				if httperr != nil {
 					_, _ = j.p2pService.Close(fmt.Sprintf("/p2p/%s", string(val.PeerId)))
 					failSet[int(val.Index)] = "fail"
 					continue
 				}
 
 				var version VersionVo
-				err = json.Unmarshal(resp.Body(), &version)
-				if err != nil {
+				bandErr := json.Unmarshal(resp.Body(), &version)
+				if bandErr != nil {
 					_, _ = j.p2pService.Close(fmt.Sprintf("/p2p/%s", string(val.PeerId)))
 					failSet[int(val.Index)] = "fail"
 					continue
 				}
 				fmt.Println("provider version: ", version.Version)
 
-				c, err := types.NewCall(j.meta, "ResourceOrder.create_order_info", resourceIndex, types.NewU32(uint32(data.LeaseTerm)), "")
+				c, err := types.NewCall(j.meta, "ResourceOrder.create_order_info", resourceIndex, types.NewU32(uint32(data.LeaseTerm)), "", types.NewU32(uint32(j.deployType)))
 				if err != nil {
 					fmt.Println(err.Error())
 					_, _ = j.p2pService.Close(fmt.Sprintf("/p2p/%s", string(val.PeerId)))
@@ -244,6 +248,8 @@ func (j *WaitResourceJob) Run(sc chan queue.StatusInfo) (queue.StatusInfo, error
 					events = *e
 					return err
 				}, pair)
+
+				fmt.Println("watch event error : ", err)
 				if err != nil {
 					_, _ = j.p2pService.Close(fmt.Sprintf("/p2p/%s", string(val.PeerId)))
 					failSet[int(val.Index)] = "fail"
@@ -323,7 +329,7 @@ func (j *WaitResourceJob) Status() queue.StatusInfo {
 	return j.statusInfo
 }
 
-func NewWaitResourceJob(api *gsrpc.SubstrateAPI, accountService account.Service, applicationService application.Service, p2pService p2p.Service, applicationId int, walletService wallet.Service) (*WaitResourceJob, error) {
+func NewWaitResourceJob(api *gsrpc.SubstrateAPI, accountService account.Service, applicationService application.Service, p2pService p2p.Service, applicationId int, walletService wallet.Service, deployType int) (*WaitResourceJob, error) {
 
 	meta, err := api.RPC.State.GetMetadataLatest()
 	if err != nil {
@@ -338,6 +344,7 @@ func NewWaitResourceJob(api *gsrpc.SubstrateAPI, accountService account.Service,
 		p2pService:         p2pService,
 		applicationId:      applicationId,
 		walletService:      walletService,
+		deployType:         deployType,
 	}, nil
 }
 

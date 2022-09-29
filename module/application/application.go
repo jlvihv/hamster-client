@@ -7,7 +7,8 @@ import (
 
 type Application struct {
 	ID             uint           `json:"id" gorm:"primarykey"`
-	Name           string         `json:"name"`           //apply name
+	Name           string         `json:"name"` //apply name
+	ServiceType    string         `json:"serviceType"`
 	SelectNodeType string         `json:"selectNodeType"` //apply plugin
 	Status         int            `json:"status" gorm:"default 2"`
 	P2pForwardPort int            `json:"p2pForwardPort"`
@@ -33,6 +34,11 @@ const (
 	Deploying                                 //2
 	DeploymentFailed                          //3
 	Offline                                   //4
+)
+
+const (
+	TYPE_THEGRAPH string = "thegraph"
+	TYPE_ETHEREUM string = "ethereum"
 )
 
 type AddApplicationParam struct {

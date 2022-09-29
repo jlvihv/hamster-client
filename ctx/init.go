@@ -80,6 +80,7 @@ func (a *App) initDB() {
 		//&application.Application{},
 		&graph.GraphParameter{},
 		&param.GraphDeployParameter{},
+		&param.EthereumDeployParam{},
 	)
 	var user account.Account
 	result := db.First(&user)
