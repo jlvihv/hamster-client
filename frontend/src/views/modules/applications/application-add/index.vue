@@ -27,7 +27,11 @@
             :placeholder="t('applications.new.leaseTermPlaceholder')"
           />
         </FormItem>
-        <FormItem :label="t('applications.new.selectNodeType')" name="selectNodeType">
+        <FormItem
+          :label="t('applications.new.selectNodeType')"
+          name="selectNodeType"
+          v-if="blockchain === 'thegraph'"
+        >
           <Select
             :allowClear="true"
             class="input-width"
@@ -36,7 +40,11 @@
             :options="pluginConfigs"
           />
         </FormItem>
-        <FormItem :label="t('applications.new.thegraphIndexer')" name="thegraphIndexer">
+        <FormItem
+          :label="t('applications.new.thegraphIndexer')"
+          name="thegraphIndexer"
+          v-if="blockchain === 'thegraph'"
+        >
           <Input
             :allowClear="true"
             class="input-width"
@@ -44,7 +52,11 @@
             :placeholder="t('applications.new.thegraphIndexerPlaceholder')"
           />
         </FormItem>
-        <FormItem :label="t('applications.new.stakingAmount')" name="stakingAmount">
+        <FormItem
+          :label="t('applications.new.stakingAmount')"
+          name="stakingAmount"
+          v-if="blockchain === 'thegraph'"
+        >
           <Input
             :allowClear="true"
             class="input-width"
@@ -70,7 +82,7 @@
 </template>
 
 <script lang="ts" setup>
-  import { ref, reactive, computed, toRaw } from 'vue';
+  import { ref, reactive, computed, toRaw, onMounted } from 'vue';
   import { useRouter } from 'vue-router';
   import { PageWrapper } from '/@/components/Page';
   import { useI18n } from '/@/hooks/web/useI18n';
@@ -84,6 +96,24 @@
   const { t } = useI18n();
   const router = useRouter();
   const { createErrorModal } = useMessage();
+
+  const { blockchain } = router.currentRoute.value.query;
+
+  // const formCoponents = {
+  //   thegraph: ThegraphForm,
+  //   ethereum: EthereumForm,
+  //   bsc: BscForm,
+  //   polygon: PolygonForm,
+  //   avalanche: AvalancheForm,
+  //   optimism: OptimismForm,
+  //   zksync: ZksyncForm,
+  //   starkware: StarkwareForm,
+  //   near: NearForm,
+  //   aptos: AptosForm,
+  //   sui: SuiForm,
+  // };
+
+  // const BlockChainForm = formCoponents[blockchain] || ThegraphForm;
 
   const formRef = ref();
   const createLoading = ref(false);
@@ -115,6 +145,9 @@
       });
     }
   };
+  onMounted(() => {
+    console.log('blockchain', blockchain);
+  });
 </script>
 
 <style lang="less" scoped>
