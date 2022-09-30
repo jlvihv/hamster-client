@@ -6,54 +6,54 @@
       <span class="ml-2 text-3xl font-bold"> {{ t('select.selectBlockchain') }} </span>
     </div>
     <div class="flex mt-8">
-      <router-link to="/applications/new" class="block-container">
+      <router-link to="/applications/new?blockchain=thegraph" class="block-container">
         <SvgIcon size="32" name="select-graph" />
         <span>{{ t('select.graph') }}</span>
       </router-link>
-      <div class="block-container">
+      <router-link to="/applications/new?blockchain=ethereum" class="block-container">
         <SvgIcon size="32" name="select-ethereum" />
         <span>{{ t('select.ethereum') }}</span>
-      </div>
-      <div class="block-container">
+      </router-link>
+      <router-link to="/applications/new?blockchain=bsc" class="block-container">
         <SvgIcon size="32" name="select-bsc" />
         <span>{{ t('select.bsc') }}</span>
-      </div>
-      <div class="block-container">
+      </router-link>
+      <router-link to="/applications/new?blockchain=polygon" class="block-container">
         <SvgIcon size="32" name="select-polygon" />
         <span>{{ t('select.polygon') }}</span>
-      </div>
+      </router-link>
     </div>
     <div class="flex mt-6">
-      <div class="block-container">
+      <router-link to="/applications/new?blockchain=avalanche" class="block-container">
         <SvgIcon size="32" name="select-avalanche" />
         <span>{{ t('select.avalanche') }}</span>
-      </div>
-      <div class="block-container">
+      </router-link>
+      <router-link to="/applications/new?blockchain=optimism" class="block-container">
         <SvgIcon size="32" name="select-optimism" />
         <span>{{ t('select.optimism') }}</span>
-      </div>
-      <div class="block-container">
+      </router-link>
+      <router-link to="/applications/new?blockchain=zksync" class="block-container">
         <SvgIcon size="32" name="select-zksync" />
         <span>{{ t('select.zkSync') }}</span>
-      </div>
-      <div class="block-container">
+      </router-link>
+      <router-link to="/applications/new?blockchain=starkware" class="block-container">
         <SvgIcon size="32" name="select-starkware" />
         <span>{{ t('select.starkWare') }}</span>
-      </div>
+      </router-link>
     </div>
     <div class="flex mt-6">
-      <div class="block-container">
+      <router-link to="/applications/new?blockchain=near" class="block-container">
         <SvgIcon size="32" name="select-near" />
         <span>{{ t('select.near') }}</span>
-      </div>
-      <div class="block-container">
+      </router-link>
+      <router-link to="/applications/new?blockchain=aptos" class="block-container">
         <SvgIcon size="32" name="select-aptos" />
         <span>{{ t('select.aptos') }}</span>
-      </div>
-      <div class="block-container">
+      </router-link>
+      <router-link to="/applications/new?blockchain=sui" class="block-container">
         <SvgIcon size="32" name="select-sui" />
         <span>{{ t('select.sui') }}</span>
-      </div>
+      </router-link>
     </div>
   </PageWrapper>
 </template>
