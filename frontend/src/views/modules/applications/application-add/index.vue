@@ -2,7 +2,7 @@
   <PageWrapper>
     <Header :showBack="true" />
     <div class="text-center text-[30px] font-bold mb-[40px]">
-      {{ t('applications.new.addTitle') }}
+      {{ t('applications.new.addTitle', { title: titleName }) }}
     </div>
     <div class="bg-white rounded-[20px] mx-[40px] mb-[100px] py-[40px] px-[90px]">
       <Form
@@ -98,6 +98,7 @@
   const { createErrorModal } = useMessage();
 
   const { blockchain } = router.currentRoute.value.query;
+  const titleName = ref('');
 
   // const formCoponents = {
   //   thegraph: ThegraphForm,
@@ -147,6 +148,7 @@
   };
   onMounted(() => {
     console.log('blockchain', blockchain);
+    titleName.value = blockchain?.slice(0, 1).toUpperCase() + blockchain?.slice(1);
   });
 </script>
 
