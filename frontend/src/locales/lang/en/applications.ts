@@ -132,7 +132,7 @@ export default {
     p2pReconnectionError: 'P2P reconnection failed',
   },
   new: {
-    addTitle: 'New Service',
+    addTitle: 'New {title} Service',
     name: 'Name',
     namePlaceholder: 'Enter your service name',
     leaseTerm: 'Lease Term',
