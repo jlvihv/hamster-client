@@ -24,7 +24,6 @@ func (c *ChainPullImageJob) Run(si chan queue.StatusInfo) (queue.StatusInfo, err
 	// send pull image request
 	url := fmt.Sprintf("http://localhost:%d/api/v1/chains/pullImage", 35003)
 
-	// 有 3 次重试机会
 	for i := 0; i < 3; i++ {
 		req := utils.NewHttp().NewRequest()
 		response, err := req.Get(url)
@@ -72,7 +71,6 @@ func (c *ChainStartJob) Run(si chan queue.StatusInfo) (queue.StatusInfo, error) 
 	// send pull image request
 	url := fmt.Sprintf("http://localhost:%d/api/v1/chains/start", 35003)
 
-	// 有 3 次重试机会
 	for i := 0; i < 3; i++ {
 		req := utils.NewHttp().NewRequest()
 		response, err := req.Get(url)
