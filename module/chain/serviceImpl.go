@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"hamster-client/config"
 	"hamster-client/module/application"
+	"hamster-client/module/common"
 	"hamster-client/module/p2p"
 	"hamster-client/module/queue"
 
@@ -82,4 +83,14 @@ func (c *ServiceImpl) GetQueueInfo(appID int) (QueueInfo, error) {
 	return QueueInfo{
 		Info: info,
 	}, nil
+}
+
+func (c *ServiceImpl) GetDeployParam(appId int) interface{} {
+	var deployData common.EthereumDeployParam
+	err := c.db.Table("ethereum_deploy_params").Where("application_id = ?", appId).First(&deployData).Error
+	if err != nil {
+		return nil
+	} else {
+		return deployData
+	}
 }

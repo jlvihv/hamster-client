@@ -2,6 +2,7 @@ package chain
 
 import (
 	"context"
+	"github.com/stretchr/testify/assert"
 	"hamster-client/module/account"
 	"hamster-client/module/application"
 	"hamster-client/module/graph"
@@ -46,4 +47,11 @@ func TestStartQueue(t *testing.T) {
 		panic(err)
 	}
 	time.Sleep(60 * time.Second)
+}
+
+func TestDb(t *testing.T) {
+	configPath, _ := homedir.Expand("~/.link/")
+	db, err := gorm.Open(sqlite.Open(filepath.Join(configPath, "link.db")), &gorm.Config{})
+	assert.NoError(t, err)
+	d
 }

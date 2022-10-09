@@ -37,9 +37,51 @@ const (
 )
 
 const (
-	TYPE_THEGRAPH string = "thegraph"
-	TYPE_ETHEREUM string = "ethereum"
+	VALUE_Thegraph int = iota
+	VALUE_Aptos
+	VALUE_Sui
+	VALUE_Ethereum
+	VALUE_BSC
+	VALUE_Polygon
+	VALUE_Avalanche
+	VALUE_Optimism
+	VALUE_zkSync
+	VALUE_StarkWare
+	VALUE_Near
+	VALUE_Cess
 )
+
+const (
+	TYPE_Thegraph  string = "thegraph"
+	TYPE_Aptos     string = "aptos"
+	TYPE_Sui       string = "sui"
+	TYPE_Ethereum  string = "ethereum"
+	TYPE_BSC       string = "bsc"
+	TYPE_Polygon   string = "polygon"
+	TYPE_Avalanche string = "avalanche"
+	TYPE_Optimism  string = "optimism"
+	TYPE_zkSync    string = "zksync"
+	TYPE_StarkWare string = "starkware"
+	TYPE_Near      string = "near"
+	TYPE_Cess      string = "cess"
+)
+
+func GetDeployEnumMap() map[string]int {
+	return map[string]int{
+		TYPE_Thegraph:  VALUE_Thegraph,
+		TYPE_Aptos:     VALUE_Aptos,
+		TYPE_Sui:       VALUE_Sui,
+		TYPE_Ethereum:  VALUE_Ethereum,
+		TYPE_BSC:       VALUE_BSC,
+		TYPE_Polygon:   VALUE_Polygon,
+		TYPE_Avalanche: VALUE_Avalanche,
+		TYPE_Optimism:  VALUE_Optimism,
+		TYPE_zkSync:    VALUE_zkSync,
+		TYPE_StarkWare: VALUE_StarkWare,
+		TYPE_Near:      VALUE_Near,
+		TYPE_Cess:      VALUE_Cess,
+	}
+}
 
 type AddApplicationParam struct {
 	Name           string `json:"name"`           //apply name

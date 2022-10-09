@@ -10,4 +10,5 @@ type Service interface {
 	getP2pForwardPort(appID int) (int, error)
 	StartQueue(appID int) error
 	GetQueueInfo(appID int) (QueueInfo, error)
+	GetDeployParam(appId int) interface{}
 }

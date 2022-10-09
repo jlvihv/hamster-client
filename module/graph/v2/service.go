@@ -46,14 +46,12 @@ func NewServiceImpl(ctx context.Context, db *gorm.DB, keyStorageService keystora
 func (g *ServiceImpl) SaveGraphDeployParameterAndApply(addParam AddParam) (AddApplicationVo, error) {
 
 	var saveService ServiceDeploySaveService
-	switch addParam.ServiceType {
-	case application.TYPE_THEGRAPH:
+
+	if addParam.ServiceType == application.TYPE_Thegraph {
 		saveService = &ThegraphDeploySaveServiceImpl{*g}
-		break
-	case application.TYPE_ETHEREUM:
-		saveService = &CommonDeploySaveServiceImpl{*g, 3}
-		break
-	default:
+	} else if val, isKeyExists := application.GetDeployEnumMap()[addParam.ServiceType]; isKeyExists {
+		saveService = &CommonDeploySaveServiceImpl{*g, val}
+	} else {
 		return AddApplicationVo{}, errors.New("Unsupport deploy type!")
 	}
 
@@ -86,7 +84,7 @@ func (g *ServiceImpl) SaveGraphDeployParameterAndApply(addParam AddParam) (AddAp
 		return applicationVo, err
 	}
 
-	go saveService.deployGraphJob(applyData)
+	go saveService.deployJob(applyData)
 	applicationVo.Result = true
 	applicationVo.ID = applyData.ID
 	return applicationVo, nil

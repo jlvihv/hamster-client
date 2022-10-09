@@ -10,6 +10,7 @@ import (
 	"hamster-client/app"
 	"hamster-client/module/account"
 	"hamster-client/module/application"
+	"hamster-client/module/common"
 	"hamster-client/module/deploy"
 	"hamster-client/module/graph"
 	"hamster-client/module/graph/cli"
@@ -80,7 +81,7 @@ func (a *App) initDB() {
 		//&application.Application{},
 		&graph.GraphParameter{},
 		&param.GraphDeployParameter{},
-		&param.EthereumDeployParam{},
+		&common.EthereumDeployParam{},
 	)
 	var user account.Account
 	result := db.First(&user)

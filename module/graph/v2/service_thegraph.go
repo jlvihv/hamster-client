@@ -73,6 +73,6 @@ func (g *ThegraphDeploySaveServiceImpl) saveJsonParam(id string, paramData inter
 	if err != nil {
 		return err
 	}
-	g.keyStorageService.Set(string(application.TYPE_THEGRAPH)+"_"+id, string(jsonData))
+	g.keyStorageService.Set(string(application.TYPE_Thegraph)+"_"+id, string(jsonData))
 	return nil
 }

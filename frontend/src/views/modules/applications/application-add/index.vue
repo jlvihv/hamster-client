@@ -27,6 +27,7 @@
             :placeholder="t('applications.new.leaseTermPlaceholder')"
           />
         </FormItem>
+        <!--    thegraph form start     -->
         <FormItem
           :label="t('applications.new.selectNodeType')"
           name="selectNodeType"
@@ -64,6 +65,23 @@
             :placeholder="t('applications.new.stakingAmountPlaceholder')"
           />
         </FormItem>
+        <!--    thegraph form end     -->
+
+        <!--    ethereum form start     -->
+        <FormItem
+          :label="t('applications.new.selectNodeType')"
+          name="selectNodeType"
+          v-if="blockchain === 'ethereum'"
+        >
+          <Select
+            :allowClear="true"
+            class="input-width"
+            v-model:value="formData.selectNodeType"
+            :placeholder="t('applications.new.selectNodeTypePlaceholder')"
+            :options="ethereum_network_option"
+          />
+        </FormItem>
+
         <FormItem class="text-center">
           <Button
             size="large"
@@ -90,6 +108,7 @@
   import { createRule } from '/@/utils/formUtil';
   import Header from '../index/components/Header.vue';
   import { pluginConfigs } from '/@/utils/thegraphUtil';
+  import { ethereum_network_option } from '/@/utils/ethereum';
   import { AddApplication } from '/@wails/go/app/Application';
   import { Form, FormItem, Input, Select, Button } from 'ant-design-vue';
 

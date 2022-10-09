@@ -8,6 +8,7 @@ import (
 	"hamster-client/module/account"
 	"hamster-client/module/application"
 	"hamster-client/module/chain"
+	"hamster-client/module/common"
 	"hamster-client/module/deploy"
 	queue2 "hamster-client/module/queue"
 )
@@ -18,8 +19,7 @@ type CommonDeploySaveServiceImpl struct {
 }
 
 func (s *CommonDeploySaveServiceImpl) saveDeployParam(appData application.Application, paramData interface{}, tx *gorm.DB) error {
-	var deployData EthereumDeployParam
-	deployData.Application = appData
+	var deployData common.EthereumDeployParam
 	deployData.LeaseTerm = appData.LeaseTerm
 	addData := paramData.(AddParam)
 	deployData.Network = addData.SelectNodeType
@@ -74,6 +74,6 @@ func (g *CommonDeploySaveServiceImpl) saveJsonParam(id string, paramData interfa
 	if err != nil {
 		return err
 	}
-	g.keyStorageService.Set(string(application.TYPE_THEGRAPH)+"_"+id, string(jsonData))
+	g.keyStorageService.Set(string(application.TYPE_Thegraph)+"_"+id, string(jsonData))
 	return nil
 }

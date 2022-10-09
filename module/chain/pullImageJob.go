@@ -1,6 +1,7 @@
 package chain
 
 import (
+	"encoding/json"
 	"fmt"
 	"hamster-client/module/queue"
 	"hamster-client/utils"
@@ -44,7 +45,14 @@ func (c *PullImageJob) Run(si chan queue.StatusInfo) (queue.StatusInfo, error) {
 
 	for i := 0; i < 3; i++ {
 		req := utils.NewHttp().NewRequest()
-		response, err := req.Get(url)
+		data := c.tools.GetDeployParam(c.appID)
+		json, err := json.Marshal(data)
+		if err != nil {
+			continue
+		}
+		fmt.Println("param: ", string(json))
+		req.SetBody(c.tools.GetDeployParam(c.appID))
+		response, err := req.Post(url)
 		if err != nil {
 			c.si.Error = err.Error()
 			fmt.Println(string(response.Body()))
