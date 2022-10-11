@@ -4,16 +4,13 @@ import (
 	context "context"
 	_ "embed"
 	"fmt"
-	homedir "github.com/mitchellh/go-homedir"
-	"gorm.io/driver/sqlite"
-	"gorm.io/gorm"
 	"hamster-client/app"
 	"hamster-client/module/account"
 	"hamster-client/module/application"
+	"hamster-client/module/chainmanager"
 	"hamster-client/module/common"
 	"hamster-client/module/deploy"
 	"hamster-client/module/graph/cli"
-	param "hamster-client/module/graph/v2"
 	"hamster-client/module/keystorage"
 	"hamster-client/module/p2p"
 	"hamster-client/module/queue"
@@ -22,6 +19,12 @@ import (
 	"hamster-client/utils"
 	"os"
 	"path/filepath"
+
+	homedir "github.com/mitchellh/go-homedir"
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
+
+	param "hamster-client/module/graph/v2"
 )
 
 type App struct {
@@ -39,17 +42,19 @@ type App struct {
 	QueueService            queue.Service
 	GraphDeployParamService param.Service
 	CliService              cli.Service
+	ChainManager            chainmanager.Manager
 
-	AccountApp     app.Account
-	P2pApp         app.P2p
-	ResourceApp    app.Resource
-	SettingApp     app.Setting
-	WalletApp      app.Wallet
-	DeployApp      app.Deploy
-	ApplicationApp app.Application
-	GraphApp       app.Graph
-	KeyStorageApp  app.KeyStorage
-	QueueApp       app.Queue
+	AccountApp      app.Account
+	P2pApp          app.P2p
+	ResourceApp     app.Resource
+	SettingApp      app.Setting
+	WalletApp       app.Wallet
+	DeployApp       app.Deploy
+	ApplicationApp  app.Application
+	GraphApp        app.Graph
+	KeyStorageApp   app.KeyStorage
+	QueueApp        app.Queue
+	ChainManagerApp app.ChainManager
 }
 
 func NewApp() *App {
@@ -59,9 +64,9 @@ func NewApp() *App {
 }
 
 func (a *App) init() {
-	//initialize the database
+	// initialize the database
 	a.initDB()
-	//tired of initializing http tools
+	// tired of initializing http tools
 	a.initHttp()
 }
 
@@ -112,27 +117,72 @@ func (a *App) initService() {
 	a.WalletService = &walletServiceImpl
 	keyStorageServiceImpl := keystorage.NewServiceImpl(a.ctx, a.gormDB)
 	a.KeyStorageService = &keyStorageServiceImpl
-	deployServiceImpl := deploy.NewServiceImpl(a.ctx, a.httpUtil, a.gormDB, a.KeyStorageService, a.P2pService, a.WalletService, a.ApplicationService)
+	deployServiceImpl := deploy.NewServiceImpl(
+		a.ctx,
+		a.httpUtil,
+		a.gormDB,
+		a.KeyStorageService,
+		a.P2pService,
+		a.WalletService,
+		a.ApplicationService,
+	)
 	a.DeployService = &deployServiceImpl
 	queueImpl := queue.NewServiceImpl()
 	a.QueueService = queueImpl
-	graphDeployParamServiceImpl := param.NewServiceImpl(a.ctx, a.gormDB, *a.KeyStorageService, a.AccountService, a.ApplicationService, a.P2pService, a.DeployService, a.WalletService, a.QueueService)
+	graphDeployParamServiceImpl := param.NewServiceImpl(
+		a.ctx,
+		a.gormDB,
+		*a.KeyStorageService,
+		a.AccountService,
+		a.ApplicationService,
+		a.P2pService,
+		a.DeployService,
+		a.WalletService,
+		a.QueueService,
+	)
 	a.GraphDeployParamService = &graphDeployParamServiceImpl
-	cliServiceImpl := cli.NewServiceImpl(a.ctx, a.gormDB, *a.KeyStorageService, a.AccountService, a.ApplicationService, a.P2pService, a.DeployService)
+	cliServiceImpl := cli.NewServiceImpl(
+		a.ctx,
+		a.gormDB,
+		*a.KeyStorageService,
+		a.AccountService,
+		a.ApplicationService,
+		a.P2pService,
+		a.DeployService,
+	)
 	a.CliService = &cliServiceImpl
+	a.ChainManager = chainmanager.NewManager(
+		a.gormDB,
+		a.ApplicationService,
+		a.P2pService,
+		a.AccountService,
+		a.WalletService,
+	)
 }
 
 func (a *App) initApp() {
 	a.AccountApp = app.NewAccountApp(a.AccountService)
 	a.P2pApp = app.NewP2pApp(a.P2pService)
 	a.ResourceApp = app.NewResourceApp(a.ResourceService, a.AccountService)
-	a.SettingApp = app.NewSettingApp(a.P2pService, a.AccountService, a.gormDB, *a.KeyStorageService, a.DeployService)
+	a.SettingApp = app.NewSettingApp(
+		a.P2pService,
+		a.AccountService,
+		a.gormDB,
+		*a.KeyStorageService,
+		a.DeployService,
+	)
 	a.WalletApp = app.NewWalletApp(a.WalletService)
 	a.DeployApp = app.NewDeployApp(a.DeployService, a.AccountService, a.P2pService)
-	a.ApplicationApp = app.NewApplicationApp(a.ApplicationService, a.GraphDeployParamService, a.P2pService, a.DeployService)
+	a.ApplicationApp = app.NewApplicationApp(
+		a.ApplicationService,
+		a.GraphDeployParamService,
+		a.P2pService,
+		a.DeployService,
+	)
 	a.GraphApp = app.NewGraphApp(a.CliService, a.GraphDeployParamService)
 	a.KeyStorageApp = app.NewKeyStorageApp(a.KeyStorageService)
 	a.QueueApp = app.NewQueueApp(a.QueueService)
+	a.ChainManagerApp = app.NewChainManagerApp(a.ChainManager)
 }
 
 func initConfigPath() string {
@@ -158,11 +208,11 @@ func initConfigPath() string {
 func (a *App) Startup(context context.Context) {
 	// Perform your setup here
 	a.ctx = context
-	//initialize service
+	// initialize service
 	a.initService()
-	//initialize app
+	// initialize app
 	a.initApp()
-	a.initAllQueue()
+	a.initChainQueue()
 }
 
 // DomReady is called after the front-end dom has been loaded
@@ -175,17 +225,17 @@ func (a *App) Shutdown(ctx context.Context) {
 	// Perform your teardown here
 }
 
-func (a *App) initAllQueue() {
-	fmt.Println("start all queue")
+func (a *App) initChainQueue() {
+	fmt.Println("start init chain queue")
 	list, err := a.ApplicationService.ApplicationList(0, 1000, "", application.All)
 	if err != nil {
 		fmt.Println("get ApplicationList error:", err)
 		return
 	}
-	for _, app := range list.Items {
-		err := a.GraphDeployParamService.RetryDeployGraphJob(int(app.ID), false)
+	for _, item := range list.Items {
+		err := a.ChainManagerApp.RetryStart(int(item.ID), false)
 		if err != nil {
-			fmt.Printf("init queue error: %s, app id: %d", err, app.ID)
+			fmt.Printf("init queue error: %s, app id: %d", err, item.ID)
 			continue
 		}
 	}

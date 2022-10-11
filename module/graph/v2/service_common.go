@@ -3,13 +3,16 @@ package v2
 import (
 	"encoding/json"
 	"fmt"
-	"gorm.io/gorm"
 	"hamster-client/config"
 	"hamster-client/module/account"
 	"hamster-client/module/application"
-	"hamster-client/module/chain"
+	"hamster-client/module/chainhelper"
+	"hamster-client/module/chainjob"
 	"hamster-client/module/common"
 	"hamster-client/module/deploy"
+
+	"gorm.io/gorm"
+
 	queue2 "hamster-client/module/queue"
 )
 
@@ -18,7 +21,11 @@ type CommonDeploySaveServiceImpl struct {
 	DeployType int
 }
 
-func (s *CommonDeploySaveServiceImpl) saveDeployParam(appData application.Application, paramData interface{}, tx *gorm.DB) error {
+func (s *CommonDeploySaveServiceImpl) saveDeployParam(
+	appData application.Application,
+	paramData interface{},
+	tx *gorm.DB,
+) error {
 	var deployData common.EthereumDeployParam
 	deployData.LeaseTerm = appData.LeaseTerm
 	addData := paramData.(AddParam)
@@ -29,6 +36,7 @@ func (s *CommonDeploySaveServiceImpl) saveDeployParam(appData application.Applic
 	}
 	return nil
 }
+
 func (g *CommonDeploySaveServiceImpl) deployJob(addData application.Application) {
 	applicationId := int(addData.ID)
 	var accountInfo account.Account
@@ -40,22 +48,27 @@ func (g *CommonDeploySaveServiceImpl) deployJob(addData application.Application)
 	if err != nil {
 		return
 	}
-	waitResourceJob, _ := NewWaitResourceJob(substrateApi, g.accountService, g.applicationService, g.p2pService, applicationId, g.walletService, g.DeployType)
+	waitResourceJob, _ := NewWaitResourceJob(
+		substrateApi,
+		g.accountService,
+		g.applicationService,
+		g.p2pService,
+		applicationId,
+		g.walletService,
+		g.DeployType,
+	)
 
-	var tools chain.Service
-	tools = chain.NewServiceImpl(g.db, g.applicationService, g.p2pService, func(appId int, db *gorm.DB) interface{} {
-		var deployData common.EthereumDeployParam
-		err := db.Table("ethereum_deploy_params").Where("application_id = ?", appId).First(&deployData).Error
-		if err != nil {
-			return nil
-		} else {
-			return deployData
-		}
-	})
+	helper := chainhelper.NewHelper(
+		g.db,
+		g.applicationService,
+		g.p2pService,
+		g.accountService,
+		g.walletService,
+	)
 
-	pullJob := chain.NewPullImageJob(applicationId, tools)
+	pullJob := chainjob.NewPullImageJob(applicationId, helper)
 
-	deployJob := chain.NewStartJob(applicationId, tools)
+	deployJob := chainjob.NewStartJob(applicationId, helper)
 
 	queue, err := queue2.NewQueue(applicationId, g.db, waitResourceJob, pullJob, deployJob)
 	if err != nil {

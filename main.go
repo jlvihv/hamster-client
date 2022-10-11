@@ -15,7 +15,6 @@ import (
 var assets embed.FS
 
 func main() {
-
 	app := ctx.NewApp()
 	// Create application with options
 	err := wails.Run(&options.App{
@@ -48,6 +47,7 @@ func main() {
 			&app.GraphApp,
 			&app.KeyStorageApp,
 			&app.QueueApp,
+			&app.ChainManagerApp,
 		},
 		// Windows platform specific options
 		Windows: &windows.Options{
@@ -56,7 +56,6 @@ func main() {
 			DisableWindowIcon:    false,
 		},
 	})
-
 	if err != nil {
 		log.Fatal(err)
 	}
