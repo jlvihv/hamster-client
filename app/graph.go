@@ -3,21 +3,18 @@ package app
 import (
 	"context"
 	"fmt"
-	"hamster-client/module/graph"
 	"hamster-client/module/graph/cli"
 	param "hamster-client/module/graph/v2"
 )
 
 type Graph struct {
 	ctx            context.Context
-	graphService   graph.Service
 	cliService     cli.Service
 	graphV2Service param.Service
 }
 
-func NewGraphApp(graphService graph.Service, cliService cli.Service, graphV2Service param.Service) Graph {
+func NewGraphApp(cliService cli.Service, graphV2Service param.Service) Graph {
 	return Graph{
-		graphService:   graphService,
 		cliService:     cliService,
 		graphV2Service: graphV2Service,
 	}
@@ -26,10 +23,6 @@ func NewGraphApp(graphService graph.Service, cliService cli.Service, graphV2Serv
 func (g *Graph) WailsInit(ctx context.Context) error {
 	g.ctx = ctx
 	return nil
-}
-
-func (g *Graph) QueryApplyAndParams(applicationId int) (graph.GraphParameterVo, error) {
-	return g.graphService.QueryParamByApplyId(applicationId)
 }
 
 func (g *Graph) CliLink(applicationId int) (int, error) {

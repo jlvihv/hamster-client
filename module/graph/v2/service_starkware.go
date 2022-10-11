@@ -13,23 +13,24 @@ import (
 	queue2 "hamster-client/module/queue"
 )
 
-type CommonDeploySaveServiceImpl struct {
+type StarkWareService struct {
 	ServiceImpl
 	DeployType int
 }
 
-func (s *CommonDeploySaveServiceImpl) saveDeployParam(appData application.Application, paramData interface{}, tx *gorm.DB) error {
-	var deployData common.EthereumDeployParam
+func (s *StarkWareService) saveDeployParam(appData application.Application, paramData interface{}, tx *gorm.DB) error {
+	var deployData common.StarkwareDeployParam
 	deployData.LeaseTerm = appData.LeaseTerm
 	addData := paramData.(AddParam)
 	deployData.Network = addData.SelectNodeType
 	deployData.ApplicationID = appData.ID
+	deployData.EthereumApiUrl = config.EthereumEndpointMap[appData.SelectNodeType]
 	if err := tx.Create(&deployData).Error; err != nil {
 		return err
 	}
 	return nil
 }
-func (g *CommonDeploySaveServiceImpl) deployJob(addData application.Application) {
+func (g *StarkWareService) deployJob(addData application.Application) {
 	applicationId := int(addData.ID)
 	var accountInfo account.Account
 	accountInfo, err := g.accountService.GetAccount()
@@ -44,13 +45,7 @@ func (g *CommonDeploySaveServiceImpl) deployJob(addData application.Application)
 
 	var tools chain.Service
 	tools = chain.NewServiceImpl(g.db, g.applicationService, g.p2pService, func(appId int, db *gorm.DB) interface{} {
-		var deployData common.EthereumDeployParam
-		err := db.Table("ethereum_deploy_params").Where("application_id = ?", appId).First(&deployData).Error
-		if err != nil {
-			return nil
-		} else {
-			return deployData
-		}
+		return g.getDeployParamByAppId(appId)
 	})
 
 	pullJob := chain.NewPullImageJob(applicationId, tools)
@@ -66,22 +61,28 @@ func (g *CommonDeploySaveServiceImpl) deployJob(addData application.Application)
 	<-channel
 }
 
-func (g *CommonDeploySaveServiceImpl) saveJsonParam(id string, paramData interface{}) error {
+func (g *StarkWareService) saveJsonParam(id string, paramData interface{}) error {
 	addData := paramData.(AddParam)
 	var deploymentData deploy.DeployParameter
-	pluginDeployInfo := config.PluginMap[addData.SelectNodeType]
 	deploymentData.Initialization.AccountMnemonic = addData.ThegraphIndexer
 	deploymentData.Initialization.LeaseTerm = addData.LeaseTerm
 	deploymentData.Staking.PledgeAmount = addData.StakingAmount
-	deploymentData.Deployment.NodeEthereumUrl = pluginDeployInfo.EthNetwork
-	deploymentData.Deployment.EthereumUrl = pluginDeployInfo.EndpointUrl
-	deploymentData.Deployment.EthereumNetwork = pluginDeployInfo.EthereumNetworkName
-	deploymentData.Staking.NetworkUrl = pluginDeployInfo.EndpointUrl
-	deploymentData.Staking.Address = pluginDeployInfo.TheGraphStakingAddress
+	deploymentData.Deployment.EthereumUrl = config.EthereumEndpointMap[addData.SelectNodeType]
+	deploymentData.Deployment.EthereumNetwork = addData.SelectNodeType
 	jsonData, err := json.Marshal(deploymentData)
 	if err != nil {
 		return err
 	}
 	g.keyStorageService.Set(string(application.TYPE_Thegraph)+"_"+id, string(jsonData))
 	return nil
+}
+
+func (g *StarkWareService) getDeployParamByAppId(appId int) interface{} {
+	var deployData common.StarkwareDeployParam
+	err := g.db.Table("starkware_deploy_params").Where("application_id = ?", appId).First(&deployData).Error
+	if err != nil {
+		return nil
+	} else {
+		return deployData
+	}
 }

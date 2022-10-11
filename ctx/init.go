@@ -12,7 +12,6 @@ import (
 	"hamster-client/module/application"
 	"hamster-client/module/common"
 	"hamster-client/module/deploy"
-	"hamster-client/module/graph"
 	"hamster-client/module/graph/cli"
 	param "hamster-client/module/graph/v2"
 	"hamster-client/module/keystorage"
@@ -36,7 +35,6 @@ type App struct {
 	WalletService           wallet.Service
 	DeployService           deploy.Service
 	ApplicationService      application.Service
-	GraphParamsService      graph.Service
 	KeyStorageService       *keystorage.Service
 	QueueService            queue.Service
 	GraphDeployParamService param.Service
@@ -78,10 +76,11 @@ func (a *App) initDB() {
 		&p2p.P2pConfig{},
 		&resource.Resource{},
 		&wallet.Wallet{},
-		//&application.Application{},
-		&graph.GraphParameter{},
+		&application.Application{},
+		//&graph.GraphParameter{},
 		&param.GraphDeployParameter{},
 		&common.EthereumDeployParam{},
+		&common.StarkwareDeployParam{},
 	)
 	var user account.Account
 	result := db.First(&user)
@@ -101,8 +100,6 @@ func (a *App) initHttp() {
 }
 
 func (a *App) initService() {
-	graphParamServiceImpl := graph.NewServiceImpl(a.ctx, a.gormDB, a.httpUtil)
-	a.GraphParamsService = &graphParamServiceImpl
 	accountServiceImpl := account.NewServiceImpl(a.ctx, a.gormDB, a.httpUtil)
 	a.AccountService = &accountServiceImpl
 	applicationServiceImpl := application.NewServiceImpl(a.ctx, a.gormDB)
@@ -133,7 +130,7 @@ func (a *App) initApp() {
 	a.WalletApp = app.NewWalletApp(a.WalletService)
 	a.DeployApp = app.NewDeployApp(a.DeployService, a.AccountService, a.P2pService)
 	a.ApplicationApp = app.NewApplicationApp(a.ApplicationService, a.GraphDeployParamService, a.P2pService, a.DeployService)
-	a.GraphApp = app.NewGraphApp(a.GraphParamsService, a.CliService, a.GraphDeployParamService)
+	a.GraphApp = app.NewGraphApp(a.CliService, a.GraphDeployParamService)
 	a.KeyStorageApp = app.NewKeyStorageApp(a.KeyStorageService)
 	a.QueueApp = app.NewQueueApp(a.QueueService)
 }

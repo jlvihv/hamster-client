@@ -11,7 +11,7 @@ type PluginDeployInfo struct {
 
 var PluginMap = map[string]PluginDeployInfo{
 	"thegraph_mainnet": {
-		EndpointUrl:            "mainnet:https://eth-mainnet.nodereal.io/v1/9f1a58fe4331425c971c9391a3d60c27",
+		EndpointUrl:            "https://eth-mainnet.nodereal.io/v1/9f1a58fe4331425c971c9391a3d60c27",
 		EthNetwork:             "mainnet:https://eth-mainnet.nodereal.io/v1/9f1a58fe4331425c971c9391a3d60c27",
 		EthereumNetworkName:    "mainnet",
 		TheGraphStakingAddress: "0xF55041E37E12cD407ad00CE2910B8269B01263b9",
@@ -34,4 +34,10 @@ var PluginMap = map[string]PluginDeployInfo{
 		TheGraphTokenAddress:   "0x5c946740441C12510a167B447B7dE565C20b9E3C",
 		ChainId:                5,
 	},
+}
+
+var EthereumEndpointMap = map[string]string{
+	"mainnet": "https://eth-mainnet.nodereal.io/v1/9f1a58fe4331425c971c9391a3d60c27",
+	"rinkeby": "https://rinkeby.infura.io/v3/62d7b5f33ae443e784919f1c2afe24a3",
+	"gorli":   "https://eth-goerli.g.alchemy.com/v2/IpH88zRU0Y5UZ2pbusbiBYoUmfmqzXLU",
 }

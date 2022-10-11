@@ -71,7 +71,7 @@
         <FormItem
           :label="t('applications.new.selectNodeType')"
           name="selectNodeType"
-          v-if="blockchain === 'ethereum'"
+          v-if="blockchain === 'ethereum' || blockchain === 'starkware'"
         >
           <Select
             :allowClear="true"
@@ -79,6 +79,20 @@
             v-model:value="formData.selectNodeType"
             :placeholder="t('applications.new.selectNodeTypePlaceholder')"
             :options="ethereum_network_option"
+          />
+        </FormItem>
+
+        <FormItem
+          :label="t('applications.new.selectNodeType')"
+          name="selectNodeType"
+          v-if="blockchain === 'near'"
+        >
+          <Select
+            :allowClear="true"
+            class="input-width"
+            v-model:value="formData.selectNodeType"
+            :placeholder="t('applications.new.selectNodeTypePlaceholder')"
+            :options="near_network_option"
           />
         </FormItem>
 
@@ -109,6 +123,7 @@
   import Header from '../index/components/Header.vue';
   import { pluginConfigs } from '/@/utils/thegraphUtil';
   import { ethereum_network_option } from '/@/utils/ethereum';
+  import { near_network_option } from '/@/utils/near';
   import { AddApplication } from '/@wails/go/app/Application';
   import { Form, FormItem, Input, Select, Button } from 'ant-design-vue';
 

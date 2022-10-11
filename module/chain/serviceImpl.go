@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"hamster-client/config"
 	"hamster-client/module/application"
-	"hamster-client/module/common"
 	"hamster-client/module/p2p"
 	"hamster-client/module/queue"
 
@@ -16,17 +15,19 @@ type VersionVo struct {
 }
 
 type ServiceImpl struct {
-	db  *gorm.DB
-	app application.Service
-	p2p p2p.Service
-	q   queue.Queue
+	db             *gorm.DB
+	app            application.Service
+	p2p            p2p.Service
+	q              queue.Queue
+	getDeployParam func(appId int, db *gorm.DB) interface{}
 }
 
-func NewServiceImpl(db *gorm.DB, app application.Service, p2p p2p.Service) *ServiceImpl {
+func NewServiceImpl(db *gorm.DB, app application.Service, p2p p2p.Service, getDeployParam func(appId int, db *gorm.DB) interface{}) *ServiceImpl {
 	return &ServiceImpl{
-		db:  db,
-		app: app,
-		p2p: p2p,
+		db:             db,
+		app:            app,
+		p2p:            p2p,
+		getDeployParam: getDeployParam,
 	}
 }
 
@@ -86,11 +87,11 @@ func (c *ServiceImpl) GetQueueInfo(appID int) (QueueInfo, error) {
 }
 
 func (c *ServiceImpl) GetDeployParam(appId int) interface{} {
-	var deployData common.EthereumDeployParam
-	err := c.db.Table("ethereum_deploy_params").Where("application_id = ?", appId).First(&deployData).Error
-	if err != nil {
-		return nil
-	} else {
-		return deployData
+
+	if c.getDeployParam != nil {
+		return c.getDeployParam(appId, c.db)
 	}
+
+	return nil
+
 }

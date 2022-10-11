@@ -9,7 +9,6 @@ import (
 	"hamster-client/module/account"
 	"hamster-client/module/application"
 	"hamster-client/module/deploy"
-	"hamster-client/module/graph"
 	"hamster-client/module/keystorage"
 	"hamster-client/module/p2p"
 	queue2 "hamster-client/module/queue"
@@ -33,7 +32,7 @@ func TestDeploy(t *testing.T) {
 		&resource.Resource{},
 		&wallet.Wallet{},
 		&application.Application{},
-		&graph.GraphParameter{},
+		//&graph.GraphParameter{},
 	)
 	ctx := context.Background()
 	httpUtil := utils.NewHttp()
@@ -116,7 +115,6 @@ func getGraphParamService() ServiceImpl {
 		&resource.Resource{},
 		&wallet.Wallet{},
 		&application.Application{},
-		&graph.GraphParameter{},
 	)
 	ctx := context.Background()
 	httpUtil := utils.NewHttp()
