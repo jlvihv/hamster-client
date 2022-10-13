@@ -25,7 +25,7 @@ func (s *ServiceImpl) StopQueue(id int) error {
 		return nil
 	}
 
-	err = q.(Queue).Stop()
+	err = q.Stop()
 	if err != nil {
 		return err
 	}

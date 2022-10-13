@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	log "github.com/sirupsen/logrus"
 	"hamster-client/config"
 	"hamster-client/module/chainhelper"
 	"hamster-client/module/pallet"
@@ -24,31 +25,26 @@ type WaitResourceJob struct {
 	helper     chainhelper.Helper
 	bond       bool
 	meta       *types.Metadata
+	deployType int
 }
 
-func NewWaitResourceJob(appID int, helper chainhelper.Helper) queue.Job {
+func NewWaitResourceJob(appID int, helper chainhelper.Helper, deployType int) queue.Job {
 	return &WaitResourceJob{
-		appID:  appID,
-		helper: helper,
+		appID:      appID,
+		helper:     helper,
+		deployType: deployType,
 	}
 }
 
 func (j *WaitResourceJob) InitStatus() {
-	j.si.Name = "Pull Image"
+	j.si.Name = "Wait Resource"
 	j.si.Status = queue.None
 }
 
 func (j *WaitResourceJob) Run(si chan queue.StatusInfo) (queue.StatusInfo, error) {
+	log.Info("WaitResourceJob running...")
 	j.si.Status = queue.Running
 	si <- j.si
-
-	deployType, err := j.helper.DeployType(j.appID)
-	if err != nil {
-		j.si.Status = queue.Failed
-		j.si.Error = err.Error()
-		si <- j.si
-		return j.si, err
-	}
 
 	api, err := j.helper.Account().GetSubstrateApi()
 	if err != nil {
@@ -57,6 +53,18 @@ func (j *WaitResourceJob) Run(si chan queue.StatusInfo) (queue.StatusInfo, error
 		si <- j.si
 		return j.si, err
 	}
+	log.Info("get substrate api succeed")
+
+	meta, err := api.RPC.State.GetMetadataLatest()
+	if err != nil {
+		log.Errorf("get meta data latest error: %v", err)
+		j.si.Status = queue.Failed
+		j.si.Error = err.Error()
+		si <- j.si
+		return j.si, err
+	}
+	j.meta = meta
+	log.Infof("get meta data latest succeed")
 
 	pair, err := j.helper.Wallet().GetWalletKeypair()
 	if err != nil {
@@ -71,16 +79,19 @@ func (j *WaitResourceJob) Run(si chan queue.StatusInfo) (queue.StatusInfo, error
 		si <- j.si
 		return j.si, err
 	}
+	log.Info("get wallet keypair succeed")
 
 	if !j.bond {
 		// 100 unit
 		err = pallet.Bond(api, j.meta, 100000000000000, pair)
 		if err != nil {
+			log.Errorf("bond error: %s", err.Error())
 			j.si.Status = queue.Failed
 			j.si.Error = "WALLET_LOAD_ERROR"
 			si <- j.si
 			return j.si, err
 		}
+		log.Infof("bond succeed")
 	}
 
 	for i := 0; i < 60; i++ {
@@ -98,8 +109,8 @@ func (j *WaitResourceJob) Run(si chan queue.StatusInfo) (queue.StatusInfo, error
 			si <- j.si
 			return j.si, err
 		}
-
-		fmt.Println("可用资源数：", len(mapData))
+		log.Infof("get resource list succeed")
+		log.Infof("resource number: %d", len(mapData))
 
 		failSet := make(map[int]string)
 
@@ -111,10 +122,10 @@ func (j *WaitResourceJob) Run(si chan queue.StatusInfo) (queue.StatusInfo, error
 
 			if val.Status.IsUnused {
 				resourceIndex := val.Index
-				fmt.Println("发现未使用资源，占用。资源号：", resourceIndex)
+				log.Infof("use resource: %d", resourceIndex)
 				data, err := j.helper.App().QueryApplicationById(j.appID)
 				if err != nil {
-					fmt.Println("get application failed,err is: ", err)
+					log.Errorf("get application failed: %v", err)
 					continue
 				}
 
@@ -124,24 +135,24 @@ func (j *WaitResourceJob) Run(si chan queue.StatusInfo) (queue.StatusInfo, error
 					LinkByProtocol(config.ProviderProtocol, port, string(val.PeerId))
 
 				if err != nil {
-					fmt.Println("create p2p network forward fail")
+					log.Errorf("create p2p network forward failed: %v", err)
 					failSet[int(val.Index)] = "fail"
 					_, _ = j.helper.P2p().Close(fmt.Sprintf("/p2p/%s", string(val.PeerId)))
 					continue
 				}
 
 				// check http is Ok
-
 				url := fmt.Sprintf("http://localhost:%d/version", port)
-				fmt.Println("测试 api 连通性:", url)
+				log.Infof("check http url connect: %s", url)
 				req := utils.NewHttp().NewRequest()
 				resp, httperr := req.Get(url)
-				fmt.Println("连通性结果： ", httperr == nil)
 				if httperr != nil {
+					log.Errorf("check http url connect failed: %v", httperr)
 					_, _ = j.helper.P2p().Close(fmt.Sprintf("/p2p/%s", string(val.PeerId)))
 					failSet[int(val.Index)] = "fail"
 					continue
 				}
+				log.Infof("connect succeed")
 
 				var version VersionVo
 				bandErr := json.Unmarshal(resp.Body(), &version)
@@ -150,7 +161,7 @@ func (j *WaitResourceJob) Run(si chan queue.StatusInfo) (queue.StatusInfo, error
 					failSet[int(val.Index)] = "fail"
 					continue
 				}
-				fmt.Println("provider version: ", version.Version)
+				log.Infof("provider version: %s", version.Version)
 
 				c, err := types.NewCall(
 					j.meta,
@@ -158,7 +169,7 @@ func (j *WaitResourceJob) Run(si chan queue.StatusInfo) (queue.StatusInfo, error
 					resourceIndex,
 					types.NewU32(uint32(data.LeaseTerm)),
 					"",
-					types.NewU32(uint32(deployType)),
+					types.NewU32(uint32(j.deployType)),
 				)
 				if err != nil {
 					fmt.Println(err.Error())
@@ -168,15 +179,15 @@ func (j *WaitResourceJob) Run(si chan queue.StatusInfo) (queue.StatusInfo, error
 				}
 				var events pallet.MyEventRecords
 				err = pallet.CallAndWatch(api, c, j.meta, func(header *types.Header) error {
-					fmt.Printf("资源占用成功，资源号： %d, 交易序号： %d", resourceIndex, header.Number)
+					log.Infof("use resource succeed, resource index: %d, block number: %d", resourceIndex, header.Number)
 					// get order index
 					e, err := pallet.GetEvent(api, j.meta, uint64(header.Number))
 					events = *e
 					return err
 				}, pair)
 
-				fmt.Println("watch event error : ", err)
 				if err != nil {
+					log.Errorf("watch event error: %v", err)
 					_, _ = j.helper.P2p().Close(fmt.Sprintf("/p2p/%s", string(val.PeerId)))
 					failSet[int(val.Index)] = "fail"
 					continue
@@ -237,7 +248,8 @@ func (j *WaitResourceJob) Run(si chan queue.StatusInfo) (queue.StatusInfo, error
 
 				err = j.helper.App().UpdateApplicationP2pForwardPort(j.appID, port)
 				if err != nil {
-					fmt.Println("query p2p max port fail")
+					log.Errorf("query p2p max port fail: %v", err)
+					continue
 				}
 
 				j.si.Status = queue.Succeeded
@@ -247,6 +259,7 @@ func (j *WaitResourceJob) Run(si chan queue.StatusInfo) (queue.StatusInfo, error
 			}
 		}
 
+		log.Infof("current number of retries: %d, retry after 30s...", i)
 		time.Sleep(time.Second * 30)
 
 	}

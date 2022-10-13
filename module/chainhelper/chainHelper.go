@@ -5,8 +5,9 @@ import (
 	"hamster-client/config"
 	"hamster-client/module/account"
 	"hamster-client/module/application"
-	"hamster-client/module/chain"
+	"hamster-client/module/keystorage"
 	"hamster-client/module/p2p"
+	"hamster-client/module/queue"
 	"hamster-client/module/wallet"
 
 	"gorm.io/gorm"
@@ -18,15 +19,19 @@ type ChainHelper struct {
 	p2p     p2p.Service
 	account account.Service
 	wallet  wallet.Service
+	queue   queue.Service
+	ks      keystorage.Service
 }
 
-func NewHelper(db *gorm.DB, app application.Service, p2p p2p.Service, account account.Service, wallet wallet.Service) Helper {
+func NewHelper(db *gorm.DB, app application.Service, p2p p2p.Service, account account.Service, wallet wallet.Service, queue queue.Service, ks keystorage.Service) Helper {
 	return &ChainHelper{
 		db:      db,
 		app:     app,
 		p2p:     p2p,
 		account: account,
 		wallet:  wallet,
+		queue:   queue,
+		ks:      ks,
 	}
 }
 
@@ -60,20 +65,6 @@ func (c *ChainHelper) DB() *gorm.DB {
 	return c.db
 }
 
-func (c *ChainHelper) GetChain(deployType int) (chain.Chain, error) {
-	switch deployType {
-	case 3:
-		return chain.NewEthereum(), nil
-	default:
-		return nil, fmt.Errorf("not support deploy type %d", deployType)
-	}
-}
-
-func (c *ChainHelper) DeployType(appID int) (int, error) {
-	// TODO: get deploy type
-	return 3, nil
-}
-
 func (c *ChainHelper) App() application.Service {
 	return c.app
 }
@@ -88,4 +79,12 @@ func (c *ChainHelper) Account() account.Service {
 
 func (c *ChainHelper) Wallet() wallet.Service {
 	return c.wallet
+}
+
+func (c *ChainHelper) Queue() queue.Service {
+	return c.queue
+}
+
+func (c *ChainHelper) KS() keystorage.Service {
+	return c.ks
 }

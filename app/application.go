@@ -6,6 +6,8 @@ import (
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"hamster-client/config"
 	"hamster-client/module/application"
+	"hamster-client/module/chain"
+	"hamster-client/module/chainmanager"
 	"hamster-client/module/deploy"
 	param "hamster-client/module/graph/v2"
 	"hamster-client/module/p2p"
@@ -17,14 +19,16 @@ type Application struct {
 	graphDeployParamService param.Service
 	p2pService              p2p.Service
 	deployService           deploy.Service
+	chainManager            chainmanager.Manager
 }
 
-func NewApplicationApp(service application.Service, graphDeployParamService param.Service, p2pService p2p.Service, deployService deploy.Service) Application {
+func NewApplicationApp(service application.Service, graphDeployParamService param.Service, p2pService p2p.Service, deployService deploy.Service, chainManager chainmanager.Manager) Application {
 	return Application{
 		applicationService:      service,
 		graphDeployParamService: graphDeployParamService,
 		p2pService:              p2pService,
 		deployService:           deployService,
+		chainManager:            chainManager,
 	}
 }
 
@@ -34,8 +38,8 @@ func (a *Application) WailsInit(ctx context.Context) error {
 }
 
 // AddApplication add application
-func (a *Application) AddApplication(applicationData param.AddParam) (param.AddApplicationVo, error) {
-	return a.graphDeployParamService.SaveGraphDeployParameterAndApply(applicationData)
+func (a *Application) AddApplication(applicationData chain.DeployParam) (chain.DeployResult, error) {
+	return a.chainManager.CreateAndStart(applicationData)
 }
 
 // UpdateApplication edit application

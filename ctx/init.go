@@ -38,7 +38,7 @@ type App struct {
 	WalletService           wallet.Service
 	DeployService           deploy.Service
 	ApplicationService      application.Service
-	KeyStorageService       *keystorage.Service
+	KeyStorageService       keystorage.Service
 	QueueService            queue.Service
 	GraphDeployParamService param.Service
 	CliService              cli.Service
@@ -116,12 +116,12 @@ func (a *App) initService() {
 	walletServiceImpl := wallet.NewServiceImpl(a.ctx, a.gormDB)
 	a.WalletService = &walletServiceImpl
 	keyStorageServiceImpl := keystorage.NewServiceImpl(a.ctx, a.gormDB)
-	a.KeyStorageService = &keyStorageServiceImpl
+	a.KeyStorageService = keyStorageServiceImpl
 	deployServiceImpl := deploy.NewServiceImpl(
 		a.ctx,
 		a.httpUtil,
 		a.gormDB,
-		a.KeyStorageService,
+		&a.KeyStorageService,
 		a.P2pService,
 		a.WalletService,
 		a.ApplicationService,
@@ -132,7 +132,7 @@ func (a *App) initService() {
 	graphDeployParamServiceImpl := param.NewServiceImpl(
 		a.ctx,
 		a.gormDB,
-		*a.KeyStorageService,
+		a.KeyStorageService,
 		a.AccountService,
 		a.ApplicationService,
 		a.P2pService,
@@ -144,7 +144,7 @@ func (a *App) initService() {
 	cliServiceImpl := cli.NewServiceImpl(
 		a.ctx,
 		a.gormDB,
-		*a.KeyStorageService,
+		a.KeyStorageService,
 		a.AccountService,
 		a.ApplicationService,
 		a.P2pService,
@@ -157,6 +157,8 @@ func (a *App) initService() {
 		a.P2pService,
 		a.AccountService,
 		a.WalletService,
+		a.QueueService,
+		a.KeyStorageService,
 	)
 }
 
@@ -168,7 +170,7 @@ func (a *App) initApp() {
 		a.P2pService,
 		a.AccountService,
 		a.gormDB,
-		*a.KeyStorageService,
+		a.KeyStorageService,
 		a.DeployService,
 	)
 	a.WalletApp = app.NewWalletApp(a.WalletService)
@@ -178,6 +180,7 @@ func (a *App) initApp() {
 		a.GraphDeployParamService,
 		a.P2pService,
 		a.DeployService,
+		a.ChainManager,
 	)
 	a.GraphApp = app.NewGraphApp(a.CliService, a.GraphDeployParamService)
 	a.KeyStorageApp = app.NewKeyStorageApp(a.KeyStorageService)

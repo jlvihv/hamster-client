@@ -1,7 +1,6 @@
 package chainjob
 
 import (
-	"encoding/json"
 	"fmt"
 	"hamster-client/module/chainhelper"
 	"hamster-client/module/queue"
@@ -46,24 +45,14 @@ func (j *StartJob) Run(si chan queue.StatusInfo) (queue.StatusInfo, error) {
 
 	for i := 0; i < 3; i++ {
 
-		deployType, err := j.helper.DeployType(j.appID)
-		if err != nil {
-			fmt.Printf("get deploy type error: %s", err.Error())
-		}
-
-		data, err := j.helper.GetChain(deployType)
-		if err != nil {
-			fmt.Printf("get deploy type error: %s", err.Error())
-		}
-
-		jsonStr, err := json.Marshal(data)
-		if err != nil {
-			continue
-		}
-		fmt.Println("param: ", string(jsonStr))
+		//jsonStr, err := json.Marshal(data)
+		//if err != nil {
+		//	continue
+		//}
+		//fmt.Println("param: ", string(jsonStr))
 
 		req := utils.NewHttp().NewRequest()
-		req.SetBody(data)
+		//req.SetBody(data)
 		response, err := req.Post(url)
 		if err != nil {
 			j.si.Error = err.Error()

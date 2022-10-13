@@ -1,8 +1,8 @@
 package chainjob
 
 import (
-	"encoding/json"
 	"fmt"
+	log "github.com/sirupsen/logrus"
 	"hamster-client/module/chainhelper"
 	"hamster-client/module/queue"
 	"hamster-client/utils"
@@ -11,15 +11,17 @@ import (
 
 // PullImageJob pull image job
 type PullImageJob struct {
-	appID  int
-	si     queue.StatusInfo
-	helper chainhelper.Helper
+	appID      int
+	si         queue.StatusInfo
+	helper     chainhelper.Helper
+	deployType int
 }
 
-func NewPullImageJob(appID int, helper chainhelper.Helper) queue.Job {
+func NewPullImageJob(appID int, helper chainhelper.Helper, deployType int) queue.Job {
 	return &PullImageJob{
-		appID:  appID,
-		helper: helper,
+		appID:      appID,
+		helper:     helper,
+		deployType: deployType,
 	}
 }
 
@@ -32,9 +34,12 @@ func (j *PullImageJob) Run(si chan queue.StatusInfo) (queue.StatusInfo, error) {
 	j.si.Status = queue.Running
 	si <- j.si
 
+	var err error
+
 	// get p2p forward port
 	p2pForwardPort, err := j.helper.GetP2pForwardPort(j.appID)
 	if err != nil {
+		log.Errorf("get p2p forward port error: %v", err)
 		j.si.Error = err.Error()
 		j.si.Status = queue.Failed
 		si <- j.si
@@ -46,26 +51,19 @@ func (j *PullImageJob) Run(si chan queue.StatusInfo) (queue.StatusInfo, error) {
 
 	for i := 0; i < 3; i++ {
 
-		deployType, err := j.helper.DeployType(j.appID)
-		if err != nil {
-			fmt.Printf("get deploy type error: %s", err.Error())
-		}
-
-		data, err := j.helper.GetChain(deployType)
-		if err != nil {
-			fmt.Printf("get deploy type error: %s", err.Error())
-		}
-
-		jsonStr, err := json.Marshal(data)
-		if err != nil {
-			continue
-		}
-		fmt.Println("param: ", string(jsonStr))
+		// 为什么需要传递post参数呢？忘记了，先注释掉
+		//jsonStr, err := json.Marshal(data)
+		//if err != nil {
+		//	continue
+		//}
+		//fmt.Println("param: ", string(jsonStr))
 
 		req := utils.NewHttp().NewRequest()
-		req.SetBody(data)
+		//req.SetBody(data)
 		response, err := req.Post(url)
 		if err != nil {
+			log.Errorf("send pull image request error: %v", err)
+			log.Errorf("response: %v", string(response.Body()))
 			j.si.Error = err.Error()
 			fmt.Println(string(response.Body()))
 			continue
@@ -79,13 +77,14 @@ func (j *PullImageJob) Run(si chan queue.StatusInfo) (queue.StatusInfo, error) {
 			)
 			return j.si, nil
 		} else {
+			log.Infof("pull image failed, response: %v", string(response.Body()))
 			time.Sleep(3 * time.Second)
 			continue
 		}
 	}
 
 	j.si.Status = queue.Failed
-	j.si.Error = "chain pull image failed"
+	j.si.Error = "chain pull image failed: " + err.Error()
 	si <- j.si
 	return j.si, fmt.Errorf(j.si.Error)
 }
