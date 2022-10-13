@@ -11,10 +11,10 @@ type KeyStorage struct {
 	service keystorage.Service
 }
 
-func NewKeyStorageApp(service *keystorage.Service) KeyStorage {
+func NewKeyStorageApp(service keystorage.Service) KeyStorage {
 	return KeyStorage{
 		ctx:     context.Background(),
-		service: *service,
+		service: service,
 	}
 }
 

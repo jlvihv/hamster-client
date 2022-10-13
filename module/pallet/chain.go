@@ -6,6 +6,7 @@ import (
 	gsrpc "github.com/centrifuge/go-substrate-rpc-client/v4"
 	"github.com/centrifuge/go-substrate-rpc-client/v4/signature"
 	"github.com/centrifuge/go-substrate-rpc-client/v4/types"
+	log "github.com/sirupsen/logrus"
 	"math/big"
 )
 
@@ -158,11 +159,14 @@ func CallAndWatch(api *gsrpc.SubstrateAPI, c types.Call, meta *types.Metadata, h
 }
 
 func Bond(api *gsrpc.SubstrateAPI, meta *types.Metadata, amount int64, pair signature.KeyringPair) error {
+	log.Info("bonding...")
 	c, err := types.NewCall(meta, "Market.bond", types.NewU128(*big.NewInt(amount)))
 	if err != nil {
 		fmt.Println(err.Error())
+		log.Errorf("NewCall error: %s", err.Error())
 		return err
 	}
+	log.Infof("call 成功")
 	return CallAndWatch(api, c, meta, func(header *types.Header) error {
 		fmt.Println(header.Digest)
 		return err

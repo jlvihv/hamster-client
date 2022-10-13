@@ -13,7 +13,9 @@ func NewChainManagerApp(manager chainmanager.Manager) ChainManager {
 }
 
 func (c *ChainManager) Start(appID int) error {
-	return c.manager.CreateAndStartQueue(appID)
+	//return c.manager.CreateAndStart(appID)
+	//panic("implement me")
+	return nil
 }
 
 func (c *ChainManager) GetStatusInfo(appID int) (chainmanager.QueueInfo, error) {

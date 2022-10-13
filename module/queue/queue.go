@@ -54,11 +54,14 @@ type queue struct {
 }
 
 func NewQueue(id int, db *gorm.DB, jobs ...Job) (q Queue, err error) {
+	fmt.Println("new queue:", id, jobs)
 	for i := range jobs {
 		jobs[i].InitStatus()
+		fmt.Printf("job init %v\n", jobs[i].Status())
 	}
 	if isJobDuplicate(jobs...) {
 		err = errors.New("job duplicate")
+		fmt.Println(jobs)
 		return
 	}
 	q = &queue{
