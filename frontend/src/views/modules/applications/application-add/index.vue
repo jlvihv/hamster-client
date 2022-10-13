@@ -162,23 +162,23 @@
 
   const handleSubmit = async () => {
     await formRef.value?.validate();
+    createLoading.value = true;
 
     try {
-      createLoading.value = true;
       const params = toRaw(formData);
       params['serviceType'] = blockchain;
       params['leaseTerm'] = parseInt(params['leaseTerm']);
       params['stakingAmount'] = parseInt(params['stakingAmount']);
       const { id } = await AddApplication(params);
       router.push(`/applications/${id}`);
-      createLoading.value = false;
     } catch (error: any) {
       const errorMessage = typeof error === 'string' ? error : error?.message;
-      createLoading.value = false;
       createErrorModal({
         title: t('common.errorTip'),
         content: errorMessage || t('applications.new.createFailed'),
       });
+    } finally {
+      createLoading.value = false;
     }
   };
   onMounted(() => {
