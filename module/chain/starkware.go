@@ -2,9 +2,11 @@ package chain
 
 import (
 	"encoding/json"
+	log "github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 	"hamster-client/config"
 	"hamster-client/module/application"
+	"hamster-client/module/chainjob"
 	"hamster-client/module/deploy"
 	"hamster-client/module/queue"
 	"time"
@@ -27,7 +29,11 @@ type StarkWare struct {
 }
 
 func (s *StarkWare) DeployJob(appData application.Application) error {
-	return s.common.deployJob(appData, s.DeployType)
+	createQueue, err := s.CreateQueue(appData)
+	if err != nil {
+		return err
+	}
+	return s.common.deployJobWithQueue(createQueue)
 }
 
 func (s *StarkWare) SaveDeployParam(appInfo application.Application, deployParam DeployParam, db *gorm.DB) error {
@@ -78,6 +84,17 @@ func NewStarkWare(common *Common, deployType int) Chain {
 	}
 }
 
-func (s *StarkWare) CreateQueue(appData application.Application) (queue.Queue, error) {
-	return s.common.createQueue(appData, s.DeployType)
+func (c *StarkWare) CreateQueue(appData application.Application) (queue.Queue, error) {
+	appID := int(appData.ID)
+	waitJob := chainjob.NewWaitResourceJob(appID, c.common.helper, c.DeployType)
+	deployParam := c.GetDeployParam(appID, c.common.helper.DB())
+	log.Info("starkware deployParam: ", deployParam)
+	pullJob := chainjob.NewPullImageJob(appID, c.common.helper, c.DeployType, deployParam)
+	startJob := chainjob.NewStartJob(appID, c.common.helper, deployParam)
+	q, err := queue.NewQueue(appID, c.common.helper.DB(), waitJob, pullJob, startJob)
+	if err != nil {
+		log.Errorf("new queue failed: %v", err)
+		return nil, err
+	}
+	return q, nil
 }

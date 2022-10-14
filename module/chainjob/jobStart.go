@@ -13,12 +13,14 @@ type StartJob struct {
 	appID  int
 	helper chainhelper.Helper
 	si     queue.StatusInfo
+	Param  any
 }
 
-func NewStartJob(appID int, helper chainhelper.Helper) *StartJob {
+func NewStartJob(appID int, helper chainhelper.Helper, Param any) *StartJob {
 	return &StartJob{
 		appID:  appID,
 		helper: helper,
+		Param:  Param,
 	}
 }
 
@@ -45,14 +47,8 @@ func (j *StartJob) Run(si chan queue.StatusInfo) (queue.StatusInfo, error) {
 
 	for i := 0; i < 3; i++ {
 
-		//jsonStr, err := json.Marshal(data)
-		//if err != nil {
-		//	continue
-		//}
-		//fmt.Println("param: ", string(jsonStr))
-
 		req := utils.NewHttp().NewRequest()
-		//req.SetBody(data)
+		req.SetBody(j.Param)
 		response, err := req.Post(url)
 		if err != nil {
 			j.si.Error = err.Error()

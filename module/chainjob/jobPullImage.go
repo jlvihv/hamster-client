@@ -15,13 +15,15 @@ type PullImageJob struct {
 	si         queue.StatusInfo
 	helper     chainhelper.Helper
 	deployType int
+	Param      any
 }
 
-func NewPullImageJob(appID int, helper chainhelper.Helper, deployType int) queue.Job {
+func NewPullImageJob(appID int, helper chainhelper.Helper, deployType int, Param any) queue.Job {
 	return &PullImageJob{
 		appID:      appID,
 		helper:     helper,
 		deployType: deployType,
+		Param:      Param,
 	}
 }
 
@@ -51,15 +53,9 @@ func (j *PullImageJob) Run(si chan queue.StatusInfo) (queue.StatusInfo, error) {
 
 	for i := 0; i < 3; i++ {
 
-		// 为什么需要传递post参数呢？忘记了，先注释掉
-		//jsonStr, err := json.Marshal(data)
-		//if err != nil {
-		//	continue
-		//}
-		//fmt.Println("param: ", string(jsonStr))
-
 		req := utils.NewHttp().NewRequest()
-		//req.SetBody(data)
+		req.SetBody(j.Param)
+		log.Info("pullImageJobParam: ", j.Param)
 		response, err := req.Post(url)
 		if err != nil {
 			log.Errorf("send pull image request error: %v", err)

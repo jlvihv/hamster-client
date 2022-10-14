@@ -4,17 +4,6 @@ import (
 	"time"
 )
 
-//type GraphParameter struct {
-//	gorm.Model
-//	NodeEthereumUrl string                  `json:"nodeEthereumUrl"` //graph-node eth-url
-//	EthereumUrl     string                  `json:"ethereumUrl"`     //indexer-service、indexer-agent eth-url
-//	EthereumNetwork string                  `json:"ethereumNetwork"` //eth network
-//	IndexerAddress  string                  `json:"indexerAddress"`  //indexer address
-//	Mnemonic        string                  `json:"mnemonic"`        // mnemonic
-//	Application     application.Application `json:"application"`     //application entity
-//	ApplicationId   uint                    `json:"applicationId"`   //application id
-//}
-
 type GraphParameterVo struct {
 	NodeEthereumUrl string    `json:"nodeEthereumUrl"` //graph-node eth-url
 	EthereumUrl     string    `json:"ethereumUrl"`     //indexer-service、indexer-agent eth-url
@@ -28,9 +17,3 @@ type GraphParameterVo struct {
 	CreatedAt       time.Time `json:"createdAt"`
 	UpdatedAt       time.Time `json:"updatedAt"`
 }
-
-//type Service interface {
-//	//SaveGraphParameter(data GraphParameter) (bool, error)
-//	//QueryParamByApplyId(applicationId int) (GraphParameterVo, error)
-//	//DeleteGraphAndParams(applicationId int) (bool, error)
-//}

@@ -7,6 +7,7 @@ import (
 	"github.com/centrifuge/go-substrate-rpc-client/v4/config"
 	"github.com/centrifuge/go-substrate-rpc-client/v4/signature"
 	"github.com/centrifuge/go-substrate-rpc-client/v4/types"
+	log "github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"hamster-client/utils"
 	"math/big"
@@ -158,4 +159,25 @@ func TestSimpleTransfer(t *testing.T) {
 	}
 
 	fmt.Printf("Balance transferred from Alice to Bob: %v\n", bal.String())
+}
+
+func TestGetOrder(t *testing.T) {
+
+	substrateApi, err := gsrpc.NewSubstrateAPI("ws://59.80.40.149:9944")
+	assert.NoError(t, err)
+	meta, err := substrateApi.RPC.State.GetMetadataLatest()
+	assert.NoError(t, err)
+
+	resource, err := GetResource(3, meta, substrateApi)
+	assert.NoError(t, err)
+	log.Info("Resource: ", resource)
+
+	order, err := GetOrder(types.NewU64(2), meta, substrateApi)
+	assert.NoError(t, err)
+
+	log.Info("order: ", order)
+
+	agreement, err := GetRentalAgreement(types.NewU64(1), meta, substrateApi)
+	assert.NoError(t, err)
+	log.Info("rentalAgreement: ", agreement)
 }

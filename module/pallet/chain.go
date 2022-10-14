@@ -183,7 +183,7 @@ func GetBlockNumber(api *gsrpc.SubstrateAPI) (uint64, error) {
 }
 
 func GetEvent(api *gsrpc.SubstrateAPI, meta *types.Metadata, blockNumber uint64) (*MyEventRecords, error) {
-	fmt.Println("get event: ", blockNumber)
+	log.Info("get event: ", blockNumber)
 	meta, err := api.RPC.State.GetMetadataLatest()
 	if err != nil {
 		return nil, err
@@ -206,7 +206,26 @@ func GetEvent(api *gsrpc.SubstrateAPI, meta *types.Metadata, blockNumber uint64)
 	return &events, err
 }
 
+// CancelOrder  cancel order or cancel agreement
 func CancelOrder(api *gsrpc.SubstrateAPI, meta *types.Metadata, keypair signature.KeyringPair, orderIndex int) error {
+	order, err := GetOrder(types.NewU64(uint64(orderIndex)), meta, api)
+	if err != nil {
+		return err
+	}
+
+	if order.Status.IsCanceled {
+		return nil
+	}
+
+	if order.Status.IsPending {
+		return cancelOrder(api, meta, keypair, orderIndex)
+	}
+
+	return cancelAgreement(api, meta, keypair, order)
+
+}
+
+func cancelOrder(api *gsrpc.SubstrateAPI, meta *types.Metadata, keypair signature.KeyringPair, orderIndex int) error {
 	c, err := types.NewCall(meta, "ResourceOrder.cancel_order", types.NewU64(uint64(orderIndex)))
 
 	if err != nil {
@@ -214,4 +233,74 @@ func CancelOrder(api *gsrpc.SubstrateAPI, meta *types.Metadata, keypair signatur
 	}
 
 	return CallAndWatch(api, c, meta, nil, keypair)
+}
+
+func cancelAgreement(api *gsrpc.SubstrateAPI, meta *types.Metadata, keypair signature.KeyringPair, order *ResourceOrder) error {
+	if order.AgreementIndex.IsNone() {
+		return nil
+	}
+
+	ok, agreementId := order.AgreementIndex.Unwrap()
+
+	if !ok {
+		return nil
+	}
+
+	agreement, err := GetRentalAgreement(agreementId, meta, api)
+	if err != nil {
+		return err
+	}
+
+	// check agreement status
+
+	if agreement.Status.IsUsing {
+		c, err := types.NewCall(meta, "ResourceOrder.cancel_agreement", agreementId)
+
+		if err != nil {
+			return err
+		}
+
+		return CallAndWatch(api, c, meta, nil, keypair)
+	}
+	return nil
+}
+
+func GetOrder(index types.U64, meta *types.Metadata, api *gsrpc.SubstrateAPI) (*ResourceOrder, error) {
+	bytes, err := types.Encode(index)
+	if err != nil {
+		return nil, err
+	}
+	key, err := types.CreateStorageKey(meta, "ResourceOrder", "ResourceOrders", bytes)
+
+	var order ResourceOrder
+	ok, err := api.RPC.State.GetStorageLatest(key, &order)
+	if err != nil {
+		return nil, err
+	}
+
+	if ok {
+		return &order, nil
+	} else {
+		return nil, errors.New("no resource")
+	}
+}
+
+func GetRentalAgreement(index types.U64, meta *types.Metadata, api *gsrpc.SubstrateAPI) (*RentalAgreement, error) {
+	bytes, err := types.Encode(index)
+	if err != nil {
+		return nil, err
+	}
+	key, err := types.CreateStorageKey(meta, "ResourceOrder", "RentalAgreements", bytes)
+
+	var agreement RentalAgreement
+	ok, err := api.RPC.State.GetStorageLatest(key, &agreement)
+	if err != nil {
+		return nil, err
+	}
+
+	if ok {
+		return &agreement, nil
+	} else {
+		return nil, errors.New("no resource")
+	}
 }

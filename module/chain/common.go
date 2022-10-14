@@ -29,11 +29,19 @@ func (c *Common) deployJob(appData application.Application, deployType int) erro
 	return nil
 }
 
+func (c *Common) deployJobWithQueue(q queue.Queue) error {
+	done := make(chan struct{})
+	go q.Start(done)
+	<-done
+	return nil
+}
+
 func (c *Common) createQueue(appData application.Application, deployType int) (queue.Queue, error) {
 	appID := int(appData.ID)
 	waitJob := chainjob.NewWaitResourceJob(appID, c.helper, deployType)
-	pullJob := chainjob.NewPullImageJob(appID, c.helper, deployType)
-	startJob := chainjob.NewStartJob(appID, c.helper)
+	log.Info("common deployParam: ")
+	pullJob := chainjob.NewPullImageJob(appID, c.helper, deployType, nil)
+	startJob := chainjob.NewStartJob(appID, c.helper, nil)
 	q, err := queue.NewQueue(appID, c.helper.DB(), waitJob, pullJob, startJob)
 	if err != nil {
 		log.Errorf("new queue failed: %v", err)

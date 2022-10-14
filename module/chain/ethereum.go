@@ -2,8 +2,10 @@ package chain
 
 import (
 	"encoding/json"
+	log "github.com/sirupsen/logrus"
 	"hamster-client/config"
 	"hamster-client/module/application"
+	"hamster-client/module/chainjob"
 	"hamster-client/module/deploy"
 	"hamster-client/module/queue"
 	"time"
@@ -33,11 +35,11 @@ func NewEthereum(common *Common, deployType int) Chain {
 }
 
 func (e *Ethereum) DeployJob(appData application.Application) error {
-	return e.common.deployJob(appData, e.DeployType)
-}
-
-func (e *Ethereum) CreateQueue(appData application.Application) (queue.Queue, error) {
-	return e.common.createQueue(appData, e.DeployType)
+	createQueue, err := e.CreateQueue(appData)
+	if err != nil {
+		return err
+	}
+	return e.common.deployJobWithQueue(createQueue)
 }
 
 func (e *Ethereum) GetDeployParam(appID int, db *gorm.DB) any {
@@ -57,7 +59,7 @@ func (e *Ethereum) SaveDeployParam(appInfo application.Application, deployParam 
 	//deployData := paramData.(EthereumDeployParam)
 	var deployData EthereumDeployParam
 	deployData.ApplicationID = appInfo.ID
-	//deployData.Network = paramData.(DeployParam).Network
+	deployData.Network = deployParam.SelectNodeType
 	deployData.LeaseTerm = deployParam.LeaseTerm
 	err := db.Table("ethereum_deploy_params").Create(&deployData).Error
 	return err
@@ -79,4 +81,19 @@ func (e *Ethereum) SaveJsonParam(id string, deployParam DeployParam) error {
 	}
 	e.common.helper.KS().Set(string(application.TYPE_Thegraph)+"_"+id, string(jsonData))
 	return nil
+}
+
+func (e *Ethereum) CreateQueue(appData application.Application) (queue.Queue, error) {
+	appID := int(appData.ID)
+	waitJob := chainjob.NewWaitResourceJob(appID, e.common.helper, e.DeployType)
+	deployParam := e.GetDeployParam(appID, e.common.helper.DB())
+	log.Info("ethereum deployParam: ", deployParam)
+	pullJob := chainjob.NewPullImageJob(appID, e.common.helper, e.DeployType, deployParam)
+	startJob := chainjob.NewStartJob(appID, e.common.helper, deployParam)
+	q, err := queue.NewQueue(appID, e.common.helper.DB(), waitJob, pullJob, startJob)
+	if err != nil {
+		log.Errorf("new queue failed: %v", err)
+		return nil, err
+	}
+	return q, nil
 }
