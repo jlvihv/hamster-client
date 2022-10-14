@@ -183,6 +183,8 @@
   };
   onMounted(() => {
     console.log('blockchain', blockchain);
+    formData.blockchain = blockchain;
+    console.log('formData', formData);
     titleName.value = blockchain?.slice(0, 1).toUpperCase() + blockchain?.slice(1);
   });
 </script>

@@ -16,9 +16,9 @@
 <script lang="ts" setup>
   import { ref, reactive, onMounted } from 'vue';
   import { useI18n } from '/@/hooks/web/useI18n';
-  import RevenueInfo from './components/RevenueInfo.vue';
-  import Subgraph from './components/Subgraph.vue';
-  import ServiceDetails from './components/ServiceDetails.vue';
+  import RevenueInfo from './RevenueInfo.vue';
+  import Subgraph from './Subgraph.vue';
+  import ServiceDetails from './ServiceDetails.vue';
   import { QueryApplicationById } from '/@wails/go/app/Application';
   import { GetDeployInfo } from '/@wails/go/app/Deploy';
   import { Tabs, TabPane } from 'ant-design-vue';
@@ -48,7 +48,7 @@
   };
   onMounted(() => {
     QueryApplicationById(props.applicationId).then((app) => {
-      console.log(app);
+      console.log('app', app);
       Object.assign(application, app);
     });
     GetDeployInfo(props.applicationId).then((info) => {
